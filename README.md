@@ -7,7 +7,8 @@
 The offline version contains the game, styling and generated sound effects in
 one file. It uses system fonts instead of downloading Google Fonts. No server,
 account, API key, build step or package installation is needed for this file.
-Browser privacy settings can affect saving settings and best scores locally.
+Browser privacy settings can affect local saving. Use the save-file export in
+the hangar as a backup, especially when playing directly from a downloaded file.
 
 ## Bosses and upgrades
 - Choose rapid fire, chain lightning or an orbit drone before launch.
@@ -19,12 +20,48 @@ Browser privacy settings can affect saving settings and best scores locally.
 - Ten upgrade types support rapid fire, lightning, drones and dash builds.
 - The HUD shows the next boss countdown, energy and time to the next upgrade.
 
+## Campaign, skill tree and rarity
+- Six sectors unlock in sequence. Defeat all three bosses in a sector to open
+  the next. Completed sectors remain replayable.
+- Later sectors have tougher, faster enemies, shorter gaps between attacks,
+  earlier enemy combinations and advanced boss phases. Telegraph durations
+  stay unchanged so attacks can still be read and avoided.
+- First clears award 5–10 rift cores; replay wins award 2. Defeats award none.
+- The post-victory screen opens a permanent skill tree: weapons, defense and
+  mobility, with three skills per branch. Nodes have parent requirements,
+  explicit effects, level caps and increasing costs. Refund all spent cores
+  for free to try another build. Changes apply when starting a new flight;
+  a resumed flight keeps the loadout it started with.
+- In-run cards roll Common (62%), Rare (25%), Epic (10%) or Legendary (3%).
+  Quality increases actual bonuses, not only card color. Every card shows
+  its exact effect. Starter cards are Common. Boss rewards include at least
+  one Epic card; the other two are at least Rare. Legendary is still possible.
+- Fullscreen: use the header button or F. It depends on browser support and
+  permission; some embedded browsers and mobile devices may not allow it.
+
+## Saving and transferring progress
+The campaign, permanent skills, currency, records, settings, upgrade history
+and active flight are stored locally in this browser. Active flights checkpoint
+every 3 seconds and on upgrade choices, pause, focus loss and leaving the page.
+Continue restores a paused flight with a brief shield; a pending upgrade keeps
+exactly the cards and rarities previously offered. Wins are settled once.
+
+Open Bankarta or Skill tree for Exportera sparfil / Importera sparfil. Export
+creates a JSON backup; import validates it before replacing current progress.
+Move this file to another device or between the hosted and offline editions.
+There is no automatic cloud sync. Clearing browser/site data can remove local
+saves. A previous valid checkpoint is kept as a fallback. Storage failures are
+shown in the interface; export the current progress before closing if saving
+is blocked. Old best-score and sound settings are migrated automatically.
+
 ## Editable source
 - dist/index.html: page, menus and HUD
 - dist/style.css: appearance and responsive layout
 - dist/game.js: rendering, audio, keyboard/touch controls and interface
-- dist/core.mjs: game simulation, enemies, boss, collision and upgrades
+- dist/core.mjs: game simulation, enemies, bosses, rarity effects and run snapshots
+- dist/progression.mjs: campaign, skills, settlement, validation and persistence
 - tests/core.test.mjs: 24 simulation tests
+- tests/progression.test.mjs: 20 campaign, skill, rarity and persistence tests
 - tests/runtime.test.mjs: mocked DOM/canvas integration smoke test
 - tests/benchmark.mjs: simulation stress scenario, not a browser FPS test
 - hosting/hosting.json: original Sites configuration for reference
@@ -47,7 +84,7 @@ Do not directly double-click dist/index.html: its JavaScript modules need HTTP.
 Use PLAY-OFFLINE.html instead for direct opening.
 
 ## Controls
-WASD / arrow keys: move. Space: dash. P / Escape: pause.
+WASD / arrow keys: move. Space: dash. P / Escape: pause. F: fullscreen.
 On touchscreens, drag like a joystick and tap the lightning button to dash.
 Weapons fire automatically. Select upgrades with a click/tap or 1, 2, 3.
 
@@ -55,14 +92,22 @@ Weapons fire automatically. Select upgrades with a click/tap or 1, 2, 3.
 With a modern Node.js installation (tested here with Node 24), run:
 
     node tests/core.test.mjs
+    node tests/progression.test.mjs
     node tests/runtime.test.mjs
     node tests/benchmark.mjs
 
-Verification performed during development: 24 simulation tests, a mocked
-DOM/canvas integration test, syntax checks and a simulated run through all three bosses.
-Visual browser playtesting, real mobile usability, sound mixing and actual
-rendered FPS were not verified. The benchmark disables player damage and uses
-a prebuilt ship; it is not evidence of gameplay balance.
+Verification for this update: all 44 logic tests passed. Controller integration
+with DOM/canvas doubles covers keyboard and touch movement, dash, pause/blur,
+settings, all three bosses, victory/loss/restart, locked sectors, skill purchases,
+rarity rewards, autosave, reload/continue, import/export, fullscreen request/exit
+calls, resize at 390×844 and 844×390, and offline-bundle syntax.
+
+The simulation benchmark completed a win at 521.9 simulated seconds / 62,628
+updates in approximately 1.24 seconds of CPU runtime in this environment.
+This uses a prebuilt ship and invulnerability, and is not a balance or FPS test.
+Visual browser playtesting, real mobile layout/usability, native fullscreen,
+sound mixing and actual rendered FPS remain unverified: the supported browser
+control environment was unavailable. Automated integration is not visual QA.
 
 ## Hosting
 Upload the contents of dist/ to a static web host. There is no backend.

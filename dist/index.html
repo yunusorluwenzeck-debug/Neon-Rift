@@ -1,1 +1,64 @@
-<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070b15"><meta name="description" content="Överlev rymdens sista utpost. Ett neonupplyst arkadspel med uppgraderingar och en mäktig slutboss."><title>NEON RIFT · Last light</title><link rel="stylesheet" href="style.css?v=bosses-3"></head><body><canvas id="space" aria-label="Spelplan"></canvas><header><a class="brand" href="./"><span class="mark">✳</span> NEON RIFT<span class="edition">LAST LIGHT</span></a><div class="top-actions"><span class="live">SOLO ARCADE</span><button id="sound" aria-label="Slå på ljud">Ljud av</button><button id="settings">Inställningar</button><button id="pause" hidden>Paus Ⅱ</button></div></header><main id="menu"><div class="eyebrow"><i></i> EN PILOT. EN SISTA CHANS.</div><h1>OWN THE<br><span>UNKNOWN.</span></h1><p class="intro">Välj ditt startsystem. Bygg ett starkare skepp.<br>Besegra tre bossar och stäng riften.</p><button class="primary" id="start">Starta flygning <span>↗</span></button><div class="record">DITT REKORD <strong id="best">0</strong><span>POÄNG</span></div><div class="features"><div><b>01:15</b><span>TILL FÖRSTA BOSSEN</span></div><div><b>10</b><span>UPPGRADERINGAR</span></div><div><b>03</b><span>UNIKA BOSSAR</span></div></div></main><div id="hero-label"><span>INTERCEPTOR / MK. IV</span><b>Byggd för det omöjliga.</b><small>JONDRIFT &nbsp; • &nbsp; AUTOSIKTE &nbsp; • &nbsp; PULSSKÖLD</small></div><footer id="controls"><span><kbd>W A S D</kbd> / <kbd>↑ ↓ ← →</kbd> Flyg</span><span><kbd>SPACE</kbd> Dash</span><span><kbd>P</kbd> Paus</span><span class="mobile-copy">Dra som en styrspak för att flyga · Tryck ⚡ för dash</span><em>Vapnen skjuter automatiskt.</em></footer><section id="hud" hidden><div class="hud-left"><small>SKÖLD</small><div class="health"><i id="hp"></i></div><span id="hptext"></span></div><div class="hud-center"><small id="wave">VÅG 01</small><b id="timer">00:00</b><span id="nextboss"></span></div><div class="hud-right"><small>POÄNG</small><b id="score">0</b></div><div class="xp"><i id="xp"></i></div><div class="level" id="level">NIVÅ 1</div><div class="bossbar" id="bossbar" hidden><span id="bossname">VOIDKEEPER</span><div><i id="bosshp"></i></div></div><button id="dash">⚡ <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div></section><div class="modal-wrap" id="overlay" hidden><section class="modal"><div class="eyebrow" id="modalTag">FLYGNING PAUSAD</div><h2 id="modalTitle">Andas ut.</h2><p id="modalDesc"></p><div id="choices"></div><button class="primary" id="resume">Fortsätt ↗</button><button class="secondary" id="restart">Börja om</button><button class="secondary" id="home">Till huvudmenyn</button></section></div><script type="module" src="game.js?v=bosses-3"></script></body></html>
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#070b15">
+  <meta name="description" content="Bygg ditt skepp, besegra tre bossar och öppna vägen genom sex allt svårare banor. NEON RIFT sparar din resa.">
+  <title>NEON RIFT · Last light</title>
+  <link rel="stylesheet" href="style.css?v=campaign-1">
+</head>
+<body>
+  <canvas id="space" aria-label="Spelplan"></canvas>
+  <header>
+    <a class="brand" href="./"><span class="mark">✳</span> NEON RIFT<span class="edition">LAST LIGHT</span></a>
+    <div class="top-actions">
+      <button id="fullscreen" title="Fullskärm (F)">Fullskärm ⛶</button>
+      <button id="sound" aria-label="Stäng av ljudeffekter">Ljud på</button>
+      <button id="settings">Inställningar</button>
+      <button id="pause" hidden>Paus Ⅱ</button>
+    </div>
+  </header>
+  <main id="menu">
+    <div class="eyebrow"><i></i> DIN RESA GENOM RIFTEN</div>
+    <h1>OWN THE<br><span>UNKNOWN.</span></h1>
+    <p class="intro">Tre bossar står i vägen. Sex banor väntar.<br>Vinn riftkärnor. Bygg skeppet på ditt sätt.</p>
+    <div class="menu-buttons">
+      <button class="primary" id="continue" hidden>Fortsätt flygningen ↗</button>
+      <button class="primary" id="start">Spela bana 1 ↗</button>
+    </div>
+    <div class="menu-links"><button id="open-hangar">Bankarta ↗</button><button id="open-tree">Skill tree ↗</button></div>
+    <div class="campaign-summary" id="campaign-summary">0/6 banor klarade · 0 riftkärnor</div>
+    <div class="record">DITT REKORD <strong id="best">0</strong><span>POÄNG</span></div>
+    <div class="features"><div><b>06</b><span>BANOR ATT LÅSA UPP</span></div><div><b>09</b><span>PERMANENTA FÄRDIGHETER</span></div><div><b>04</b><span>RARITETER</span></div></div>
+  </main>
+  <div id="hero-label"><span>INTERCEPTOR / MK. IV</span><b>Byggd för det omöjliga.</b><small>JONDRIFT &nbsp; • &nbsp; AUTOSIKTE &nbsp; • &nbsp; PULSSKÖLD</small></div>
+  <footer id="controls"><span><kbd>W A S D</kbd> / <kbd>↑ ↓ ← →</kbd> Flyg</span><span><kbd>SPACE</kbd> Dash</span><span><kbd>P</kbd> Paus</span><span class="mobile-copy">Dra som en styrspak för att flyga · Tryck ⚡ för dash</span><em>Vapnen skjuter automatiskt.</em></footer>
+  <section id="hud" hidden>
+    <div class="hud-left"><small>SKÖLD</small><div class="health"><i id="hp"></i></div><span id="hptext"></span></div>
+    <div class="hud-center"><small id="wave">BANA 1 · VÅG 01</small><b id="timer">00:00</b><span id="nextboss"></span></div>
+    <div class="hud-right"><small>POÄNG</small><b id="score">0</b></div>
+    <div class="xp"><i id="xp"></i></div><div class="level" id="level">NIVÅ 1</div>
+    <div class="bossbar" id="bossbar" hidden><span id="bossname">VOIDKEEPER</span><div><i id="bosshp"></i></div></div>
+    <button id="dash">⚡ <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div>
+  </section>
+  <section id="hangar" class="hangar" aria-label="Hangar och progression" hidden>
+    <div class="hangar-heading"><div><div class="eyebrow">INTERCEPTOR / UTVECKLING</div><h2>Gör det till ditt.</h2><p id="hangar-stats"></p></div><div class="wallet"><span>◈</span><strong id="hangar-wallet">0 RIFTKÄRNOR</strong><small>Vinn banor. Förstärk skeppet.</small></div></div>
+    <div class="hangar-nav"><div role="tablist" aria-label="Hangar"><button id="tab-map" role="tab" aria-controls="sector-grid" aria-selected="true">01 / Bankarta</button><button id="tab-skills" role="tab" aria-controls="skill-tree" aria-selected="false">02 / Skill tree</button></div><button class="text-button" id="close-hangar">Till menyn ↗</button></div>
+    <p id="hangar-note" class="hangar-note"></p>
+    <div id="sector-grid" class="sector-grid" role="tabpanel" aria-labelledby="tab-map"></div>
+    <div id="skill-tree" class="skill-tree" role="tabpanel" aria-labelledby="tab-skills" hidden></div>
+    <button id="refund" class="text-button refund" hidden>Återställ trädet · få tillbaka alla kärnor</button>
+    <div class="save-tools"><div><b>Din resa, sparad.</b><p>Banor, skill tree, statistik, inställningar och pågående flygning sparas automatiskt på den här enheten. Exportera för en säkerhetskopia eller för att flytta till en annan enhet.</p></div><div class="save-buttons"><button id="export-save">Exportera sparfil ↓</button><button id="import-save">Importera sparfil ↑</button></div></div>
+    <input id="save-file" type="file" accept="application/json,.json" hidden>
+  </section>
+  <div id="savestatus" class="save-status" role="status" aria-live="polite">Sparas automatiskt på den här enheten</div>
+  <div class="modal-wrap" id="overlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+      <div class="eyebrow" id="modalTag">FLYGNING PAUSAD</div><h2 id="modalTitle">Andas ut.</h2><p id="modalDesc"></p><div id="choices"></div>
+      <button class="primary" id="resume">Fortsätt ↗</button><button class="secondary next-sector" id="nextsector" hidden>Spela nästa bana ↗</button><button class="secondary" id="restart">Börja om</button><button class="secondary" id="home">Till huvudmenyn</button>
+    </section>
+  </div>
+  <script type="module" src="game.js?v=campaign-1"></script>
+</body>
+</html>

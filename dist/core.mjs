@@ -1,5 +1,16 @@
+import {SECTORS,cleanSkills,bonuses} from './progression.mjs?v=campaign-1';
 // Deterministic simulation. No DOM, audio, rendering or wall-clock dependencies.
 export const STEP = 1 / 120;
+export const RARITIES = [
+  { id:'common', name:'COMMON', multiplier:1 },
+  { id:'rare', name:'RARE', multiplier:1.35 },
+  { id:'epic', name:'EPIC', multiplier:1.8 },
+  { id:'legendary', name:'LEGENDARY', multiplier:2.4 }
+];
+export function rollRarity(random, minimum = 0) {
+  const r=random(), tier=r<.62?0:r<.87?1:r<.97?2:3;
+  return RARITIES[Math.max(minimum,tier)].id;
+}
 export const BOSS_TIME = 480;
 export const BOSSES = [
   { kind: 'sentinel', name: 'SENTINEL', at: 75, hp: 1800, r: 44,
@@ -50,15 +61,73 @@ export class Game {
   constructor({ width = 1100, height = 760, random = Math.random } = {}) {
     this.w = width; this.h = height; this.random = random; this.reset(); this.state = 'menu';
   }
-  reset() {
+  reset({sector=1,skills={},runId=''}={}) {
+    this.sector=Number.isInteger(sector)&&sector>=1&&sector<=SECTORS.length?sector:1;
+    this.permanent=cleanSkills(skills);this.runId=runId;
+    this.potency=Object.fromEntries(UPGRADES.map(u=>[u.id,0]));
+    this.choiceRarities={};this.upgradeHistory=[];
     this.state = 'play'; this.time = 0; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.need = 6;
     this.id = 1; this.enemies = []; this.bullets = []; this.shots = []; this.gems = []; this.hazards = []; this.events = [];
     this.ranks = Object.fromEntries(UPGRADES.map(u => [u.id, 0])); this.choices = []; this.spawnTimer = 1.8; this.fireTimer = 0;
     this.boss = null; this.bossSpawned = false; this.bossIndex = 0; this.bossesDefeated = 0; this.intermissionUntil = 0; this.lastUpgradeAt = 0; this.upgradeReason = null; this.lastBossName = null; this.stage = -1; this.resting = false; this.hitCount = 0; this.dashes = 0;
     this.damageTaken = 0; this.lastDamage = ''; this.terminal = false; this.resumeGrace = 0; this.lastRest = -1;
-    this.player = { x: this.w / 2, y: this.h * .55, hp: 100, max: 100, r: 11, speed: 235, inv: 2,
+    this.player = { x: this.w / 2, y: this.h * .55, hp: 100+bonuses(this.permanent).shield, max: 100+bonuses(this.permanent).shield, r: 11, speed: 235*bonuses(this.permanent).speed, inv: 2,
       dx: 0, dy: -1, angle: -Math.PI / 2, dashCooldown: 0, dashTime: 0, dashId: 0 };
     this.emit('start');
+  }
+  difficulty() { return SECTORS[this.sector-1]; }
+  combatStats(ranks=this.ranks,potency=this.potency) {
+    const e=id=>Math.max(ranks[id]||0,potency[id]||0), b=bonuses(this.permanent);
+    return {
+      damage:(24+e('power')*8)*b.damage,
+      fire:Math.max(.085,.44*.83**e('rapid')*b.fire),
+      side:.55+.12*(e('split')-ranks.split),
+      chainDamage:.65+.12*(e('chain')-ranks.chain),
+      chainRange:155+15*(e('chain')-ranks.chain),
+      droneDamage:(26+e('orbit')*10)*(1+.2*(e('drone')-ranks.drone))*b.damage*b.resonance,
+      orbit:65+e('orbit')*22,
+      dashCooldown:Math.max(.65,(3-e('dash')*.45)*b.dash),
+      dashDamage:(25+e('dash')*30)*b.damage,
+      novaDamage:(10+e('nova')*35)*b.damage,
+      novaRadius:70+e('nova')*30,
+      speed:235*(1+e('magnet')*.05)*b.speed,
+      magnet:100+e('magnet')*55+b.magnet,
+      resonance:b.resonance, armor:b.armor, repair:8+b.repair
+    };
+  }
+  describeUpgrade(id,rarity=this.choiceRarities[id]||'common') {
+    const m=RARITIES.find(r=>r.id===rarity)?.multiplier||1;
+    const before=this.combatStats(), ranks={...this.ranks,[id]:this.ranks[id]+1};
+    const potency={...this.potency,[id]:Math.max(this.ranks[id],this.potency[id])+m};
+    const after=this.combatStats(ranks,potency), n=v=>Number(v.toFixed(1)), sec=v=>v.toFixed(2);
+    const desc={
+      rapid:`Skottintervall ${sec(before.fire)} → ${sec(after.fire)} s.`,
+      power:`Projektilskada ${n(before.damage)} → ${n(after.damage)}. Förstärker även kedjeblixtar.`,
+      split:`${1+this.ranks.split*2} → ${1+ranks.split*2} skott per salva. Sidoskott: ${n(after.side*100)} % skada.`,
+      chain:`Blixt var tredje träff: ${ranks.chain} extra mål. ${n(after.chainDamage*after.damage*after.resonance)} skada per mål inom ${n(after.chainRange)} m.`,
+      drone:`${this.ranks.drone} → ${ranks.drone} drönare. ${n(after.droneDamage)} skada per drönare var 0,5 s per fiende.`,
+      orbit:`Drönarradie ${n(before.orbit)} → ${n(after.orbit)} m. Drönarskada ${n(before.droneDamage)} → ${n(after.droneDamage)}.`,
+      dash:`Dashladdning ${sec(before.dashCooldown)} → ${sec(after.dashCooldown)} s. ${n(after.dashDamage)} skada per passerad fiende.`,
+      nova:`Efter dash: ${n(after.novaDamage)} skada inom ${n(after.novaRadius)} m. Rensar skott i området.`,
+      shield:`+${Math.round(20*m)} maxsköld och återställ ${Math.round(35*m)} sköld direkt.`,
+      magnet:`Energiradie ${n(before.magnet)} → ${n(after.magnet)} m. Flyghastighet ${n(before.speed)} → ${n(after.speed)} m/s.`
+    };return desc[id]||'';
+  }
+  snapshot() {
+    const data={version:1};
+    for(const key of RUN_KEYS)data[key]=this[key];
+    data.bossId=this.boss?.id??null;
+    return JSON.parse(JSON.stringify(data));
+  }
+  restore(data) {
+    if(!validSnapshot(data))return false;
+    const width=this.w,height=this.h;
+    for(const key of RUN_KEYS)this[key]=JSON.parse(JSON.stringify(data[key]));
+    this.boss=this.enemies.find(e=>e.id===data.bossId)||null;this.events=[];
+    this.resize(width,height);
+    if(this.state==='upgrade')this.emit('upgrade',{reason:this.upgradeReason});
+    else this.state='paused';
+    this.player.inv=Math.max(this.player.inv,1.2);return true;
   }
   emit(type, data = {}) { if (this.events.length < 250) this.events.push({ type, ...data }); }
   drainEvents() { const events = this.events; this.events = []; return events; }
@@ -74,11 +143,12 @@ export class Game {
   dash() {
     const p = this.player;
     if (this.state !== 'play' || p.dashCooldown > 0) return false;
-    p.dashCooldown = 3 - this.ranks.dash * .45; p.dashTime = .2; p.inv = Math.max(p.inv, .35); p.dashId++;
+    p.dashCooldown = this.combatStats().dashCooldown; p.dashTime = .2; p.inv = Math.max(p.inv, .35); p.dashId++;
     this.dashes++; this.emit('dash', { x: p.x, y: p.y }); return true;
   }
   damage(amount, source, x, y) {
     if (this.state !== 'play' || this.player.inv > 0) return false;
+    amount=Math.round(amount*this.difficulty().damage*this.combatStats().armor*10)/10;
     const p = this.player; p.hp = Math.max(0, p.hp - amount); p.inv = .85; this.damageTaken += amount; this.lastDamage = source;
     this.emit('damage', { x: p.x, y: p.y, fromX: x, fromY: y, amount, source });
     if (!p.hp) this.finish(false); return true;
@@ -106,16 +176,20 @@ export class Game {
     else for (let i = 0, n = Math.min(3, pool.length); i < n; i++) {
       this.choices.push(pool.splice(Math.floor(this.random() * pool.length), 1)[0].id);
     }
+    this.choiceRarities={};
+    for(let i=0;i<this.choices.length;i++)this.choiceRarities[this.choices[i]]=reason==='start'?'common':rollRarity(this.random,reason==='boss'?(i===0?2:1):0);
     this.state = 'upgrade'; this.emit('upgrade', { reason }); return true;
   }
   choose(id) {
     if (this.state !== 'upgrade' || !this.choices.includes(id)) return false;
     const u = UPGRADES.find(u => u.id === id);
     if (!u || this.ranks[id] >= u.max || (u.requires && !u.requires(this))) return false;
-    this.ranks[id]++;
-    if (id === 'shield') { this.player.max += 20; this.player.hp = Math.min(this.player.max, this.player.hp + 35); }
-    this.player.speed = 235 * (1 + this.ranks.magnet * .05);
-    this.choices = []; this.lastUpgradeAt = this.time; this.state = 'play'; this.player.inv = Math.max(this.player.inv, 1.2); this.emit('choice', { id }); return true;
+    const rarity=this.choiceRarities[id]||'common',multiplier=RARITIES.find(r=>r.id===rarity)?.multiplier||1;
+    this.potency[id]=Math.max(this.ranks[id],this.potency[id])+multiplier;
+    this.ranks[id]++;this.upgradeHistory.push({id,rarity,time:this.time});
+    if (id === 'shield') { this.player.max += Math.round(20*multiplier); this.player.hp = Math.min(this.player.max, this.player.hp + Math.round(35*multiplier)); }
+    this.player.speed = this.combatStats().speed;
+    this.choices = []; this.choiceRarities={}; this.lastUpgradeAt = this.time; this.state = 'play'; this.player.inv = Math.max(this.player.inv, 1.2); this.emit('choice', { id,rarity }); return true;
   }
   spawn(type, position) {
     if (this.enemies.length >= LIMITS.enemies) return null;
@@ -134,6 +208,7 @@ export class Game {
     }
     const e = { id: this.id++, type, x, y, ...t, max: t.hp, age: 0, hit: 0, mode: 'move', timer: 1.7 + this.random(),
       angle: 0, tx: x, ty: y, mark: -1, droneHit: {}, phase: 1, pattern: 0 };
+    e.hp*=this.difficulty().hp;e.max=e.hp;e.speed*=this.difficulty().speed;
     this.enemies.push(e); this.emit('spawn', { x: clamp(x, 12, this.w - 12), y: clamp(y, 12, this.h - 12), enemy: type }); return e;
   }
   hit(e, amount, chain = false) {
@@ -142,11 +217,11 @@ export class Game {
     if (chain && this.ranks.chain && ++this.hitCount % 3 === 0) {
       let prev = e; const used = new Set([e.id]);
       for (let i = 0; i < this.ranks.chain; i++) {
-        let next = null, near = 155;
+        let next = null, near = this.combatStats().chainRange;
         for (const other of this.enemies) { const d = length(other.x - prev.x, other.y - prev.y); if (other.hp > 0 && !used.has(other.id) && d < near) { near = d; next = other; } }
         if (!next) break;
         this.emit('arc', { x: prev.x, y: prev.y, tx: next.x, ty: next.y }); used.add(next.id);
-        this.hit(next, (24 + this.ranks.power * 8) * .65, false); prev = next;
+        this.hit(next, this.combatStats().damage*this.combatStats().chainDamage*this.combatStats().resonance, false); prev = next;
       }
     }
     if (e.hp > 0 || this.state !== 'play') return;
@@ -174,6 +249,7 @@ export class Game {
     else this.gems.push({ x, y, value });
   }
   shot(x, y, angle, speed = 170, damage = 12) {
+    speed*=this.difficulty().speed;
     if (this.shots.length < LIMITS.shots) this.shots.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 8, damage });
   }
   hazard(kind, x, y, angle = 0, radius = 64, warn = 1.25, live = 1.8) {
@@ -182,7 +258,7 @@ export class Game {
   }
   dronePositions() {
     return Array.from({ length: this.ranks.drone }, (_, i) => {
-      const a = this.time * 2 + i * Math.PI * 2 / this.ranks.drone, r = 65 + this.ranks.orbit * 22;
+      const a = this.time * 2 + i * Math.PI * 2 / this.ranks.drone, r = this.combatStats().orbit;
       return { x: this.player.x + Math.cos(a) * r, y: this.player.y + Math.sin(a) * r, angle: a };
     });
   }
@@ -193,14 +269,14 @@ export class Game {
     this.bossIndex++; this.bossSpawned = true; this.resting = false;
     this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
     this.boss = this.spawn('boss', { x: this.w / 2, y: -80 });
-    Object.assign(this.boss, { name: spec.name, bossKind: spec.kind, hp: spec.hp, max: spec.hp, r: spec.r, timer: 2 });
+    Object.assign(this.boss, { name: spec.name, bossKind: spec.kind, hp: spec.hp*this.difficulty().hp, max: spec.hp*this.difficulty().hp, r: spec.r, timer: 2 });
     this.player.inv = Math.max(this.player.inv, 3);
     this.emit('banner', { title: `BOSS ${this.bossIndex} / 3 · ${spec.name}`, text: spec.intro });
     return true;
   }
   updateSentinel(e, dt) {
     const p = this.player;
-    e.timer -= dt;
+    e.timer -= dt*(e.mode==='move'?this.difficulty().attack:1);
     if (e.mode === 'warn' && e.timer <= 0) {
       e.mode = 'rush'; e.timer = .65; this.emit('ram', { x: e.x, y: e.y });
     } else if (e.mode === 'rush') {
@@ -223,7 +299,7 @@ export class Game {
   updateHive(e, dt) {
     e.x += (this.w * .5 + Math.sin(this.time * .3) * this.w * .23 - e.x) * dt * .5;
     e.y += (this.h * .25 - e.y) * dt * .5;
-    e.timer -= dt;
+    e.timer -= dt*(e.mode==='move'?this.difficulty().attack:1);
     if (e.timer > 0) return;
     const p = this.player;
     if (e.pattern++ % 2 === 0) {
@@ -242,13 +318,13 @@ export class Game {
   updateBoss(e, dt) {
     const p = this.player;
     if (e.age < 3) { e.y += (Math.min(135, this.h * .22) - e.y) * dt; return; }
-    const phase = e.hp > e.max * .66 ? 1 : e.hp > e.max * .33 ? 2 : 3;
+    const phase = Math.min(3,(e.hp > e.max * .66 ? 1 : e.hp > e.max * .33 ? 2 : 3)+this.difficulty().bossPhase);
     if (phase !== e.phase) { e.phase = phase; this.emit('banner', { title: `${e.name} / FAS ${phase}`, text: e.bossKind === 'sentinel' ? 'Skottsvärmen blir bredare. Följ siktlinjerna.' : e.bossKind === 'hive' ? 'Fler minor och småskepp. Håll dig i rörelse.' : phase === 2 ? 'Klyvstrålen vaknar. Lämna den randiga banan.' : 'Kärnan är öppen. Minfält och strålar kombineras.' }); }
     if (e.bossKind === 'sentinel') { this.updateSentinel(e, dt); return; }
     if (e.bossKind === 'hive') { this.updateHive(e, dt); return; }
     e.x += (this.w * .5 + Math.sin(this.time * .3) * this.w * .27 - e.x) * dt * .45;
     e.y += (this.h * .22 + Math.cos(this.time * .4) * 45 - e.y) * dt * .4;
-    e.timer -= dt;
+    e.timer -= dt*(e.mode==='move'?this.difficulty().attack:1);
     if (e.mode === 'ring' && e.timer <= 0) {
       const count = phase === 3 ? 22 : 18;
       for (let i = 0; i < count; i++) { const a = i / count * Math.PI * 2, gap = Math.atan2(Math.sin(a - e.angle), Math.cos(a - e.angle)); if (Math.abs(gap) > .37) this.shot(e.x, e.y, a, 125 + phase * 12); }
@@ -273,7 +349,7 @@ export class Game {
   }
   update(dt, input = { x: 0, y: 0 }) {
     if (this.state !== 'play') return;
-    this.time += dt; const p = this.player;
+    this.time += dt; const p = this.player,stats=this.combatStats();
     p.inv = Math.max(0, p.inv - dt); this.resumeGrace = Math.max(0, this.resumeGrace - dt); p.dashCooldown = Math.max(0, p.dashCooldown - dt);
     let mx = input.x || 0, my = input.y || 0, magnitude = length(mx, my);
     if (magnitude > 1) { mx /= magnitude; my /= magnitude; }
@@ -283,25 +359,25 @@ export class Game {
     const speed = p.speed * (wasDash ? 3.6 : 1);
     p.x = clamp(p.x + mx * speed * dt, 16, this.w - 16); p.y = clamp(p.y + my * speed * dt, 16, this.h - 16);
     if (wasDash && this.ranks.dash) for (const e of this.enemies) {
-      if (e.mark !== p.dashId && e.age > .7 && segmentDistance(e.x, e.y, oldX, oldY, p.x, p.y) < e.r + 20) { e.mark = p.dashId; this.hit(e, 55 + (this.ranks.dash - 1) * 30); }
+      if (e.mark !== p.dashId && e.age > .7 && segmentDistance(e.x, e.y, oldX, oldY, p.x, p.y) < e.r + 20) { e.mark = p.dashId; this.hit(e, stats.dashDamage); }
     }
     if (wasDash && !p.dashTime && this.ranks.nova) {
-      const r = 100 + (this.ranks.nova - 1) * 30;
-      for (const e of this.enemies) if (length(e.x - p.x, e.y - p.y) < r + e.r) this.hit(e, 45 + (this.ranks.nova - 1) * 35);
+      const r = stats.novaRadius;
+      for (const e of this.enemies) if (length(e.x - p.x, e.y - p.y) < r + e.r) this.hit(e, stats.novaDamage);
       this.shots = this.shots.filter(s => length(s.x - p.x, s.y - p.y) > r); this.emit('nova', { x: p.x, y: p.y, radius: r });
     }
     if (this.state !== 'play') return;
-    const stage = INTRO.reduce((s, a, i) => this.time >= a[0] ? i : s, 0);
+    const stage = Math.min(INTRO.length-1,INTRO.reduce((s, a, i) => this.time >= a[0] ? i : s, 0)+this.difficulty().threat);
     if (stage !== this.stage && !this.bossSpawned) { this.stage = stage; this.emit('banner', { title: INTRO[stage][1], text: INTRO[stage][2] }); }
     const cycle = Math.floor(this.time / 60), phase = this.time % 60;
     this.resting = (phase >= 50 || this.time < this.intermissionUntil) && !this.bossSpawned;
     if (this.resting && this.time >= this.intermissionUntil && cycle !== this.lastRest) {
-      this.lastRest = cycle; p.hp = Math.min(p.max, p.hp + 8); this.emit('banner', { title: 'SIGNALPAUS / +8 SKÖLD', text: 'Samla kvarvarande energi. Nästa våg närmar sig.' });
+      this.lastRest = cycle; p.hp = Math.min(p.max, p.hp + stats.repair); this.emit('banner', { title: `SIGNALPAUS / +${stats.repair} SKÖLD`, text: 'Samla kvarvarande energi. Nästa våg närmar sig.' });
     }
     if (this.time >= this.nextBossAt() && !this.bossSpawned) this.beginBoss();
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0 && !this.resting && !this.bossSpawned) {
-      this.spawnTimer = Math.max(.52, 1.7 - this.time * .0025);
+      this.spawnTimer = Math.max(.35,(1.7 - this.time * .0025)/this.difficulty().spawn);
       const pool = ['hunter', 'hunter']; if (stage >= 1) pool.push('sniper'); if (stage >= 2) pool.push('rammer'); if (stage >= 3) pool.push('splitter'); if (stage >= 4) pool.push('warden');
       this.spawn(pool[Math.floor(this.random() * pool.length)]);
       if (stage >= 3 && phase > 30 && this.random() < .25) this.spawn('hunter');
@@ -313,7 +389,7 @@ export class Game {
       let dx = p.x - e.x, dy = p.y - e.y, d = length(dx, dy) || 1;
       if (e.type === 'boss') this.updateBoss(e, dt);
       else {
-        e.timer -= dt;
+        e.timer -= dt*(e.mode==='move'?this.difficulty().attack:1);
         if (e.type === 'rammer') {
           if (e.mode === 'move' && e.timer <= 0 && d < 500) { e.mode = 'warn'; e.timer = 1; e.angle = Math.atan2(dy, dx); }
           else if (e.mode === 'warn' && e.timer <= 0) { e.mode = 'rush'; e.timer = .7; this.emit('ram', { x: e.x, y: e.y }); }
@@ -334,7 +410,7 @@ export class Game {
       if (length(e.x - p.x, e.y - p.y) < e.r + p.r && !(e.type === 'boss' && e.age < 3)) this.damage(e.type === 'rammer' ? 24 : 14, e.name, e.x, e.y);
       if (this.state !== 'play') return;
       for (let i = 0; i < drones.length; i++) if ((e.droneHit[i] || 0) <= this.time && length(drones[i].x - e.x, drones[i].y - e.y) < e.r + 12) {
-        e.droneHit[i] = this.time + .5; this.hit(e, 26 + this.ranks.orbit * 10);
+        e.droneHit[i] = this.time + .5; this.hit(e, stats.droneDamage);
       }
     }
     if (this.state !== 'play') return;
@@ -346,11 +422,11 @@ export class Game {
     if (target) {
       p.angle = Math.atan2(target.y - p.y, target.x - p.x);
       if (this.fireTimer <= 0) {
-        this.fireTimer += .44 * .83 ** this.ranks.rapid;
+        this.fireTimer += stats.fire;
         const count = 1 + this.ranks.split * 2;
         for (let i = 0; i < count && this.bullets.length < LIMITS.bullets; i++) {
           const side = i - (count - 1) / 2, a = p.angle + side * .14;
-          this.bullets.push({ x: p.x, y: p.y, vx: Math.cos(a) * 640, vy: Math.sin(a) * 640, life: 1.6, damage: (24 + this.ranks.power * 8) * (side ? .55 : 1) });
+          this.bullets.push({ x: p.x, y: p.y, vx: Math.cos(a) * 640, vy: Math.sin(a) * 640, life: 1.6, damage: stats.damage * (side ? stats.side : 1) });
         }
         this.emit('shot', { x: p.x, y: p.y });
       }
@@ -384,7 +460,7 @@ export class Game {
     }
     if (this.state !== 'play') return;
     for (const g of this.gems) {
-      const dx = p.x - g.x, dy = p.y - g.y, d = length(dx, dy), radius = this.resting ? 500 : 100 + this.ranks.magnet * 55;
+      const dx = p.x - g.x, dy = p.y - g.y, d = length(dx, dy), radius = this.resting ? Math.max(500,stats.magnet) : stats.magnet;
       if (d < radius) { const move = Math.min(d, 420 * dt); g.x += dx / (d || 1) * move; g.y += dy / (d || 1) * move; }
       if (length(g.x - p.x, g.y - p.y) < 18) { this.xp += g.value; this.score += g.value * 5; g.dead = true; this.emit('pickup'); }
     }
@@ -395,3 +471,43 @@ export class Game {
     else if (this.time - this.lastUpgradeAt >= 45) this.offer('support');
   }
 }
+const RUN_KEYS=['w','h','sector','permanent','runId','potency','choiceRarities','upgradeHistory','state','time','score','kills','level','xp','need','id','enemies','bullets','shots','gems','hazards','ranks','choices','spawnTimer','fireTimer','bossSpawned','bossIndex','bossesDefeated','intermissionUntil','lastUpgradeAt','upgradeReason','lastBossName','stage','resting','hitCount','dashes','damageTaken','lastDamage','terminal','resumeGrace','lastRest','player'];
+export function validSnapshot(d) {
+  try {
+    let count=0;
+    const safe=(v,depth=0)=>{
+      if(++count>50000||depth>8)return false;
+      if(v===null||typeof v==='boolean')return true;
+      if(typeof v==='number')return Number.isFinite(v)&&Math.abs(v)<=1e12;
+      if(typeof v==='string')return v.length<=200;
+      if(Array.isArray(v))return v.length<=2000&&v.every(x=>safe(x,depth+1));
+      if(!v||typeof v!=='object'||Object.keys(v).length>80)return false;
+      return Object.entries(v).every(([k,x])=>!['__proto__','constructor','prototype'].includes(k)&&safe(x,depth+1));
+    };
+    const num=(v,min=0,max=1e12)=>Number.isFinite(v)&&v>=min&&v<=max;
+    const int=(v,min,max)=>Number.isInteger(v)&&num(v,min,max);
+    const fields=(o,names)=>o&&names.every(k=>num(o[k],-1e8,1e8));
+    if(!safe(d)||d.version!==1||RUN_KEYS.some(k=>!(k in d))||!['play','paused','upgrade'].includes(d.state)||d.terminal!==false)return false;
+    if(!int(d.sector,1,SECTORS.length)||typeof d.runId!=='string'||!d.runId||!num(d.w,100,20000)||!num(d.h,100,20000))return false;
+    const skill=cleanSkills(d.permanent);if(SKILL_KEYS.some(k=>skill[k]!==d.permanent[k]))return false;
+    for(const k of ['time','score','kills','xp','need','hitCount','dashes','damageTaken','resumeGrace','intermissionUntil','lastUpgradeAt'])if(!num(d[k]))return false;
+    if(!int(d.level,1,200)||!int(d.id,1,1e9)||!int(d.bossIndex,0,3)||!int(d.bossesDefeated,0,3)||!num(d.spawnTimer,-1e6)||!num(d.fireTimer,-1e6))return false;
+    if(typeof d.bossSpawned!=='boolean'||typeof d.resting!=='boolean'||!int(d.stage,-1,5)||!int(d.lastRest,-1,100000))return false;
+    if(d.bossIndex!==d.bossesDefeated+(d.bossSpawned?1:0))return false;
+    if(!fields(d.player,['x','y','hp','max','r','speed','inv','dx','dy','angle','dashCooldown','dashTime','dashId'])||!num(d.player.hp,0,d.player.max)||!num(d.player.max,1,100000)||!num(d.player.speed,0,5000))return false;
+    for(const u of UPGRADES)if(!int(d.ranks[u.id],0,u.max)||!num(d.potency[u.id],d.ranks[u.id],u.max*2.4+.001))return false;
+    if(!Array.isArray(d.choices)||d.choices.length>3||new Set(d.choices).size!==d.choices.length)return false;
+    if(d.state==='upgrade'&&!d.choices.length)return false;
+    for(const id of d.choices){const u=UPGRADES.find(x=>x.id===id);if(!u||d.ranks[id]>=u.max||(u.requires&&!u.requires(d))||!RARITIES.some(r=>r.id===d.choiceRarities[id]))return false;}
+    if(!Array.isArray(d.upgradeHistory)||d.upgradeHistory.length>100||d.upgradeHistory.some(x=>!UPGRADES.some(u=>u.id===x.id)||!RARITIES.some(r=>r.id===x.rarity)||!num(x.time)))return false;
+    const entityFields={enemies:['id','x','y','hp','max','r','speed','age','hit','timer','angle','tx','ty','mark','phase','pattern'],bullets:['x','y','vx','vy','life','damage'],shots:['x','y','vx','vy','life','damage'],gems:['x','y','value'],hazards:['x','y','angle','radius','warn','warning','live']};
+    for(const [key,names] of Object.entries(entityFields))if(!Array.isArray(d[key])||d[key].length>LIMITS[key]||d[key].some(o=>!fields(o,names)))return false;
+    if(d.enemies.some(e=>!Object.hasOwn(TYPES,e.type)||!['move','aim','warn','rush','ring'].includes(e.mode)||!e.droneHit||typeof e.droneHit!=='object'||!num(e.r,1,1000)))return false;
+    if(d.hazards.some(h=>!['beam','mine'].includes(h.kind)||typeof h.active!=='boolean'||!num(h.radius,1,1000)))return false;
+    const boss=d.enemies.find(e=>e.id===d.bossId);
+    if(d.bossSpawned&&(!boss||boss.type!=='boss'||!BOSSES.some(b=>b.kind===boss.bossKind)||boss.hp<=0))return false;
+    if(!d.bossSpawned&&d.bossId!==null)return false;
+    return true;
+  }catch{return false;}
+}
+const SKILL_KEYS=Object.keys(cleanSkills());

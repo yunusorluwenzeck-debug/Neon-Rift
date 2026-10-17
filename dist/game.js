@@ -1,54 +1,176 @@
-import {Game,STEP,UPGRADES,BOSSES,clamp} from './core.mjs?v=bosses-3';
+import {Game,STEP,UPGRADES,BOSSES,RARITIES,clamp,validSnapshot} from './core.mjs?v=campaign-1';
+import {SECTORS,SKILLS,SAVE_KEY,SaveStore,validateProfile,canPlay,canBuy,skillCost,buySkill,refundSkills,settleRun} from './progression.mjs?v=campaign-1';
 const $=id=>document.getElementById(id),canvas=$('space'),ctx=canvas.getContext('2d');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let settings={effects:true,particles:!reduced,shake:!reduced,volume:.35};
-let best=0;try{best=+localStorage.getItem('neon-rift-best')||0;Object.assign(settings,JSON.parse(localStorage.getItem('neon-rift-settings')||'{}'))}catch{}
+let storage;try{storage=localStorage;}catch{storage={getItem(){throw Error('storage blocked')},setItem(){throw Error('storage blocked')}};}
+const saveStore=new SaveStore(storage,validSnapshot);
+let profile=saveStore.load(),settings=profile.settings,best=profile.best;
+if(reduced){settings.particles=false;settings.shake=false;}
 const game=new Game(),keys=new Set(),pointer={active:false,id:null,x:0,y:0,ox:0,oy:0};
-let W=0,H=0,scale=1,offsetX=0,offsetY=0,last=0,acc=0,runTime=0,hudTimer=0,shake=0,particles=[],marks=[],bannerTime=0,modalState='',audio,voices=0,lastSound={};
+let W=0,H=0,scale=1,offsetX=0,offsetY=0,last=0,acc=0,runTime=0,hudTimer=0,saveTimer=0,shake=0,particles=[],marks=[],bannerTime=0,modalState='',audio,voices=0,lastSound={},hangarTab='map';
 const stars=Array.from({length:110},()=>({x:Math.random(),y:Math.random(),s:.4+Math.random()*1.5,z:Math.random()}));
 const fmt=t=>`${String(Math.floor(t/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}`;
-function save(){try{localStorage.setItem('neon-rift-settings',JSON.stringify(settings))}catch{} $('sound').textContent=settings.effects?'Ljud på':'Ljud av';$('sound').setAttribute('aria-label',settings.effects?'Stäng av ljudeffekter':'Slå på ljudeffekter')}
-save();$('best').textContent=best.toLocaleString('sv');
+function status(text,error=false){if($('savestatus').textContent!==text)$('savestatus').textContent=text;$('savestatus').classList.toggle('save-error',error);}
+function persist(capture=true){
+  if(capture&&['play','paused','upgrade'].includes(game.state)&&game.runId)profile.activeRun=game.snapshot();
+  profile.settings=settings;profile.best=best;
+  const ok=saveStore.save(profile);
+  status(ok?'Sparat på den här enheten':saveStore.error,!ok);return ok;
+}
+function soundLabel(){$('sound').textContent=settings.effects?'Ljud på':'Ljud av';$('sound').setAttribute('aria-label',settings.effects?'Stäng av ljudeffekter':'Slå på ljudeffekter');}
 function unlock(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume().catch(()=>{})}catch{}}
 function sound(kind){if(!settings.effects||!audio||audio.state!=='running'||voices>=10)return;const t=audio.currentTime;if(t-(lastSound[kind]??-10)<(kind==='shot'?.09:kind==='hit'?.055:.06))return;lastSound[kind]=t;const map={shot:[640,.045,.018],hit:[200,.06,.035],kill:[100,.16,.06],dash:[480,.24,.07],damage:[80,.22,.09],pickup:[1100,.04,.012],choice:[800,.3,.08],upgrade:[950,.3,.07],charge:[150,.25,.045],bossFire:[75,.3,.08],finish:[600,.6,.08]};const [hz,dur,vol]=map[kind]||[280,.1,.03];try{const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='damage'?'triangle':'sine';o.frequency.setValueAtTime(hz,t);o.frequency.exponentialRampToValueAtTime(hz*(kind==='choice'?1.8:.45),t+dur);g.gain.setValueAtTime(vol*settings.volume,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(audio.destination);voices++;o.onended=()=>{voices--;o.disconnect();g.disconnect()};o.start();o.stop(t+dur)}catch{}}
-function resize(){W=innerWidth;H=innerHeight;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const top=W<700?148:175,bottom=55;const available=Math.max(180,H-top-bottom);scale=Math.min(W/680,available/600,1.25);const gw=W/scale,gh=available/scale;game.resize(gw,gh);offsetX=0;offsetY=top;pointer.active=false;acc=0}
+function resize(){W=innerWidth;H=innerHeight;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const top=W<700?148:175,bottom=55;const available=Math.max(180,H-top-bottom);scale=Math.min(W/680,available/600,1.25);game.resize(W/scale,available/scale);offsetX=0;offsetY=top;pointer.active=false;acc=0;}
 addEventListener('resize',resize);resize();
-function clearInput(){keys.clear();pointer.active=false;acc=0}
-function modal(tag,title,desc,label,action){clearInput();$('overlay').hidden=false;$('modalTag').textContent=tag;$('modalTitle').textContent=title;$('modalDesc').textContent=desc;$('choices').replaceChildren();$('resume').hidden=!action;$('resume').textContent=label||'';$('resume').onclick=action;$('restart').hidden=game.state==='menu';if(action)$('resume').focus()}
-function closeModal(){ $('overlay').hidden=true;modalState='';clearInput() }
-function start(){unlock();game.reset();particles=[];marks=[];shake=0;bannerTime=0;closeModal();$('menu').hidden=true;$('hero-label').hidden=true;$('controls').hidden=true;$('hud').hidden=false;$('pause').hidden=false;document.body.classList.add('playing');game.offer('start');events();hud()}
-$('start').onclick=start;$('restart').onclick=start;
-function resume(){game.resume();closeModal();hud()}
-function pause(){if(game.state==='play'){game.pause();modalState='pause';modal('FLYGNING PAUSAD','Andas ut.','Tid och strid är stoppade. Skydd i 1,2 s när du fortsätter. Dina system: '+(UPGRADES.filter(u=>game.ranks[u.id]).map(u=>u.name+' '+game.ranks[u.id]+'/'+u.max).join(' · ')||'inga ännu'),'Fortsätt ↗',resume)}else if(game.state==='paused')resume()}
+function clearInput(){keys.clear();pointer.active=false;acc=0;}
+function modal(tag,title,desc,label,action){clearInput();$('overlay').hidden=false;$('modalTag').textContent=tag;$('modalTitle').textContent=title;$('modalDesc').textContent=desc;$('choices').replaceChildren();$('resume').hidden=!action;$('resume').textContent=label||'';$('resume').onclick=action;$('restart').hidden=!['play','paused','upgrade','over'].includes(game.state);$('nextsector').hidden=true;$('home').textContent=['play','paused','upgrade'].includes(game.state)?'Spara och gå till menyn':'Till huvudmenyn';if(action)$('resume').focus();}
+function closeModal(){$('overlay').hidden=true;modalState='';clearInput();}
+function refreshMenu(){
+  $('best').textContent=best.toLocaleString('sv');$('campaign-summary').textContent=`${profile.cleared}/6 banor klarade · ${profile.wallet} riftkärnor`;
+  $('start').textContent=`Spela bana ${profile.selected} ↗`;
+  $('continue').hidden=!profile.activeRun;
+  if(profile.activeRun)$('continue').textContent=`Fortsätt bana ${profile.activeRun.sector} · ${fmt(profile.activeRun.time)}`;
+}
+function enterFlight(){closeModal();$('hangar').hidden=true;$('menu').hidden=true;$('hero-label').hidden=true;$('controls').hidden=true;$('hud').hidden=false;$('pause').hidden=false;document.body.classList.add('playing');}
+function start(sector=profile.selected){
+  if(!canPlay(profile,sector))return false;
+  if(profile.activeRun&&game.state==='menu'&&!confirm('En flygning är sparad. Vill du ersätta den med en ny?'))return false;
+  unlock();profile.selected=sector;
+  const runId=globalThis.crypto?.randomUUID?.()||`flight-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  game.reset({sector,skills:profile.skills,runId});particles=[];marks=[];shake=0;bannerTime=0;saveTimer=0;
+  enterFlight();game.offer('start');events();hud();persist();return true;
+}
+function continueRun(){
+  const saved=profile.activeRun;if(!saved||!canPlay(profile,saved.sector)||!game.restore(saved)){status('Den sparade flygningen kunde inte läsas. Exportera sparfilen innan du börjar om.',true);return false;}
+  unlock();particles=[];marks=[];enterFlight();
+  if(game.state==='upgrade')events();else showPause('Din sparade flygning är redo.');hud();return true;
+}
+function home(){if(['play','paused','upgrade'].includes(game.state))persist();game.state='menu';closeModal();$('hangar').hidden=true;$('menu').hidden=false;$('hero-label').hidden=false;$('controls').hidden=false;$('hud').hidden=true;$('pause').hidden=true;document.body.classList.remove('playing');refreshMenu();}
+$('start').onclick=()=>start();$('continue').onclick=continueRun;$('restart').onclick=()=>start(game.sector);$('home').onclick=home;
+function resume(){game.resume();closeModal();hud();persist();}
+function showPause(prefix='Tid och strid är stoppade.'){
+  modalState='pause';modal('FLYGNING PAUSAD','Andas ut.',prefix+' Skydd i 1,2 s när du fortsätter. System: '+UPGRADES.filter(u=>game.ranks[u.id]).map(u=>`${u.name} ${game.ranks[u.id]}/${u.max}`).join(' · '),'Fortsätt ↗',resume);
+}
+function pause(){if(game.state==='play'){game.pause();showPause();persist();}else if(game.state==='paused')resume();}
 $('pause').onclick=pause;
-$('home').onclick=()=>{game.state='menu';closeModal();$('menu').hidden=false;$('hero-label').hidden=false;$('controls').hidden=false;$('hud').hidden=true;$('pause').hidden=true;document.body.classList.remove('playing')};
-$('sound').onclick=()=>{unlock();settings.effects=!settings.effects;save();sound('choice')};
-$('settings').onclick=()=>{unlock();if(game.state==='upgrade')return;const wasPlay=game.state==='play'||game.state==='paused';if(wasPlay)game.pause();modalState='settings';modal('DIN COCKPIT','Inställningar','Ljud och effekter sparas på den här enheten.','Tillbaka',()=>wasPlay?resume():closeModal());const box=document.createElement('div');box.className='settings';for(const [key,label] of [['effects','Ljudeffekter'],['particles','Fler partiklar'],['shake','Kameraskakning']]){const l=document.createElement('label'),i=document.createElement('input');i.type='checkbox';i.checked=!!settings[key];i.onchange=()=>{settings[key]=i.checked;save()};l.append(i,document.createTextNode(label));box.append(l)}const l=document.createElement('label');l.textContent='Effektvolym ';const v=document.createElement('input');v.type='range';v.min=0;v.max=1;v.step=.05;v.value=settings.volume;v.oninput=()=>{settings.volume=+v.value;save()};l.append(v);box.append(l);$('choices').append(box)};
-function dash(){unlock();game.dash();events();hud()}
-$('dash').onpointerdown=e=>{e.preventDefault();dash()};
-addEventListener('keydown',e=>{if(e.target.matches('input'))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space'&&$('overlay').hidden)dash();if(e.code==='KeyP'||e.code==='Escape')pause();if(game.state==='upgrade'&&/^Digit[123]$/.test(e.code))choose(game.choices[+e.code.slice(-1)-1])}});addEventListener('keyup',e=>keys.delete(e.code));
-function unfocus(){clearInput();if(game.state==='play')pause()}
-addEventListener('blur',unfocus);document.addEventListener('visibilitychange',()=>{if(document.hidden)unfocus()});
-canvas.onpointerdown=e=>{if(game.state!=='play'||pointer.active)return;unlock();Object.assign(pointer,{active:true,id:e.pointerId,x:e.clientX,y:e.clientY,ox:e.clientX,oy:e.clientY});canvas.setPointerCapture(e.pointerId)};
-canvas.onpointermove=e=>{if(pointer.active&&e.pointerId===pointer.id){pointer.x=e.clientX;pointer.y=e.clientY}};
-canvas.onpointerup=canvas.onpointercancel=e=>{if(e.pointerId===pointer.id)pointer.active=false};
-function input(){if(pointer.active){const dx=pointer.x-pointer.ox,dy=pointer.y-pointer.oy,d=Math.hypot(dx,dy);return d<5?{x:0,y:0}:{x:dx/Math.max(48,d),y:dy/Math.max(48,d)}}return {x:(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0),y:(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-(keys.has('KeyW')||keys.has('ArrowUp')?1:0)}}
-function choose(id){if(game.choose(id)){closeModal();events();hud()}}
-function burst(x,y,color,n){const cap=settings.particles?220:45;n=settings.particles?n:Math.ceil(n/4);for(let i=0;i<n&&particles.length<cap;i++){const a=Math.random()*Math.PI*2,s=30+Math.random()*150;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.2+Math.random()*.3,color})}}
-function events(){for(const e of game.drainEvents()){sound(e.type);if(e.type==='banner'){$('banner').replaceChildren();const b=document.createElement('b'),s=document.createElement('span');b.textContent=e.title;s.textContent=e.text;$('banner').append(b,s);bannerTime=6}
-if(e.type==='hit')burst(e.x,e.y,'#d8fff6',3);
-if(e.type==='kill')burst(e.x,e.y,'#ffba86',18);
-if(e.type==='bossDefeated'){burst(e.x,e.y,'#c8fff0',70);marks.push({...e,kind:'ring',life:.6,r:100});}
-if(e.type==='repair'){$('hint').textContent='Alla system maxade · +20 sköld · +250 poäng';}
-if(e.type==='dash'){marks.push({...e,kind:'ring',life:.35,r:35});burst(e.x,e.y,'#7cfbe1',12)}
-if(e.type==='arc')marks.push({...e,kind:'arc',life:.16});
-if(e.type==='nova')marks.push({...e,kind:'ring',life:.35,r:e.radius});
-if(e.type==='spawn')marks.push({...e,kind:'spawn',life:.7,r:16});
-if(e.type==='damage'){shake=settings.shake?4:0;marks.push({...e,kind:'damage',life:1});$('hint').textContent=`−${e.amount} sköld · ${e.source}`;burst(e.x,e.y,'#ff8e9e',10)}
-if(e.type==='upgrade'){modalState='upgrade';modal(e.reason==='start'?'VÄLJ DITT STARTSYSTEM':e.reason==='boss'?`${game.lastBossName} BESEGRAD · +30 SKÖLD`:`UPPGRADERING / NIVÅ ${game.level}`,e.reason==='boss'?'Din bossbelöning.':e.reason==='start'?'Hur vill du slåss?':'Gör skeppet starkare.',e.reason==='start'?'Välj snabbeld, kedjeblixt eller en drönare. Du kan kombinera dem senare.':e.reason==='support'?'Förstärkning har anlänt. Välj ett system. Striden är pausad.':'Välj ett system eller tryck 1, 2, 3. Striden är pausad.');game.choices.forEach((id,i)=>{const u=UPGRADES.find(u=>u.id===id),b=document.createElement('button');b.className='choice';b.innerHTML=`<i>${u.icon}</i><b>${u.name}</b><span>${u.desc(game.ranks[id])}</span><small>${i+1} · ${u.family} · ${game.ranks[id]+1}/${u.max}</small>`;b.onclick=()=>choose(id);$('choices').append(b)});$('choices').firstChild.focus()}
-if(e.type==='finish'){burst(e.x,e.y,'#c8fff0',100);best=Math.max(best,game.score);try{localStorage.setItem('neon-rift-best',best)}catch{}$('best').textContent=best.toLocaleString('sv');modalState='result';modal(e.won?'RIFTEN ÄR STÄNGD':'SIGNALEN FÖRLORAD',e.won?'Du är det sista ljuset.':'En flygning till?',`${game.score.toLocaleString('sv')} poäng · ${game.kills} fiender · ${fmt(game.time)} · ${game.dashes} dash · ${game.bossesDefeated}/3 bossar. Rekord: ${best.toLocaleString('sv')}.${e.won?'':` Sista träffen: ${game.lastDamage}.`}`,'Flyg igen ↗',start);$('restart').hidden=true}
+$('sound').onclick=()=>{unlock();settings.effects=!settings.effects;soundLabel();persist();sound('choice');};
+$('settings').onclick=()=>{
+  unlock();if(game.state==='upgrade')return;
+  const wasPlay=game.state==='play'||game.state==='paused';if(wasPlay){game.pause();persist();}
+  modalState='settings';modal('DIN COCKPIT','Inställningar','Inställningarna sparas på den här enheten.','Tillbaka',()=>wasPlay?resume():closeModal());
+  const box=document.createElement('div');box.className='settings';
+  for(const [key,label]of [['effects','Ljudeffekter'],['particles','Fler partiklar'],['shake','Kameraskakning']]){const l=document.createElement('label'),i=document.createElement('input');i.type='checkbox';i.checked=!!settings[key];i.onchange=()=>{settings[key]=i.checked;soundLabel();persist();};l.append(i,document.createTextNode(label));box.append(l);}
+  const l=document.createElement('label');l.textContent='Effektvolym ';const v=document.createElement('input');v.type='range';v.min=0;v.max=1;v.step=.05;v.value=settings.volume;v.oninput=()=>{settings.volume=+v.value;persist();};l.append(v);box.append(l);$('choices').append(box);
+};
+async function fullscreen(){
+  try{if(document.fullscreenElement||document.webkitFullscreenElement){await(document.exitFullscreen?.()??document.webkitExitFullscreen?.());}
+    else{const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;if(!request){status('Fullskärm stöds inte här. På dator kan du använda F11.',true);return;}await request.call(root);}
+  }catch{status('Fullskärm blockerades av webbläsaren. Öppna spellänken direkt och försök igen.',true);}
+}
+function fullscreenLabel(){$('fullscreen').textContent=(document.fullscreenElement||document.webkitFullscreenElement)?'Lämna fullskärm':'Fullskärm ⛶';resize();}
+$('fullscreen').onclick=fullscreen;document.addEventListener('fullscreenchange',fullscreenLabel);document.addEventListener('webkitfullscreenchange',fullscreenLabel);
+function dash(){unlock();game.dash();events();hud();}
+$('dash').onpointerdown=e=>{e.preventDefault();dash();};
+addEventListener('keydown',e=>{if(e.target.matches('input'))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)&&game.state!=='menu')e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space'&&$('overlay').hidden)dash();if(e.code==='KeyP'||e.code==='Escape')pause();if(e.code==='KeyF'&&$('overlay').hidden)fullscreen();if(game.state==='upgrade'&&/^Digit[123]$/.test(e.code))choose(game.choices[+e.code.slice(-1)-1]);}});
+addEventListener('keyup',e=>keys.delete(e.code));
+function unfocus(){clearInput();if(game.state==='play'){game.pause();showPause();}persist();}
+addEventListener('blur',unfocus);document.addEventListener('visibilitychange',()=>{if(document.hidden)unfocus();});addEventListener('pagehide',()=>persist());
+canvas.onpointerdown=e=>{if(game.state!=='play'||pointer.active)return;unlock();Object.assign(pointer,{active:true,id:e.pointerId,x:e.clientX,y:e.clientY,ox:e.clientX,oy:e.clientY});canvas.setPointerCapture(e.pointerId);};
+canvas.onpointermove=e=>{if(pointer.active&&e.pointerId===pointer.id){pointer.x=e.clientX;pointer.y=e.clientY;}};
+canvas.onpointerup=canvas.onpointercancel=e=>{if(e.pointerId===pointer.id)pointer.active=false;};
+function input(){if(pointer.active){const dx=pointer.x-pointer.ox,dy=pointer.y-pointer.oy,d=Math.hypot(dx,dy);return d<5?{x:0,y:0}:{x:dx/Math.max(48,d),y:dy/Math.max(48,d)};}return{x:(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0),y:(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-(keys.has('KeyW')||keys.has('ArrowUp')?1:0)};}
+function choose(id){if(game.choose(id)){closeModal();events();hud();persist();}}
+function showUpgrade(e){
+  modalState='upgrade';modal(e.reason==='start'?`BANA ${game.sector} · VÄLJ STARTSYSTEM`:e.reason==='boss'?`${game.lastBossName} BESEGRAD · +30 SKÖLD`:`UPPGRADERING / NIVÅ ${game.level}`,e.reason==='boss'?'Din bossbelöning.':e.reason==='start'?'Hur vill du slåss?':'Gör skeppet starkare.','Välj ett kort eller tryck 1, 2, 3. Högre raritet ger starkare bonus. Valet gäller den här flygningen.');
+  for(const [i,id]of game.choices.entries()){
+    const u=UPGRADES.find(u=>u.id===id),rarity=RARITIES.find(r=>r.id===game.choiceRarities[id])||RARITIES[0],b=document.createElement('button');
+    b.className=`choice rarity-${rarity.id}`;
+    b.innerHTML=`<div class="rarity-label">${rarity.name}</div><i>${u.icon}</i><b>${u.name}</b><span>${game.describeUpgrade(id)}</span><small>${i+1} · ${u.family} · ${game.ranks[id]+1}/${u.max}</small>`;
+    b.onclick=()=>choose(id);$('choices').append(b);
+  }$('choices').firstChild.focus();
+}
+function showResult(e){
+  const result=settleRun(profile,{runId:game.runId,sector:game.sector,won:e.won,score:game.score,time:game.time,kills:game.kills,bosses:game.bossesDefeated,dashes:game.dashes,upgrades:game.upgradeHistory})||profile.lastResult;
+  best=Math.max(best,game.score);persist(false);refreshMenu();modalState='result';
+  modal(e.won?`BANA ${game.sector} KLAR · +${result?.reward||0} RIFTKÄRNOR`:'SIGNALEN FÖRLORAD',e.won?'Skeppet kan bli starkare.':'Försök igen.',`${game.score.toLocaleString('sv')} poäng · ${game.kills} fiender · ${fmt(game.time)} · ${game.bossesDefeated}/3 bossar. `+(e.won?(game.sector<6?`Bana ${game.sector+1} är upplåst. Spendera dina riftkärnor i skill tree.`:'Alla sex banor är klarade. Du kan fortsätta förbättra skeppet och spela om.'):`Sista träffen: ${game.lastDamage}. Dina permanenta förbättringar finns kvar.`),e.won?'Öppna skill tree ↗':'Försök igen ↗',e.won?()=>openHangar('skills'):()=>start(game.sector));
+  $('restart').hidden=true;
+  if(e.won&&game.sector<6){$('nextsector').hidden=false;$('nextsector').textContent=`Spela bana ${game.sector+1} ↗`;$('nextsector').onclick=()=>start(game.sector+1);}
+}
+function burst(x,y,color,n){const cap=settings.particles?220:45;n=settings.particles?n:Math.ceil(n/4);for(let i=0;i<n&&particles.length<cap;i++){const a=Math.random()*Math.PI*2,s=30+Math.random()*150;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.2+Math.random()*.3,color});}}
+function events(){for(const e of game.drainEvents()){
+  sound(e.type);
+  if(e.type==='banner'){$('banner').replaceChildren();const b=document.createElement('b'),s=document.createElement('span');b.textContent=e.title;s.textContent=e.text;$('banner').append(b,s);bannerTime=6;}
+  if(e.type==='hit')burst(e.x,e.y,'#d8fff6',3);
+  if(e.type==='kill')burst(e.x,e.y,'#ffba86',18);
+  if(e.type==='bossDefeated'){burst(e.x,e.y,'#c8fff0',70);marks.push({...e,kind:'ring',life:.6,r:100});}
+  if(e.type==='dash'){marks.push({...e,kind:'ring',life:.35,r:35});burst(e.x,e.y,'#7cfbe1',12);}
+  if(e.type==='arc')marks.push({...e,kind:'arc',life:.16});
+  if(e.type==='nova')marks.push({...e,kind:'ring',life:.35,r:e.radius});
+  if(e.type==='spawn')marks.push({...e,kind:'spawn',life:.7,r:16});
+  if(e.type==='damage'){shake=settings.shake?4:0;marks.push({...e,kind:'damage',life:1});$('hint').textContent=`−${e.amount} sköld · ${e.source}`;burst(e.x,e.y,'#ff8e9e',10);}
+  if(e.type==='upgrade'){showUpgrade(e);persist();}
+  if(e.type==='finish'){burst(e.x,e.y,'#c8fff0',100);showResult(e);}
 }}
-function hud(){const p=game.player;$('hp').style.width=100*p.hp/p.max+'%';$('hptext').textContent=`${Math.ceil(p.hp)} / ${p.max}`;$('timer').textContent=fmt(game.time);$('score').textContent=game.score.toLocaleString('sv');$('wave').textContent=game.bossSpawned?game.boss.name+' · FAS '+game.boss.phase:game.resting?'SIGNALPAUS':`VÅG ${Math.min(8,1+Math.floor(game.time/60))} / 8`;$('xp').style.width=Math.min(100,Math.max(game.xp/game.need,(game.time-game.lastUpgradeAt)/45)*100)+'%';$('level').textContent=`NIVÅ ${game.level} · ENERGI ${game.xp}/${game.need} · UPPGRADERING INOM ${Math.max(0,Math.ceil(45-(game.time-game.lastUpgradeAt)))} s`;const next=BOSSES[game.bossIndex];$('nextboss').textContent=game.bossSpawned?`BOSS ${game.bossIndex}/3`:next?`${next.name} OM ${fmt(Math.max(0,game.nextBossAt()-game.time))}`:'ALLA BOSSAR BESEGRADE';$('dash').querySelector('span').textContent=p.dashCooldown>0?p.dashCooldown.toFixed(1)+' s':'REDO';$('dash').style.setProperty('--charge',`${(1-p.dashCooldown/(3-game.ranks.dash*.45))*360}deg`);$('dash').setAttribute('aria-label',p.dashCooldown>0?`Dash om ${p.dashCooldown.toFixed(1)} sekunder`:'Dash redo');$('bossbar').hidden=!game.bossSpawned;$('bossname').textContent=game.boss?.name||'';$('bosshp').style.width=game.boss?Math.max(0,100*game.boss.hp/game.boss.max)+'%':'0%';$('banner').style.opacity=bannerTime>0?'1':'0';$('settings').disabled=game.state==='upgrade';$('build').textContent=UPGRADES.filter(u=>game.ranks[u.id]).map(u=>`${u.icon} ${u.name} ${game.ranks[u.id]}`).join(' · ');if(game.time<14)$('hint').textContent=matchMedia('(pointer: coarse)').matches?'Dra var som helst som en styrspak. ⚡ ger dash + skydd.':'WASD / pilar: flyg · SPACE: dash + skydd · P: paus';else if(game.player.inv===0)$('hint').textContent=game.resting?'Samla energi. Bärgningsfältet är förstärkt.':'Diamanter = energi · Automatisk eld';}
+function hud(){
+  const p=game.player,stats=game.combatStats();
+  $('hp').style.width=100*p.hp/p.max+'%';$('hptext').textContent=`${Math.ceil(p.hp)} / ${p.max}`;$('timer').textContent=fmt(game.time);$('score').textContent=game.score.toLocaleString('sv');
+  $('wave').textContent=game.bossSpawned?game.boss.name+' · FAS '+game.boss.phase:game.resting?'SIGNALPAUS':`BANA ${game.sector} · VÅG ${Math.min(8,1+Math.floor(game.time/60))}/8`;
+  $('xp').style.width=Math.min(100,Math.max(game.xp/game.need,(game.time-game.lastUpgradeAt)/45)*100)+'%';
+  $('level').textContent=`NIVÅ ${game.level} · ENERGI ${game.xp}/${game.need} · UPPGRADERING INOM ${Math.max(0,Math.ceil(45-(game.time-game.lastUpgradeAt)))} s`;
+  const next=BOSSES[game.bossIndex];$('nextboss').textContent=game.bossSpawned?`BOSS ${game.bossIndex}/3`:next?`${next.name} OM ${fmt(Math.max(0,game.nextBossAt()-game.time))}`:'ALLA BOSSAR BESEGRADE';
+  $('dash').querySelector('span').textContent=p.dashCooldown>0?p.dashCooldown.toFixed(1)+' s':'REDO';$('dash').style.setProperty('--charge',`${(1-p.dashCooldown/stats.dashCooldown)*360}deg`);$('dash').setAttribute('aria-label',p.dashCooldown>0?`Dash om ${p.dashCooldown.toFixed(1)} sekunder`:'Dash redo');
+  $('bossbar').hidden=!game.bossSpawned;$('bossname').textContent=game.boss?.name||'';$('bosshp').style.width=game.boss?Math.max(0,100*game.boss.hp/game.boss.max)+'%':'0%';
+  $('banner').style.opacity=bannerTime>0?'1':'0';$('settings').disabled=game.state==='upgrade';
+  $('build').textContent=UPGRADES.filter(u=>game.ranks[u.id]).map(u=>`${u.icon} ${u.name} ${game.ranks[u.id]}`).join(' · ');
+  if(game.time<14)$('hint').textContent=matchMedia('(pointer: coarse)').matches?'Dra som en styrspak. ⚡ ger dash + skydd.':'WASD / pilar: flyg · SPACE: dash · F: fullskärm · P: paus';
+  else if(game.player.inv===0)$('hint').textContent=game.resting?'Samla energi. Bärgningsfältet är förstärkt.':'Diamanter = energi · Flygningen sparas automatiskt';
+}
+function openHangar(tab='map'){
+  if(['play','paused','upgrade'].includes(game.state))persist();
+  game.state='menu';closeModal();$('menu').hidden=true;$('hero-label').hidden=true;$('controls').hidden=true;$('hud').hidden=true;$('pause').hidden=true;document.body.classList.remove('playing');$('hangar').hidden=false;hangarTab=tab;renderHangar();
+}
+function renderHangar(){
+  $('hangar-wallet').textContent=`${profile.wallet} RIFTKÄRNOR`;
+  $('hangar-stats').textContent=`${profile.cleared}/6 banor · ${profile.stats.wins} segrar · ${profile.stats.kills} fiender`;
+  $('tab-map').setAttribute('aria-selected',hangarTab==='map');$('tab-skills').setAttribute('aria-selected',hangarTab==='skills');
+  $('sector-grid').hidden=hangarTab!=='map';$('skill-tree').hidden=hangarTab!=='skills';$('refund').hidden=hangarTab!=='skills';
+  $('hangar-note').textContent=hangarTab==='map'?'Klara alla tre bossar på en bana för att låsa upp nästa. En första seger ger 5–10 riftkärnor. Omspel ger 2.':profile.cleared?'Dina förbättringar följer med till varje ny flygning. Sparade flygningar behåller sin tidigare utrustning.':'Klara första banan för att få riftkärnor. Trädet sparas mellan flygningar.';
+  $('sector-grid').replaceChildren();
+  for(const s of SECTORS){const available=canPlay(profile,s.id),done=s.id<=profile.cleared,card=document.createElement('article');card.className=`sector-card ${done?'completed':available?'available':'locked'}`;
+    const tag=document.createElement('small');tag.textContent=`BANA ${String(s.id).padStart(2,'0')} · ${done?'KLAR':available?'UPPLÅST':'LÅST'}`;
+    const h=document.createElement('h3');h.textContent=s.name;const p=document.createElement('p');p.textContent=s.description;
+    const stats=document.createElement('span');stats.className='sector-stats';stats.textContent=`Fiendeliv ×${s.hp.toFixed(2)} · skada ×${s.damage.toFixed(2)} · ${s.firstReward} kärnor första gången`;
+    const button=document.createElement('button');button.className='primary';button.disabled=!available;button.textContent=available?`${done?'Spela igen':'Spela bana '+s.id} ↗`:`Klara bana ${s.id-1} först`;button.onclick=()=>{if(canPlay(profile,s.id))start(s.id);};
+    card.append(tag,h,p,stats);if(done){const record=document.createElement('span');record.className='sector-record';const r=profile.records[s.id];record.textContent=`Rekord ${r.best.toLocaleString('sv')} · bästa tid ${fmt(r.time)} · ${r.wins} segrar`;card.append(record);}card.append(button);$('sector-grid').append(card);
+  }
+  $('skill-tree').replaceChildren();
+  for(const branch of ['VAPEN','FÖRSVAR','RÖRLIGHET']){const lane=document.createElement('section');lane.className='skill-branch';const heading=document.createElement('h3');heading.textContent=branch;lane.append(heading);
+    for(const s of SKILLS.filter(s=>s.branch===branch)){const card=document.createElement('article');card.className='skill-node'+(profile.skills[s.id]?' owned':'');
+      const h=document.createElement('h4');h.textContent=`${s.icon} ${s.name}`;const rank=document.createElement('small');rank.textContent=`NIVÅ ${profile.skills[s.id]}/${s.max}`;const p=document.createElement('p');p.textContent=s.desc;
+      const req=document.createElement('span');req.className='skill-prereq';req.textContent=s.requires?`Kräver ${SKILLS.find(x=>x.id===s.requires).name} nivå ${s.requiredRank}`:'Grundsystem';
+      const b=document.createElement('button');b.className='skill-buy';b.disabled=!canBuy(profile,s.id);b.textContent=profile.skills[s.id]>=s.max?'MAXNIVÅ':`Uppgradera · ${skillCost(profile,s.id)} kärnor`;b.onclick=()=>{if(buySkill(profile,s.id)){persist(false);renderHangar();sound('choice');}};
+      card.append(h,rank,p,req,b);lane.append(card);
+    }$('skill-tree').append(lane);
+  }
+  $('refund').disabled=!SKILLS.some(s=>profile.skills[s.id]>0);
+}
+$('open-hangar').onclick=()=>openHangar('map');$('open-tree').onclick=()=>openHangar('skills');$('close-hangar').onclick=home;
+$('tab-map').onclick=()=>{hangarTab='map';renderHangar();};$('tab-skills').onclick=()=>{hangarTab='skills';renderHangar();};
+$('refund').onclick=()=>{refundSkills(profile);persist(false);renderHangar();};
+$('export-save').onclick=()=>{
+  persist();const blob=new Blob([JSON.stringify(profile,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='NEON-RIFT-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+$('import-save').onclick=()=>{$('save-file').value='';$('save-file').click();};
+$('save-file').onchange=async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  try{if(file.size>2e6)throw Error('large');const imported=validateProfile(JSON.parse(await file.text()));if(!imported||(imported.activeRun&&!validSnapshot(imported.activeRun)))throw Error('invalid');
+    if(!confirm('Ersätta dina nuvarande framsteg med sparfilen? Exportera först om du vill behålla båda.'))return;
+    if(!saveStore.save(imported)){status(saveStore.error,true);return;}
+    profile=imported;settings=profile.settings;best=profile.best;game.state='menu';soundLabel();home();status('Sparfil importerad. Alla framsteg är återställda.');
+  }catch{status('Ogiltig sparfil. Dina nuvarande framsteg är kvar.',true);}
+};
+soundLabel();refreshMenu();
+if(saveStore.error)status(saveStore.error,true);else if(profile.activeRun&&!validSnapshot(profile.activeRun))status('Flygningen kunde inte läsas. Exportera sparfilen innan du börjar om.',true);else status(saveStore.recovered?'En säkerhetskopia av dina framsteg har återställts.':'Sparas automatiskt på den här enheten');
 function ship(x,y,size,angle,hero=false){ctx.save();ctx.translate(x,y);ctx.rotate(angle+Math.PI/2);ctx.shadowColor='#6ffff0';ctx.shadowBlur=hero?35:15;let flicker=1+Math.sin(runTime*32)*.2;ctx.fillStyle='#57f9df';ctx.beginPath();ctx.moveTo(-size*.2,size*.6);ctx.lineTo(0,size*(hero?1.9:1.5)*flicker);ctx.lineTo(size*.2,size*.6);ctx.fill();ctx.shadowBlur=hero?22:8;ctx.fillStyle='#c4e6e9';ctx.beginPath();ctx.moveTo(0,-size);ctx.lineTo(size*.7,size*.7);ctx.lineTo(size*.22,size*.46);ctx.lineTo(0,size*.68);ctx.lineTo(-size*.22,size*.46);ctx.lineTo(-size*.7,size*.7);ctx.closePath();ctx.fill();ctx.fillStyle='#264357';ctx.beginPath();ctx.moveTo(0,-size*.65);ctx.lineTo(size*.23,size*.4);ctx.lineTo(0,size*.24);ctx.lineTo(-size*.23,size*.4);ctx.closePath();ctx.fill();ctx.fillStyle='#80ffe9';ctx.fillRect(-size*.055,-size*.4,size*.11,size*.53);ctx.strokeStyle='#70efeb';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-size*.56,size*.5);ctx.lineTo(-size*.25,size*.1);ctx.moveTo(size*.56,size*.5);ctx.lineTo(size*.25,size*.1);ctx.stroke();ctx.restore()}
 const colors={hunter:'#ff7991',sniper:'#ffc483',rammer:'#c3a0ff',splitter:'#ff9dcc',warden:'#ffbd75',shard:'#ff7991',boss:'#ff99be'};
 function path(points,fill=true){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();if(fill)ctx.fill();ctx.stroke()}
@@ -79,4 +201,15 @@ const p=game.player;ship(p.x,p.y,18,p.angle);if(game.ranks.split){ctx.strokeStyl
 if(p.inv>0){ctx.strokeStyle=p.dashTime>0?'#d9fff8':'#7cfbe199';ctx.lineWidth=p.dashTime>0?3:1.5;circle(p.x,p.y,25);if(p.dashTime>0){ctx.strokeStyle='#7cfbe166';line(p.x-p.dx*45,p.y-p.dy*45,p.x-p.dx*22,p.y-p.dy*22)}}
 for(const m of marks){ctx.globalAlpha=Math.min(1,m.life*3);ctx.lineWidth=2;if(m.kind==='arc'){ctx.strokeStyle='#b9baff';line(m.x,m.y,(m.x+m.tx)/2+8,(m.y+m.ty)/2-8);line((m.x+m.tx)/2+8,(m.y+m.ty)/2-8,m.tx,m.ty)}else if(m.kind==='damage'){ctx.strokeStyle='#ffc1b7';line(m.x,m.y,m.fromX,m.fromY);ctx.fillStyle='#ffe5dc';ctx.font='14px monospace';ctx.fillText('−'+m.amount,m.x+20,m.y-20-(1-m.life)*20)}else{ctx.strokeStyle=m.kind==='spawn'?'#ff9fb0':'#7cfbe1';circle(m.x,m.y,m.r*(1.4-m.life))}}ctx.globalAlpha=1;ctx.restore();
 if(pointer.active){ctx.strokeStyle='#a0eed866';ctx.fillStyle='#7cfbe111';ctx.lineWidth=2;circle(pointer.ox,pointer.oy,48,true);const dx=pointer.x-pointer.ox,dy=pointer.y-pointer.oy,d=Math.hypot(dx,dy);circle(pointer.ox+dx/Math.max(1,d/48),pointer.oy+dy/Math.max(1,d/48),15,true)}}
-function frame(t){let dt=last?Math.min((t-last)/1000,.25):0;last=t;if(game.state==='play'){acc+=dt;while(acc>=STEP&&game.state==='play'){game.update(STEP,input());acc-=STEP;events()}if(game.state!=='play')acc=0;runTime+=dt;bannerTime=Math.max(0,bannerTime-dt);shake=Math.max(0,shake-dt*25);for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0);for(const m of marks)m.life-=dt;marks=marks.filter(m=>m.life>0)}else{acc=0;if(game.state==='menu'&&!reduced)runTime+=dt}hudTimer+=dt;if(hudTimer>=.1){hudTimer=0;hud()}draw();requestAnimationFrame(frame)}requestAnimationFrame(frame);
+function frame(t){
+  const dt=last?Math.min((t-last)/1000,.25):0;last=t;
+  if(game.state==='play'){
+    acc+=dt;while(acc>=STEP&&game.state==='play'){game.update(STEP,input());acc-=STEP;events();}if(game.state!=='play')acc=0;
+    runTime+=dt;bannerTime=Math.max(0,bannerTime-dt);shake=Math.max(0,shake-dt*25);
+    for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;}particles=particles.filter(p=>p.life>0);
+    for(const m of marks)m.life-=dt;marks=marks.filter(m=>m.life>0);
+    saveTimer+=dt;if(saveTimer>=3){saveTimer=0;persist();}
+  }else{acc=0;if(game.state==='menu'&&!reduced)runTime+=dt;}
+  hudTimer+=dt;if(hudTimer>=.1){hudTimer=0;hud();}draw();requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
