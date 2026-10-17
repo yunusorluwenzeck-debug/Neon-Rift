@@ -1,6 +1,14 @@
 // Deterministic simulation. No DOM, audio, rendering or wall-clock dependencies.
 export const STEP = 1 / 120;
 export const BOSS_TIME = 480;
+export const BOSSES = [
+  { kind: 'sentinel', name: 'SENTINEL', at: 75, hp: 1800, r: 44,
+    intro: 'En bepansrad jägare. Undvik skottsvärmen och lämna den markerade rusningsbanan.' },
+  { kind: 'hive', name: 'HIVE MOTHER', at: 240, hp: 4200, r: 54,
+    intro: 'Svärmens moder. Lämna minfälten och håll undan från hennes småskepp.' },
+  { kind: 'voidkeeper', name: 'VOIDKEEPER', at: BOSS_TIME, hp: 14500, r: 62,
+    intro: 'Riftens väktare. Hitta öppningen i ringarna och lämna markerade områden.' }
+];
 export const LIMITS = { enemies: 72, bullets: 180, shots: 200, gems: 100, hazards: 20 };
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const length = (x, y) => Math.hypot(x, y);
@@ -43,10 +51,10 @@ export class Game {
     this.w = width; this.h = height; this.random = random; this.reset(); this.state = 'menu';
   }
   reset() {
-    this.state = 'play'; this.time = 0; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.need = 8;
+    this.state = 'play'; this.time = 0; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.need = 6;
     this.id = 1; this.enemies = []; this.bullets = []; this.shots = []; this.gems = []; this.hazards = []; this.events = [];
     this.ranks = Object.fromEntries(UPGRADES.map(u => [u.id, 0])); this.choices = []; this.spawnTimer = 1.8; this.fireTimer = 0;
-    this.boss = null; this.bossSpawned = false; this.stage = -1; this.resting = false; this.hitCount = 0; this.dashes = 0;
+    this.boss = null; this.bossSpawned = false; this.bossIndex = 0; this.bossesDefeated = 0; this.intermissionUntil = 0; this.lastUpgradeAt = 0; this.upgradeReason = null; this.lastBossName = null; this.stage = -1; this.resting = false; this.hitCount = 0; this.dashes = 0;
     this.damageTaken = 0; this.lastDamage = ''; this.terminal = false; this.resumeGrace = 0; this.lastRest = -1;
     this.player = { x: this.w / 2, y: this.h * .55, hp: 100, max: 100, r: 11, speed: 235, inv: 2,
       dx: 0, dy: -1, angle: -Math.PI / 2, dashCooldown: 0, dashTime: 0, dashId: 0 };
@@ -81,14 +89,24 @@ export class Game {
     this.emit('finish', { won, x: this.boss?.x ?? this.player.x, y: this.boss?.y ?? this.player.y }); return true;
   }
   eligible() { return UPGRADES.filter(u => this.ranks[u.id] < u.max && (!u.requires || u.requires(this))); }
-  offer() {
+  offer(reason = 'xp') {
+    if (this.state !== 'play' || (reason === 'xp' && this.xp < this.need)) return false;
     const pool = this.eligible();
-    // At the completed build, XP restores shield instead of offering ineffective cards.
-    if (pool.length < 3) { this.player.hp = Math.min(this.player.max, this.player.hp + 20); this.xp -= this.need; this.emit('repair'); return; }
-    this.xp -= this.need; this.level++; this.need = 8 + (this.level - 1) * 5;
+    if (reason === 'xp') this.xp -= this.need;
+    this.lastUpgradeAt = this.time;
+    if (!pool.length) {
+      this.player.hp = Math.min(this.player.max, this.player.hp + 20);
+      this.score += 250; this.emit('repair'); return false;
+    }
+    if (reason !== 'start') this.level++;
+    this.need = 6 + (this.level - 1) * 4;
+    this.upgradeReason = reason;
     this.choices = [];
-    for (let i = 0; i < 3; i++) this.choices.push(pool.splice(Math.floor(this.random() * pool.length), 1)[0].id);
-    this.state = 'upgrade'; this.emit('upgrade');
+    if (reason === 'start') this.choices = ['rapid', 'chain', 'drone'];
+    else for (let i = 0, n = Math.min(3, pool.length); i < n; i++) {
+      this.choices.push(pool.splice(Math.floor(this.random() * pool.length), 1)[0].id);
+    }
+    this.state = 'upgrade'; this.emit('upgrade', { reason }); return true;
   }
   choose(id) {
     if (this.state !== 'upgrade' || !this.choices.includes(id)) return false;
@@ -97,7 +115,7 @@ export class Game {
     this.ranks[id]++;
     if (id === 'shield') { this.player.max += 20; this.player.hp = Math.min(this.player.max, this.player.hp + 35); }
     this.player.speed = 235 * (1 + this.ranks.magnet * .05);
-    this.choices = []; this.state = 'play'; this.player.inv = Math.max(this.player.inv, 1.2); this.emit('choice', { id }); return true;
+    this.choices = []; this.lastUpgradeAt = this.time; this.state = 'play'; this.player.inv = Math.max(this.player.inv, 1.2); this.emit('choice', { id }); return true;
   }
   spawn(type, position) {
     if (this.enemies.length >= LIMITS.enemies) return null;
@@ -119,7 +137,7 @@ export class Game {
     this.enemies.push(e); this.emit('spawn', { x: clamp(x, 12, this.w - 12), y: clamp(y, 12, this.h - 12), enemy: type }); return e;
   }
   hit(e, amount, chain = false) {
-    if (e.hp <= 0 || this.terminal) return;
+    if (e.hp <= 0 || this.state !== 'play' || (e.type === 'boss' && e.age < 3)) return;
     e.hp -= amount; e.hit = .065; this.emit('hit', { x: e.x, y: e.y, amount });
     if (chain && this.ranks.chain && ++this.hitCount % 3 === 0) {
       let prev = e; const used = new Set([e.id]);
@@ -131,10 +149,21 @@ export class Game {
         this.hit(next, (24 + this.ranks.power * 8) * .65, false); prev = next;
       }
     }
-    if (e.hp > 0) return;
+    if (e.hp > 0 || this.state !== 'play') return;
     this.kills++; this.score += e.type === 'boss' ? 2000 : 25 * Math.max(1, e.value);
     this.emit('kill', { x: e.x, y: e.y, enemy: e.type });
-    if (e.type === 'boss') { this.finish(true); return; }
+    if (e.type === 'boss') {
+      this.bossesDefeated++;
+      if (e.bossKind === 'voidkeeper') { this.finish(true); return; }
+      this.lastBossName = e.name;
+      this.boss = null; this.bossSpawned = false;
+      this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
+      this.player.hp = Math.min(this.player.max, this.player.hp + 30);
+      this.player.inv = Math.max(this.player.inv, 2);
+      this.intermissionUntil = this.time + 12; this.spawnTimer = 4;
+      this.emit('bossDefeated', { name: e.name, x: e.x, y: e.y });
+      this.offer('boss'); return;
+    }
     if (e.value) this.addGem(e.x, e.y, e.value);
     if (e.type === 'splitter') {
       for (let i = 0; i < 2; i++) { const a = this.random() * Math.PI * 2; this.spawn('shard', { x: e.x + Math.cos(a) * 28, y: e.y + Math.sin(a) * 28 }); }
@@ -157,11 +186,66 @@ export class Game {
       return { x: this.player.x + Math.cos(a) * r, y: this.player.y + Math.sin(a) * r, angle: a };
     });
   }
+  nextBossAt() { return Math.max(BOSSES[this.bossIndex]?.at ?? Infinity, this.intermissionUntil); }
+  beginBoss() {
+    const spec = BOSSES[this.bossIndex];
+    if (!spec || this.bossSpawned || this.state !== 'play') return false;
+    this.bossIndex++; this.bossSpawned = true; this.resting = false;
+    this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
+    this.boss = this.spawn('boss', { x: this.w / 2, y: -80 });
+    Object.assign(this.boss, { name: spec.name, bossKind: spec.kind, hp: spec.hp, max: spec.hp, r: spec.r, timer: 2 });
+    this.player.inv = Math.max(this.player.inv, 3);
+    this.emit('banner', { title: `BOSS ${this.bossIndex} / 3 · ${spec.name}`, text: spec.intro });
+    return true;
+  }
+  updateSentinel(e, dt) {
+    const p = this.player;
+    e.timer -= dt;
+    if (e.mode === 'warn' && e.timer <= 0) {
+      e.mode = 'rush'; e.timer = .65; this.emit('ram', { x: e.x, y: e.y });
+    } else if (e.mode === 'rush') {
+      e.x = clamp(e.x + Math.cos(e.angle) * 500 * dt, e.r, this.w - e.r);
+      e.y = clamp(e.y + Math.sin(e.angle) * 500 * dt, e.r, this.h - e.r);
+      if (e.timer <= 0) { e.mode = 'move'; e.timer = 2; }
+    } else if (e.mode === 'aim' && e.timer <= 0) {
+      const count = 3 + 2 * (e.phase - 1);
+      for (let i = 0; i < count; i++) this.shot(e.x, e.y, e.angle + (i - (count - 1) / 2) * .19, 165, 12);
+      e.mode = 'move'; e.timer = 2.2; this.emit('bossFire');
+    } else if (e.mode === 'move') {
+      e.x += (this.w * .5 + Math.sin(this.time * .5) * this.w * .25 - e.x) * dt * .7;
+      e.y += (this.h * .25 - e.y) * dt * .5;
+      if (e.timer <= 0) {
+        e.mode = e.pattern++ % 2 === 0 ? 'aim' : 'warn'; e.timer = 1.2;
+        e.angle = Math.atan2(p.y - e.y, p.x - e.x); this.emit('charge');
+      }
+    }
+  }
+  updateHive(e, dt) {
+    e.x += (this.w * .5 + Math.sin(this.time * .3) * this.w * .23 - e.x) * dt * .5;
+    e.y += (this.h * .25 - e.y) * dt * .5;
+    e.timer -= dt;
+    if (e.timer > 0) return;
+    const p = this.player;
+    if (e.pattern++ % 2 === 0) {
+      for (let i = 0; i < 1 + e.phase; i++) {
+        const a = i * Math.PI * 2 / (1 + e.phase);
+        this.hazard('mine', clamp(p.x + Math.cos(a) * 100, 65, this.w - 65), clamp(p.y + Math.sin(a) * 100, 65, this.h - 65), 0, 56, 1.7, 2.2);
+      }
+      this.emit('charge');
+    } else {
+      // Children enter from distant edges with the normal spawn grace.
+      for (let i = 0; i < e.phase + 1; i++) this.spawn('hunter');
+      this.emit('bossFire');
+    }
+    e.timer = 3.8;
+  }
   updateBoss(e, dt) {
     const p = this.player;
     if (e.age < 3) { e.y += (Math.min(135, this.h * .22) - e.y) * dt; return; }
     const phase = e.hp > e.max * .66 ? 1 : e.hp > e.max * .33 ? 2 : 3;
-    if (phase !== e.phase) { e.phase = phase; this.emit('banner', { title: `VOIDKEEPER / FAS ${phase}`, text: phase === 2 ? 'Klyvstrålen vaknar. Lämna den randiga banan.' : 'Kärnan är öppen. Minfält och strålar kombineras.' }); }
+    if (phase !== e.phase) { e.phase = phase; this.emit('banner', { title: `${e.name} / FAS ${phase}`, text: e.bossKind === 'sentinel' ? 'Skottsvärmen blir bredare. Följ siktlinjerna.' : e.bossKind === 'hive' ? 'Fler minor och småskepp. Håll dig i rörelse.' : phase === 2 ? 'Klyvstrålen vaknar. Lämna den randiga banan.' : 'Kärnan är öppen. Minfält och strålar kombineras.' }); }
+    if (e.bossKind === 'sentinel') { this.updateSentinel(e, dt); return; }
+    if (e.bossKind === 'hive') { this.updateHive(e, dt); return; }
     e.x += (this.w * .5 + Math.sin(this.time * .3) * this.w * .27 - e.x) * dt * .45;
     e.y += (this.h * .22 + Math.cos(this.time * .4) * 45 - e.y) * dt * .4;
     e.timer -= dt;
@@ -206,19 +290,15 @@ export class Game {
       for (const e of this.enemies) if (length(e.x - p.x, e.y - p.y) < r + e.r) this.hit(e, 45 + (this.ranks.nova - 1) * 35);
       this.shots = this.shots.filter(s => length(s.x - p.x, s.y - p.y) > r); this.emit('nova', { x: p.x, y: p.y, radius: r });
     }
-    if (this.terminal) return;
+    if (this.state !== 'play') return;
     const stage = INTRO.reduce((s, a, i) => this.time >= a[0] ? i : s, 0);
     if (stage !== this.stage && !this.bossSpawned) { this.stage = stage; this.emit('banner', { title: INTRO[stage][1], text: INTRO[stage][2] }); }
     const cycle = Math.floor(this.time / 60), phase = this.time % 60;
-    this.resting = phase >= 50 && !this.bossSpawned;
-    if (this.resting && cycle !== this.lastRest) {
+    this.resting = (phase >= 50 || this.time < this.intermissionUntil) && !this.bossSpawned;
+    if (this.resting && this.time >= this.intermissionUntil && cycle !== this.lastRest) {
       this.lastRest = cycle; p.hp = Math.min(p.max, p.hp + 8); this.emit('banner', { title: 'SIGNALPAUS / +8 SKÖLD', text: 'Samla kvarvarande energi. Nästa våg närmar sig.' });
     }
-    if (this.time >= BOSS_TIME && !this.bossSpawned) {
-      this.bossSpawned = true; this.enemies = []; this.shots = []; this.hazards = [];
-      this.boss = this.spawn('boss', { x: this.w / 2, y: -80 }); this.boss.timer = 4; p.inv = Math.max(p.inv, 3);
-      this.emit('banner', { title: 'VOIDKEEPER', text: 'Riftens väktare. Hitta öppningen i ringarna och lämna markerade områden.' });
-    }
+    if (this.time >= this.nextBossAt() && !this.bossSpawned) this.beginBoss();
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0 && !this.resting && !this.bossSpawned) {
       this.spawnTimer = Math.max(.52, 1.7 - this.time * .0025);
@@ -251,13 +331,13 @@ export class Game {
         } else { e.x += dx / d * e.speed * dt; e.y += dy / d * e.speed * dt; }
         e.x = clamp(e.x, -45, this.w + 45); e.y = clamp(e.y, -45, this.h + 45);
       }
-      if (length(e.x - p.x, e.y - p.y) < e.r + p.r && !(e.type === 'boss' && e.age < 3)) this.damage(e.type === 'rammer' ? 24 : 14, TYPES[e.type].name, e.x, e.y);
-      if (this.terminal) return;
+      if (length(e.x - p.x, e.y - p.y) < e.r + p.r && !(e.type === 'boss' && e.age < 3)) this.damage(e.type === 'rammer' ? 24 : 14, e.name, e.x, e.y);
+      if (this.state !== 'play') return;
       for (let i = 0; i < drones.length; i++) if ((e.droneHit[i] || 0) <= this.time && length(drones[i].x - e.x, drones[i].y - e.y) < e.r + 12) {
         e.droneHit[i] = this.time + .5; this.hit(e, 26 + this.ranks.orbit * 10);
       }
     }
-    if (this.terminal) return;
+    if (this.state !== 'play') return;
     this.fireTimer -= dt; let target = null, nearest = Infinity;
     for (const e of this.enemies) {
       const d = length(e.x - p.x, e.y - p.y);
@@ -288,12 +368,12 @@ export class Game {
       for (let x = Math.floor((Math.min(ax, b.x) - 4) / cell); x <= Math.floor((Math.max(ax, b.x) + 4) / cell); x++) for (let y = Math.floor((Math.min(ay, b.y) - 4) / cell); y <= Math.floor((Math.max(ay, b.y) + 4) / cell); y++) for (const e of grid.get(`${x},${y}`) || []) candidates.add(e);
       for (const e of candidates) if (e.hp > 0 && b.life > 0 && e.age >= (e.type === 'boss' ? 3 : .75) && segmentDistance(e.x, e.y, ax, ay, b.x, b.y) < e.r + 3) { b.life = 0; this.hit(e, b.damage, true); break; }
     }
-    if (this.terminal) return;
+    if (this.state !== 'play') return;
     for (const s of this.shots) {
       const ax = s.x, ay = s.y; s.x += s.vx * dt; s.y += s.vy * dt; s.life -= dt;
       if (segmentDistance(p.x, p.y, ax, ay, s.x, s.y) < p.r + 5) { this.damage(s.damage, 'FIENDESKOTT', s.x, s.y); s.life = 0; }
     }
-    if (this.terminal) return;
+    if (this.state !== 'play') return;
     for (const h of this.hazards) {
       if (h.warn > 0) { h.warn -= dt; if (h.warn <= 0) { h.active = true; this.emit('hazard', { x: h.x, y: h.y }); } }
       else {
@@ -302,7 +382,7 @@ export class Game {
         if (hit) this.damage(h.kind === 'mine' ? 18 : 24, h.kind === 'mine' ? 'MINFÄLT' : 'KLYVSTRÅLE', h.x, h.y);
       }
     }
-    if (this.terminal) return;
+    if (this.state !== 'play') return;
     for (const g of this.gems) {
       const dx = p.x - g.x, dy = p.y - g.y, d = length(dx, dy), radius = this.resting ? 500 : 100 + this.ranks.magnet * 55;
       if (d < radius) { const move = Math.min(d, 420 * dt); g.x += dx / (d || 1) * move; g.y += dy / (d || 1) * move; }
@@ -312,5 +392,6 @@ export class Game {
     this.shots = this.shots.filter(s => s.life > 0 && s.x > -50 && s.x < this.w + 50 && s.y > -50 && s.y < this.h + 50);
     this.gems = this.gems.filter(g => !g.dead); this.hazards = this.hazards.filter(h => h.live > 0);
     if (this.xp >= this.need) this.offer();
+    else if (this.time - this.lastUpgradeAt >= 45) this.offer('support');
   }
 }
