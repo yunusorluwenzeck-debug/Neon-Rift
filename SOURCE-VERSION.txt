@@ -1,3 +1,3 @@
-Sites source commit: 4febac3e0c4a2aa80d1a70904b229a8d0a5fc1c7
+Sites source commit: 1fe7e865d88e37af337a16e4c0eff56600f81555
 Private Site: https://neon-rift-flight.fairyridge9.chatgpt.site
-Campaign, skill tree, rarity, fullscreen and save update.
+Afterglow: presentation, combo scoring and faster progression.

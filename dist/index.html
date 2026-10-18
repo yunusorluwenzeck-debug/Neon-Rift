@@ -6,12 +6,12 @@
   <meta name="theme-color" content="#070b15">
   <meta name="description" content="Bygg ditt skepp, besegra tre bossar och öppna vägen genom sex allt svårare banor. NEON RIFT sparar din resa.">
   <title>NEON RIFT · Last light</title>
-  <link rel="stylesheet" href="style.css?v=campaign-1">
+  <link rel="stylesheet" href="style.css?v=afterglow-1">
 </head>
 <body>
   <canvas id="space" aria-label="Spelplan"></canvas>
   <header>
-    <a class="brand" href="./"><span class="mark">✳</span> NEON RIFT<span class="edition">LAST LIGHT</span></a>
+    <a class="brand" href="./"><svg class="mark" viewBox="0 0 32 36" aria-hidden="true"><path d="M16 1 29 29 18 23 16 35 14 23 3 29Z" fill="currentColor"/><path d="m16 9 4 13-4-3-4 3Z" fill="#09202a"/></svg> NEON RIFT<span class="edition">LAST LIGHT</span></a>
     <div class="top-actions">
       <button id="fullscreen" title="Fullskärm (F)">Fullskärm ⛶</button>
       <button id="sound" aria-label="Stäng av ljudeffekter">Ljud på</button>
@@ -20,9 +20,10 @@
     </div>
   </header>
   <main id="menu">
-    <div class="eyebrow"><i></i> DIN RESA GENOM RIFTEN</div>
-    <h1>OWN THE<br><span>UNKNOWN.</span></h1>
-    <p class="intro">Tre bossar står i vägen. Sex banor väntar.<br>Vinn riftkärnor. Bygg skeppet på ditt sätt.</p>
+    <div class="eyebrow"><i></i> ETT SKEPP. SEX HORISONTER.</div>
+    <h1>INTO THE<br><span>AFTERGLOW.</span></h1>
+    <p class="intro">Flyg nära faran. Hitta ditt flyt.<br>Bygg ett skepp som ingen annan och stäng riften.</p>
+    <div class="mission-card"><small id="mission-caption">BANA 01 / 06</small><strong id="mission-name">Första ljuset</strong><div id="route" class="route" aria-label="Välj upplåst bana"></div></div>
     <div class="menu-buttons">
       <button class="primary" id="continue" hidden>Fortsätt flygningen ↗</button>
       <button class="primary" id="start">Spela bana 1 ↗</button>
@@ -30,17 +31,19 @@
     <div class="menu-links"><button id="open-hangar">Bankarta ↗</button><button id="open-tree">Skill tree ↗</button></div>
     <div class="campaign-summary" id="campaign-summary">0/6 banor klarade · 0 riftkärnor</div>
     <div class="record">DITT REKORD <strong id="best">0</strong><span>POÄNG</span></div>
-    <div class="features"><div><b>06</b><span>BANOR ATT LÅSA UPP</span></div><div><b>09</b><span>PERMANENTA FÄRDIGHETER</span></div><div><b>04</b><span>RARITETER</span></div></div>
+    <div class="features"><div><b>06</b><span>HORISONTER</span></div><div><b>03</b><span>BOSSAR PER BANA</span></div><div><b>∞</b><span>DITT SÄTT ATT FLYGA</span></div></div>
   </main>
-  <div id="hero-label"><span>INTERCEPTOR / MK. IV</span><b>Byggd för det omöjliga.</b><small>JONDRIFT &nbsp; • &nbsp; AUTOSIKTE &nbsp; • &nbsp; PULSSKÖLD</small></div>
+  <div id="hero-label"><span>NR–04 / INTERCEPTOR</span><b>En liten gnista.<br>Ett stort avtryck.</b><small>ION DRIVE &nbsp; / &nbsp; AUTO TARGETING</small></div>
   <footer id="controls"><span><kbd>W A S D</kbd> / <kbd>↑ ↓ ← →</kbd> Flyg</span><span><kbd>SPACE</kbd> Dash</span><span><kbd>P</kbd> Paus</span><span class="mobile-copy">Dra som en styrspak för att flyga · Tryck ⚡ för dash</span><em>Vapnen skjuter automatiskt.</em></footer>
   <section id="hud" hidden>
-    <div class="hud-left"><small>SKÖLD</small><div class="health"><i id="hp"></i></div><span id="hptext"></span></div>
+    <div class="hud-top"><div class="hud-left"><small>SKÖLD</small><div class="health"><i id="hp"></i></div><span id="hptext"></span></div>
     <div class="hud-center"><small id="wave">BANA 1 · VÅG 01</small><b id="timer">00:00</b><span id="nextboss"></span></div>
-    <div class="hud-right"><small>POÄNG</small><b id="score">0</b></div>
+    <div class="hud-right"><small>POÄNG</small><b id="score">0</b></div></div>
+    <div id="combo-box" class="combo-box"><span id="combo-caption">KOMBO</span><b id="combo">×1.00</b><div><i id="combo-meter"></i></div></div>
+    <div class="encounters" aria-label="Bossframsteg"><span id="encounter-0">01 <b>SENTINEL</b></span><span id="encounter-1">02 <b>HIVE MOTHER</b></span><span id="encounter-2">03 <b>VOIDKEEPER</b></span></div>
     <div class="xp"><i id="xp"></i></div><div class="level" id="level">NIVÅ 1</div>
     <div class="bossbar" id="bossbar" hidden><span id="bossname">VOIDKEEPER</span><div><i id="bosshp"></i></div></div>
-    <button id="dash">⚡ <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div>
+    <button id="dash"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="m14 1-11 15h8L9 27l12-16h-8Z" fill="currentColor"/></svg> <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div>
   </section>
   <section id="hangar" class="hangar" aria-label="Hangar och progression" hidden>
     <div class="hangar-heading"><div><div class="eyebrow">INTERCEPTOR / UTVECKLING</div><h2>Gör det till ditt.</h2><p id="hangar-stats"></p></div><div class="wallet"><span>◈</span><strong id="hangar-wallet">0 RIFTKÄRNOR</strong><small>Vinn banor. Förstärk skeppet.</small></div></div>
@@ -50,15 +53,16 @@
     <div id="skill-tree" class="skill-tree" role="tabpanel" aria-labelledby="tab-skills" hidden></div>
     <button id="refund" class="text-button refund" hidden>Återställ trädet · få tillbaka alla kärnor</button>
     <div class="save-tools"><div><b>Din resa, sparad.</b><p>Banor, skill tree, statistik, inställningar och pågående flygning sparas automatiskt på den här enheten. Exportera för en säkerhetskopia eller för att flytta till en annan enhet.</p></div><div class="save-buttons"><button id="export-save">Exportera sparfil ↓</button><button id="import-save">Importera sparfil ↑</button></div></div>
+    <div class="hangar-flight"><span>REDO FÖR NÄSTA HORISONT?</span><button id="hangar-launch" class="primary">Starta nästa bana ↗</button></div>
     <input id="save-file" type="file" accept="application/json,.json" hidden>
   </section>
   <div id="savestatus" class="save-status" role="status" aria-live="polite">Sparas automatiskt på den här enheten</div>
   <div class="modal-wrap" id="overlay" hidden>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
-      <div class="eyebrow" id="modalTag">FLYGNING PAUSAD</div><h2 id="modalTitle">Andas ut.</h2><p id="modalDesc"></p><div id="choices"></div>
+      <div class="eyebrow" id="modalTag">FLYGNING PAUSAD</div><h2 id="modalTitle">Andas ut.</h2><p id="modalDesc"></p><div id="debrief" class="debrief" hidden></div><div id="choices"></div>
       <button class="primary" id="resume">Fortsätt ↗</button><button class="secondary next-sector" id="nextsector" hidden>Spela nästa bana ↗</button><button class="secondary" id="restart">Börja om</button><button class="secondary" id="home">Till huvudmenyn</button>
     </section>
   </div>
-  <script type="module" src="game.js?v=campaign-1"></script>
+  <script type="module" src="game.js?v=afterglow-1"></script>
 </body>
 </html>

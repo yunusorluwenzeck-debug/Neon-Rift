@@ -7,42 +7,43 @@
   <meta name="description" content="Bygg ditt skepp, besegra tre bossar och öppna vägen genom sex allt svårare banor. NEON RIFT sparar din resa.">
   <title>NEON RIFT · Last light</title>
   <style>700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-:root{color-scheme:dark;--cyan:#7cfbe1;--muted:#8393a6}*{box-sizing:border-box}body{margin:0;background:#070b15;color:#f0f5f8;font-family:'Space Grotesk',Arial,sans-serif;overflow:hidden}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:5px}button:hover{filter:brightness(1.12)}[hidden]{display:none!important}canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}header{position:relative;z-index:3;height:100px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff10}.brand{display:flex;align-items:center;gap:12px;color:white;text-decoration:none;font-weight:700;letter-spacing:2px;font-size:18px}.mark{font-size:36px;color:var(--cyan)}.edition{font-size:9px;color:#8b99a8;letter-spacing:3px;border-left:1px solid #ffffff30;padding-left:18px;margin-left:10px}.top-actions{display:flex;gap:15px;align-items:center}.top-actions button{border:1px solid #ffffff25;border-radius:5px;background:#0d1623;color:#bdc9d5;padding:9px 13px;font-size:12px}.live{font-size:10px;letter-spacing:2px;color:#8e9dad;margin-right:15px}.live:before{content:'●';color:var(--cyan);margin-right:9px}main{position:relative;z-index:2;margin:clamp(35px,8vh,100px) 0 0 8%;pointer-events:none}main button{pointer-events:auto}.eyebrow{color:var(--cyan);font-size:10px;letter-spacing:3px;font-weight:600}.eyebrow i{display:inline-block;background:var(--cyan);width:22px;height:2px;vertical-align:middle;margin-right:10px}h1{font-family:'Barlow Condensed',Impact,sans-serif;font-size:clamp(64px,8.7vw,138px);font-weight:800;letter-spacing:-2px;line-height:.92;margin:25px 0}h1 span{color:var(--cyan)}.intro{font-size:15px;line-height:1.8;color:#95a4b7;margin:25px 0 28px}.primary{background:var(--cyan);border:0;color:#092026;padding:17px 25px;font-weight:700;font-size:14px;min-width:220px;border-radius:3px;box-shadow:0 0 35px #7cfbe118}.primary span{margin-left:36px}.record{font-size:9px;letter-spacing:2px;color:#8a9aad;margin-top:20px;display:flex;align-items:center;gap:12px}.record strong{font-size:18px;color:white;letter-spacing:0}.record span{font-size:8px}.features{display:flex;gap:40px;margin-top:40px}.features div{display:flex;flex-direction:column;gap:6px;border-left:1px solid #ffffff22;padding-left:18px}.features b{font-size:24px;font-weight:500}.features span{font-size:8px;color:#7b8c9e;letter-spacing:1.5px}#hero-label{position:absolute;right:12%;bottom:20%;text-align:center;display:flex;flex-direction:column;gap:12px}#hero-label span{color:var(--cyan);font-size:9px;letter-spacing:3px}#hero-label b{font-size:18px;font-weight:400}#hero-label small{font-size:8px;letter-spacing:1px;color:#6d8197}footer{position:fixed;bottom:0;padding:24px 5%;width:100%;display:flex;align-items:center;gap:25px;border-top:1px solid #ffffff10;color:#7f91a6;font-size:10px;z-index:2}kbd{font-family:inherit;color:#b4c3d0;border:1px solid #ffffff24;padding:5px 7px;border-radius:3px;font-size:9px;margin-right:5px}footer em{margin-left:auto;font-style:normal}.mobile-copy{display:none}#hud{position:fixed;inset:115px 5% 0;pointer-events:none}.hud-left{position:absolute;left:0;top:0}.hud-right{position:absolute;right:0;top:0;text-align:right}.hud-center{text-align:center}#hud small{font-size:9px;letter-spacing:2px;color:#99a9ba}#hud b{display:block;font-size:26px}.health{background:#ffffff15;width:155px;height:5px;margin:10px 0}.health i,.xp i,.bossbar i{display:block;height:100%;background:var(--cyan);transition:width .12s}#hptext{font-size:10px;color:var(--muted)}.xp{position:absolute;bottom:23px;left:0;right:0;height:3px;background:#ffffff15}.level{position:absolute;bottom:36px;font-size:10px;letter-spacing:2px;color:var(--cyan)}#dash{position:absolute;bottom:70px;right:0;border:1px solid #7cfbe166;background:#10282fdd;color:var(--cyan);width:72px;height:72px;border-radius:50%;pointer-events:auto;font-size:24px;touch-action:none}#dash span{display:block;font-size:10px}#hint{position:absolute;bottom:80px;left:0;font-size:11px;color:#8297ab}.bossbar{width:50%;margin:20px auto;text-align:center}.bossbar span{font-size:10px;letter-spacing:3px;color:#ff729c}.bossbar div{height:5px;background:#ffffff20;margin-top:10px}.bossbar i{background:#ff729c}.modal-wrap{position:fixed;inset:0;background:#040913bf;backdrop-filter:blur(14px);z-index:10;display:grid;place-items:center;padding:20px}.modal{text-align:center;width:min(760px,100%)}h2{font-family:'Barlow Condensed',Impact,sans-serif;font-size:64px;letter-spacing:-1px;margin:12px}.modal p{color:#96a9bb;font-size:14px;line-height:1.7}.secondary{display:block;margin:20px auto 0;background:none;border:0;color:#9aafc1;font-size:12px}#choices{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:28px 0}#choices:empty{display:none}.choice{text-align:left;padding:24px 20px;border:1px solid #7cfbe133;background:linear-gradient(145deg,#16323b,#0b1626);color:#fff;border-radius:8px;transition:transform .2s}.choice:hover{transform:translateY(-5px);border-color:var(--cyan)}.choice b{display:block;margin:14px 0 8px;font-size:17px}.choice i{font-size:28px;color:var(--cyan);font-style:normal}.choice span{display:block;font-size:12px;color:#a4b6c5;line-height:1.6}.choice small{display:block;margin-top:20px;color:var(--cyan);font-size:9px;letter-spacing:2px}@media(max-width:700px){header{height:75px;padding:0 6%}.edition,.live{display:none}.brand{font-size:15px}main{margin:50px 7% 0}h1{font-size:75px}.intro{font-size:13px}.features{gap:20px;margin-top:30px}.features b{font-size:20px}#hero-label{display:none}footer>span{display:none}footer .mobile-copy{display:block}footer em{display:none}#hud{top:95px}.health{width:100px}#hud b{font-size:22px}#hint{max-width:210px;line-height:1.5}#choices{grid-template-columns:1fr;gap:8px;margin:15px 0}.choice{padding:14px 18px;display:grid;grid-template-columns:40px 1fr}.choice i{grid-row:span 2}.choice b{font-size:15px;margin:0 0 4px}.choice span{font-size:11px}.choice small{display:none}h2{font-size:46px}.modal p{font-size:12px}.bossbar{width:70%;margin-top:35px}}@media(max-height:740px) and (min-width:701px){main{margin-top:30px}h1{font-size:90px}.features{margin-top:24px}.intro{margin:17px 0}#hero-label{bottom:17%}}
-/* Flight deck: keep gameplay clear of the HUD and touch controls. */
-body{overscroll-behavior:none;height:100dvh}header{padding-top:env(safe-area-inset-top)}.playing header{height:65px}.playing #hud{top:80px}.playing #hud .bossbar{margin-top:8px;width:40%}#banner{position:absolute;top:95px;left:50%;transform:translateX(-50%);width:min(550px,90vw);text-align:center;pointer-events:none;transition:opacity .3s;background:linear-gradient(90deg,transparent,#07111ce8,transparent);padding:10px}#banner b{font-size:13px;letter-spacing:3px;color:var(--cyan)}#banner span{display:block;font-size:11px;line-height:1.6;margin-top:7px;color:#b8c9d6}#build{position:absolute;bottom:53px;left:0;font-size:13px;letter-spacing:2px;color:#afbcdb}#dash{background:radial-gradient(circle,#10282f 63%,transparent 66%),conic-gradient(var(--cyan) var(--charge,360deg),#29414b 0);border:0}#hint{max-width:65%;bottom:82px;line-height:1.5}.modal-wrap{overflow:auto}.modal{margin:auto;padding:20px 0}.settings{grid-column:1/-1;text-align:left;max-width:350px;margin:auto;width:100%}.settings label{display:flex;gap:16px;padding:14px;align-items:center;justify-content:space-between}.settings input{accent-color:var(--cyan);min-height:22px}.settings input[type=checkbox]{width:22px}.top-actions button{min-height:42px}button:disabled{opacity:.4;cursor:default}.playing #hero-label{display:none}.playing .live{display:none}.choice{min-height:180px}.secondary{min-height:36px}.modal #home{margin-top:0}#restart{color:#c6e4e2}.bossbar{pointer-events:none}
-@media(max-width:700px){.playing header{height:58px;padding:0 4%}.brand{gap:6px;font-size:12px;letter-spacing:1px}.mark{font-size:24px}.top-actions{gap:5px}.top-actions button{font-size:10px;padding:7px}.playing #hud{top:70px;left:5%;right:5%}.playing #hud .bossbar{width:52%;margin-top:6px}.bossbar span{font-size:8px}.health{width:85px}.hud-center small{font-size:8px!important}#banner{top:85px;padding:7px}#banner b{font-size:11px}#banner span{font-size:10px}#hint{font-size:10px;max-width:67%;bottom:90px}#dash{width:70px;height:70px;bottom:max(55px,env(safe-area-inset-bottom))}.choice{min-height:85px}.modal h2{font-size:38px}.modal p{margin:10px 0}.features{margin-top:20px}main{margin-top:28px}h1{font-size:clamp(52px,12vw,75px)}}
-@media(max-height:560px){header{height:55px}main{margin-top:18px}h1{font-size:55px;margin:14px 0}.intro{margin:12px 0}.features,.record,#hero-label,footer{display:none}.modal-wrap{padding:10px}.modal h2{font-size:32px}.modal{padding:5px 0}.choice{min-height:100px;padding:12px}.modal p{font-size:11px}#choices{grid-template-columns:repeat(3,1fr);margin:12px 0}.choice i{display:none}.choice b{font-size:13px}.choice span{font-size:10px}.choice small{font-size:8px}.primary{padding:12px}.secondary{display:inline-block;margin:8px}.playing #hud b{font-size:18px}#banner{top:65px}#banner span{display:none}#hint{display:none}.playing header{height:48px}.playing #hud{top:55px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}.choice:hover{transform:none}}
+:root{color-scheme:dark;--cyan:#91f4d6;--paper:#ebf1e9;--muted:#8c9ead;--line:#b5d8dc22;--panel:#101b28;--display:'Barlow Condensed',Impact,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#070c15;color:var(--paper);font-family:'Space Grotesk',Arial,sans-serif;height:100dvh;overflow:hidden;overscroll-behavior:none}button,input,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button,a{touch-action:manipulation}button:disabled{cursor:default}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:5px}[hidden]{display:none!important}button{transition:background .18s,color .18s,border-color .18s,transform .18s}canvas#space{position:fixed;inset:0;width:100%;height:100%;touch-action:none}button:hover:not(:disabled){filter:brightness(1.09)}
+header{position:relative;z-index:6;height:88px;padding:env(safe-area-inset-top) 5% 0;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);background:linear-gradient(#070c1566,#070c1500)}.brand{display:flex;align-items:center;gap:11px;color:var(--paper);font-size:16px;letter-spacing:2px;text-decoration:none;font-weight:700;white-space:nowrap}.mark{width:25px;height:31px;color:var(--cyan)}.edition{font-size:8px;color:#8c9d9e;letter-spacing:3px;padding-left:17px;border-left:1px solid var(--line);margin-left:8px}.top-actions{display:flex;gap:8px}.top-actions button{background:#101b26b8;border:1px solid #b6d9d525;border-radius:5px;color:#a9bcbc;min-height:40px;padding:9px 13px;font-size:11px}.top-actions #pause{border-color:#91f4d655;color:var(--cyan)}
+#menu{position:relative;z-index:2;width:52%;padding:clamp(24px,5vh,62px) 0 28px;margin-left:7%;max-height:calc(100dvh - 150px);overflow-y:auto;scrollbar-width:thin}.eyebrow{font-size:9px;letter-spacing:2.6px;color:var(--cyan);font-weight:600}.eyebrow i{display:inline-block;width:19px;height:2px;background:var(--cyan);margin-right:10px;vertical-align:middle}h1{font-family:var(--display);font-size:clamp(64px,7.7vw,118px);font-weight:700;letter-spacing:-1px;line-height:.9;margin:24px 0 21px}h1 span{color:var(--cyan)}.intro{font-size:13px;line-height:1.85;color:#93a8b4;max-width:420px;margin:0 0 23px}.mission-card{padding:15px 18px;border-left:2px solid var(--cyan);background:linear-gradient(100deg,#94f4d50d,transparent);max-width:415px;margin:0 0 21px}.mission-card small{font-size:8px;letter-spacing:1.3px;color:#87b5a6;display:block}.mission-card strong{display:block;font-size:17px;font-weight:500;margin:8px 0 13px}.route{display:flex;gap:8px}.route-node{font:10px 'Space Grotesk',sans-serif;position:relative;width:37px;height:28px;border:1px solid #9fc5bf22;background:#182531;color:#6a7c89;border-radius:3px}.route-node:not(:last-child):after{content:'';position:absolute;right:-9px;width:8px;height:1px;background:#9fc5bf22;top:13px}.route-node.selected{background:#91f4d6;color:#10252a;border-color:#91f4d6}.route-node.cleared{border-color:#91f4d660;color:var(--cyan)}.route-node:disabled{background:#0c1520;color:#495a66}
+.primary{display:inline-flex;justify-content:center;align-items:center;gap:20px;border:1px solid #b5ffe4;border-radius:5px;background:var(--cyan);color:#0a2528;padding:16px 23px;min-height:50px;min-width:215px;font-weight:700;font-size:13px;box-shadow:0 7px 30px #060b1280}.primary:hover:not(:disabled){transform:translateY(-2px);background:#b8ffe5}.primary:active:not(:disabled){transform:translateY(0)}.menu-buttons{display:flex;flex-wrap:wrap;gap:9px;max-width:530px}.menu-buttons #continue:not([hidden])+#start{background:#12212c;color:#c0dad4;border-color:#91f4d640;min-width:160px}.menu-links{display:flex;gap:24px;margin:11px 0}.menu-links button,.text-button{border:0;background:none;min-height:38px;padding:8px 0;font-size:11px;text-align:left;color:#a8c4c6}.menu-links button:hover,.text-button:hover{color:var(--cyan)}.campaign-summary{font-size:10px;letter-spacing:.3px;color:#789d90}.record{display:flex;gap:10px;align-items:center;margin-top:15px;font-size:8px;letter-spacing:1.5px;color:#748899}.record strong{color:#d7e5df;font-size:16px;font-weight:500;letter-spacing:0}.record span{font-size:7px}.features{display:flex;gap:27px;margin-top:28px}.features>div{display:flex;align-items:center;gap:8px}.features b{font-family:var(--display);font-size:29px;font-weight:500;color:#c1d7d3}.features span{font-size:7px;letter-spacing:1px;color:#637f8c;max-width:84px;line-height:1.6}
+#hero-label{position:absolute;z-index:2;right:6.5%;bottom:15%;text-align:right;pointer-events:none}#hero-label>span{font-size:9px;color:#96c8b8;letter-spacing:2.5px}#hero-label b{display:block;font-size:20px;font-weight:400;line-height:1.5;color:#c3d2d0;margin:12px 0}#hero-label small{font-size:7px;letter-spacing:1.4px;color:#6c8b93}footer#controls{position:fixed;z-index:2;bottom:0;left:5%;right:5%;height:57px;display:flex;align-items:center;gap:22px;border-top:1px solid var(--line);color:#6c8794;font-size:9px}kbd{font:9px 'Space Grotesk',sans-serif;border:1px solid #a9cbc12a;border-radius:3px;padding:4px 6px;color:#b4c9cb;margin-right:4px}footer em{font-style:normal;margin-left:auto}.mobile-copy{display:none}.save-status{position:fixed;z-index:7;right:5%;bottom:65px;max-width:45%;font-size:9px;color:#668e7f;text-align:right;pointer-events:none}.save-error{color:#ffcf9a!important;padding:9px 13px;border:1px solid #ffcf9a44;border-radius:4px;background:#211b22!important;z-index:20!important}
+/* Flight HUD: a small instrument strip, with the arena kept open. */
+.playing header{height:60px;background:#08111b99}.playing .edition{display:none}#hud{position:fixed;z-index:3;inset:75px 5% 0;pointer-events:none}.hud-top{display:grid;grid-template-columns:170px minmax(0,1fr) 170px;gap:15px;align-items:start}.hud-left,.hud-right{padding:0}.hud-right{text-align:right}#hud small{font-size:8px;color:#849ca8;letter-spacing:1.6px}#hud b{font-size:25px;display:block;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px}.hud-center{text-align:center}.hud-center #wave{font-size:9px;letter-spacing:1px}.hud-center #timer{font-family:var(--display);font-size:32px;line-height:1.2}.health{width:135px;height:5px;background:#9dcbc11c;margin:10px 0 6px;border-radius:1px;overflow:hidden}.health i,.xp i,.bossbar i{display:block;height:100%;background:var(--cyan);transition:width .12s linear}#hptext{font-size:10px;color:#91b6a8}.low-shield #hp{background:#ffae91}.low-shield #hptext{color:#ffbe9e}#nextboss{display:block;font-size:9px;color:#b7b99d;margin-top:3px;letter-spacing:.4px}.encounters{display:flex;justify-content:center;gap:22px;margin-top:10px}.encounters span{color:#3c5263;display:flex;gap:6px;align-items:center;font-size:8px;letter-spacing:1px}.encounters span:not(:last-child):after{content:'';width:25px;height:1px;background:#65817230;margin-left:7px}#hud .encounters b{font-size:7px;letter-spacing:.7px}.encounters .done{color:#94bca7}.encounters .current{color:var(--cyan)}.bossbar{position:absolute;top:78px;left:27%;right:27%;text-align:center;background:#08121ee8;padding:2px 10px 7px}.bossbar span{font-size:8px;letter-spacing:2px;color:#f2afa9}.bossbar div{height:4px;background:#ffd3c21c;margin-top:5px}.bossbar i{background:#efb4a1}
+.combo-box{position:absolute;right:0;top:52px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;width:110px;color:#597382}.combo-box>span{font-size:8px;align-self:center;text-align:right;text-transform:uppercase;letter-spacing:.8px}#hud .combo-box b{font-size:17px;color:#718b98}.combo-box>div{grid-column:1/-1;height:2px;background:#99d1bf15}.combo-box i{display:block;height:100%;background:#91f4d6;transition:width .1s linear}.combo-box.hot,.combo-box.hot b{color:var(--cyan)!important}.xp{position:absolute;bottom:23px;left:0;right:0;height:3px;background:#a1c7bb1a}.level{position:absolute;bottom:34px;font-size:8px;letter-spacing:.8px;color:#8bd0b6}#build{position:absolute;left:0;bottom:52px;font-size:10px;color:#a0adba;max-width:calc(100% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#hint{position:absolute;left:0;bottom:80px;color:#6f929d;font-size:10px;max-width:65%;line-height:1.6}#dash{position:absolute;right:0;bottom:58px;pointer-events:auto;touch-action:none;width:72px;height:72px;border:0;border-radius:50%;color:var(--cyan);background:radial-gradient(circle,#0d232c 63%,transparent 66%),conic-gradient(var(--cyan) var(--charge,360deg),#243844 0);box-shadow:0 0 0 6px #07121a7a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}#dash svg{height:25px;width:23px}#dash span{font-size:9px;letter-spacing:.5px}#banner{position:absolute;top:116px;left:50%;transform:translateX(-50%);width:min(510px,80vw);text-align:center;padding:10px 15px;pointer-events:none;background:linear-gradient(90deg,#07121c00,#07121ce8,#07121c00);transition:opacity .3s}#hud #banner b{font-size:12px;letter-spacing:2px;color:#b6f5dd}#banner span{display:block;font-size:10px;line-height:1.6;margin-top:6px;color:#9eb7bd}.playing .save-status{bottom:7px;right:5%;font-size:8px;color:#47665c;max-width:80%}
+/* Upgrade laboratory and debrief. No full-screen flashes or busy overlays. */
+.modal-wrap{position:fixed;inset:0;z-index:12;overflow-y:auto;background:#040a13d6;backdrop-filter:blur(9px);padding:30px 22px;display:flex;align-items:flex-start;justify-content:center}.modal{width:min(900px,100%);text-align:center;margin:auto;padding:20px 0}h2{font-family:var(--display);font-weight:600;font-size:58px;line-height:1.05;letter-spacing:-.5px;margin:14px 0}.modal>p{font-size:13px;line-height:1.8;color:#91a8b6;max-width:680px;margin:13px auto 23px}.secondary{display:block;margin:13px auto 0;border:1px solid transparent;background:none;color:#87a7b4;padding:10px 16px;min-height:39px;font-size:11px;border-radius:4px}.next-sector{color:#a4dac8;border-color:#91f4d62d;min-width:215px}.modal #home{font-size:10px;margin-top:6px;color:#617f90}.is-upgrade #home{margin-top:5px}.is-upgrade #restart{display:none}.is-upgrade .modal{width:min(980px,100%)}#choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:28px 0 18px}#choices:empty{display:none}
+.choice{--rarity:#a7bcc7;display:flex;flex-direction:column;position:relative;background:linear-gradient(155deg,#1a2938,#0c1725);border:1px solid #647f8c55;border-radius:9px;overflow:hidden;text-align:left;color:var(--paper);padding:19px 22px 0;min-height:305px;box-shadow:0 12px 35px #00000030;animation:card-in .22s both;animation-delay:calc(var(--order,0)*45ms)}.choice:before{content:'';position:absolute;inset:0 20% auto;height:1px;background:var(--rarity);opacity:.7}.choice:hover:not(:disabled){transform:translateY(-4px);border-color:var(--rarity)}.choice .rarity-label{display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:1.6px;color:var(--rarity);border-bottom:1px solid #d1e8e414;padding-bottom:12px;margin-bottom:17px}.choice .rarity-label>span{font-size:9px;color:var(--rarity);letter-spacing:1.6px}.choice>i{display:flex;align-items:center;justify-content:center;width:53px;height:53px;border:1px solid #b8d4cd26;border-radius:12px;background:#020e181f;color:var(--rarity);font-size:30px;font-style:normal;margin:0 0 16px}.choice>b{font-size:20px;font-weight:500;letter-spacing:-.5px;line-height:1.2;margin-bottom:10px}.choice>span{font-size:12px;color:#a6bbc7;line-height:1.8;flex:1}.choice>small{display:flex;align-items:center;justify-content:space-between;color:#7f9aa8;font-size:8px;letter-spacing:.6px;margin:17px 0 13px}.choice kbd{color:var(--rarity);margin:0}.card-action{font-size:9px;letter-spacing:1.5px;color:var(--rarity);margin:0 -22px;padding:14px 22px;background:#02081033;border-top:1px solid #d1e8e410;display:flex;justify-content:space-between}.rarity-rare{--rarity:#a5caff;background:linear-gradient(150deg,#20334d,#0d1929);border-color:#82baff52}.rarity-epic{--rarity:#d4b3ff;background:linear-gradient(150deg,#352c49,#141929);border-color:#c4a6fa5e}.rarity-legendary{--rarity:#f8d297;background:linear-gradient(150deg,#443926,#1e2029);border-color:#e6bd716b}.rarity-legendary>i{background:#f3c4780f;border-color:#f3c47855}.settings{grid-column:1/-1;text-align:left;max-width:400px;width:100%;margin:0 auto;padding:13px;border:1px solid var(--line);border-radius:8px;background:#11202d}.settings label{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 10px;font-size:13px;color:#b8cbcf}.settings input{accent-color:var(--cyan);min-height:23px}.settings input[type=checkbox]{width:22px}.debrief{max-width:680px;margin:25px auto 28px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #91f4d629;background:#11222a9e;border-radius:8px;overflow:hidden}.debrief>div{padding:22px 8px;border-right:1px solid #91f4d618}.debrief small{display:block;color:#72978f;font-size:8px;letter-spacing:1.2px;margin-bottom:9px}.debrief strong{font-size:22px;font-weight:500;color:#d7eee2;letter-spacing:-.5px}.debrief .reward-strip{grid-column:1/-1;border-top:1px solid #91f4d623;border-right:0;padding:16px;font-size:12px;color:var(--cyan);background:#91f4d607}.is-result h2{font-size:72px}.is-result .modal{width:min(800px,100%)}
+/* The hangar and connected skill branches. */
+.hangar{position:fixed;z-index:5;inset:88px 0 0;background:#09131fee;backdrop-filter:blur(20px);padding:35px 5% 25px;overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain}.hangar-heading{display:flex;align-items:center;justify-content:space-between;gap:25px;max-width:1160px;margin:0 auto 20px}.hangar h2{font-size:53px;margin:11px 0}.hangar-heading p{font-size:11px;color:#72919b;margin:0}.wallet{display:grid;grid-template-columns:40px 1fr;gap:6px 12px;padding:18px 22px;border:1px solid #91f4d629;border-radius:6px;background:linear-gradient(120deg,#91f4d60d,transparent)}.wallet>span{grid-row:span 2;align-self:center;color:var(--cyan);font-size:32px}.wallet strong{font-size:13px;color:var(--cyan);letter-spacing:1px}.wallet small{font-size:9px;color:#7ca294}.hangar-nav{max-width:1160px;margin:auto;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:15px}.hangar-nav [role=tablist]{display:flex;gap:28px}.hangar-nav [role=tab]{background:none;border:0;border-bottom:2px solid transparent;color:#7897a5;padding:17px 0;font-size:12px}.hangar-nav [aria-selected=true]{border-bottom-color:var(--cyan);color:var(--cyan)}.hangar-note{max-width:1160px;margin:20px auto;color:#819ba6;font-size:11px;line-height:1.7}.sector-grid{max-width:1160px;margin:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.sector-card{--sector:#91f4d6;position:relative;padding:0 23px 22px;border:1px solid #8aa8b822;border-radius:8px;background:#101e2c;display:flex;flex-direction:column;overflow:hidden}.sector-art{position:relative;height:94px;margin:0 -23px 21px;overflow:hidden;background:radial-gradient(ellipse at 65% 80%,#7b9baf14,transparent 75%);border-bottom:1px solid #a4c9bf0e}.planet{position:absolute;right:21%;top:24px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle at 28% 24%,var(--sector),#193644 35%,#0a1625 65%);box-shadow:-3px -3px 0 #a6dcce12;opacity:.7}.orbit-line{position:absolute;top:51px;right:8%;width:190px;height:40px;transform:rotate(-22deg);border:1px solid #92b8c12a;border-radius:50%}.sector-art>b{position:absolute;left:23px;top:21px;font-family:var(--display);font-size:44px;color:#b1ced622;font-weight:500;letter-spacing:-2px}.sector-card>small{font-size:8px;letter-spacing:1.7px;color:#7b9aa7}.sector-card h3{font-size:21px;letter-spacing:-.5px;font-weight:500;margin:12px 0 8px}.sector-card p{font-size:11px;color:#8aa6b3;line-height:1.7;min-height:38px;margin:0 0 15px}.sector-stats{font-size:9px;line-height:1.8;color:#738f9f;margin-top:auto}.sector-record{font-size:9px;color:#94b4a5;line-height:1.8;margin-top:7px}.sector-card .primary{min-width:0;width:100%;min-height:44px;padding:12px 7px;font-size:11px;margin-top:17px}.sector-card.available{border-color:#91f4d65e;background:linear-gradient(150deg,#163137,#101e2c)}.sector-card.available>small,.sector-card.completed>small{color:var(--cyan)}.sector-card.completed{border-color:#91f4d629}.sector-card.locked .planet{opacity:.25}.sector-card.locked h3{color:#718f9e}.sector-card.locked .primary{border-color:#6b8d9c22;background:#1a2a38;color:#65818f;box-shadow:none}.sector-card.locked .primary:hover{transform:none}
+.skill-tree{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}.skill-branch{--branch:#91f4d6}.skill-branch:nth-child(2){--branch:#a4c9ef}.skill-branch:nth-child(3){--branch:#c6b1f3}.skill-branch>h3{font-size:10px;letter-spacing:3px;color:var(--branch);border-bottom:1px solid #a9c8bf22;padding-bottom:13px;margin:7px 0 20px}.skill-node{position:relative;border:1px solid #94b8c522;border-radius:7px;background:linear-gradient(155deg,#152736,#0e1b29);margin-bottom:29px;padding:22px;min-height:242px;display:flex;flex-direction:column}.skill-node+.skill-node:before{content:'';position:absolute;width:1px;height:29px;left:50%;top:-30px;background:#7fa5af50}.skill-node+.skill-node:after{content:'';position:absolute;width:5px;height:5px;background:#668e98;left:calc(50% - 2px);top:-17px;transform:rotate(45deg)}.skill-node.owned{border-color:#9bdac64d}.skill-node h4{font-size:17px;font-weight:500;margin:0 0 7px}.skill-node>small{font-size:8px;letter-spacing:1.4px;color:var(--branch)}.skill-node p{font-size:11px;line-height:1.8;color:#adc5ca;margin:14px 0}.skill-prereq{font-size:9px;color:#658795;margin-top:auto}.rank-pips{display:flex;gap:5px;margin:14px 0 15px}.rank-pips i{height:3px;flex:1;background:#a6c5c71c}.rank-pips .filled{background:var(--branch)}.skill-buy{border:1px solid #a4dbc638;border-radius:4px;background:#1d3c3d;color:var(--branch);font-size:11px;padding:12px;min-height:41px;width:100%}.skill-buy:disabled{color:#4e6a7b;border-color:#a1d0bd0b;background:#101e2c}.refund{display:block;text-align:center;margin:0 auto 16px;font-size:10px;color:#83999f;text-decoration:underline;text-underline-offset:5px}.refund:disabled{color:#435b69}.save-tools{max-width:1160px;margin:25px auto 22px;border-top:1px solid var(--line);padding-top:22px;display:flex;gap:30px;align-items:center;justify-content:space-between}.save-tools b{font-size:12px;font-weight:500;color:#abc8c2}.save-tools p{max-width:600px;font-size:10px;color:#5e808d;line-height:1.8;margin:7px 0}.save-buttons{display:flex;gap:10px;flex-shrink:0}.save-buttons button{padding:12px;border:1px solid #9bcab724;border-radius:4px;background:#142633;color:#8cabb5;font-size:10px;min-height:42px}.hangar-flight{position:sticky;z-index:2;bottom:-25px;max-width:1160px;margin:0 auto -25px;padding:16px 0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #91f4d633;background:#09131ff5;backdrop-filter:blur(15px)}.hangar-flight>span{font-size:8px;letter-spacing:2px;color:#749d91}.hangar-flight .primary{min-height:44px;padding:12px 20px;font-size:12px}.hangar:not([hidden])~.save-status{bottom:5px;background:#09131f;font-size:8px;color:#527d6c;right:5%}
+@keyframes card-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:1450px){#menu{padding-top:6vh}.intro{font-size:15px}.mission-card{margin-top:27px;margin-bottom:26px}.features{margin-top:35px}h1{font-size:132px}}
+@media(max-width:1050px){.edition{display:none}#menu{width:57%;margin-left:6%;padding-top:30px}h1{font-size:91px}.features{gap:17px}.features span{font-size:6px}.menu-buttons{max-width:420px}.primary{min-width:190px}.sector-grid{gap:13px}.sector-card{padding-left:17px;padding-right:17px}.sector-art{margin-left:-17px;margin-right:-17px}.skill-tree{gap:17px}.skill-node{padding:18px}.save-tools{align-items:flex-start;flex-direction:column;gap:10px}.hud-top{grid-template-columns:140px minmax(0,1fr) 140px}}
+@media(max-width:779px){header{height:70px;padding-left:5%;padding-right:5%;gap:10px}.brand{font-size:12px;letter-spacing:1.5px;gap:7px}.mark{width:19px;height:25px}.top-actions{gap:5px}.top-actions button{font-size:10px;padding:8px;min-height:39px}#menu{width:auto;margin:0 7%;max-height:calc(100dvh - 127px);padding-top:30px;padding-bottom:25px}h1{font-size:clamp(76px,13vw,105px);margin:24px 0 20px}.intro{font-size:13px}.mission-card{max-width:415px;margin-bottom:19px}.features{margin-top:25px;gap:25px}.features span{font-size:7px}.features b{font-size:27px}#hero-label{display:none}.save-status{bottom:62px;max-width:87%;font-size:8px}footer#controls{height:51px;font-size:8px;gap:12px}footer kbd{font-size:7px;padding:3px}.playing header{height:54px;padding-left:4%;padding-right:4%;gap:6px}.playing .brand{font-size:10px;gap:5px}.playing .mark{width:16px;height:21px}.playing .top-actions button{padding:6px;font-size:9px;min-height:36px}.playing #hud{top:68px;left:5%;right:5%}.hud-top{grid-template-columns:100px minmax(0,1fr) 95px;gap:6px}.health{width:90px;height:4px}#hud small{font-size:7px;letter-spacing:.8px}#hud b{font-size:22px}.hud-center #wave{font-size:7px;letter-spacing:.3px}.hud-center #timer{font-size:28px}#nextboss{font-size:7px;letter-spacing:0}.encounters{gap:8px;margin-top:13px}.encounters span{font-size:7px;gap:4px}#hud .encounters b{font-size:6px;letter-spacing:.2px}.encounters span:not(:last-child):after{width:13px;margin-left:3px}.combo-box{top:48px;width:85px;gap:2px 6px}.combo-box>span{font-size:6px}#hud .combo-box b{font-size:14px}.bossbar{top:70px;left:19%;right:19%}.bossbar span{font-size:7px}.level{font-size:7px;letter-spacing:0}.xp{bottom:22px}#build{font-size:8px;bottom:50px}#hint{font-size:9px;max-width:70%;bottom:79px}#dash{width:66px;height:66px;bottom:max(59px,env(safe-area-inset-bottom))}#banner{top:99px}#hud #banner b{font-size:10px}#banner span{font-size:9px}.modal-wrap{padding:20px 17px}.modal{padding:8px 0}h2{font-size:43px}.modal>p{font-size:11px;line-height:1.7;margin:10px auto 17px}.eyebrow{font-size:8px;letter-spacing:1.8px}#choices{grid-template-columns:1fr;gap:10px;margin:20px 0 12px}.choice{display:grid;grid-template-columns:40px minmax(0,1fr);gap:0 13px;min-height:0;padding:13px 17px}.choice .rarity-label{grid-column:1/-1;margin:0 0 10px;padding-bottom:8px}.choice .rarity-label>span{font-size:8px}.choice>i{grid-row:2/4;width:40px;height:40px;font-size:24px;margin:0;border-radius:9px}.choice>b{font-size:16px;margin:0 0 5px;grid-column:2}.choice>span{font-size:10px;line-height:1.7;grid-column:2}.choice>small{grid-column:2;font-size:7px;margin:8px 0 0}.choice .card-action{display:none}.choice small kbd{font-size:8px;padding:2px 4px}.secondary{margin-top:8px}.is-result h2{font-size:51px}.debrief{grid-template-columns:repeat(2,minmax(0,1fr));margin:22px auto}.debrief>div{padding:19px 8px;border-bottom:1px solid #91f4d618}.debrief strong{font-size:23px}.debrief .reward-strip{font-size:11px;line-height:1.7;padding:12px}.hangar{inset:70px 0 0;padding:25px 5% 25px}.hangar-heading{align-items:flex-start;gap:17px}.hangar h2{font-size:41px}.wallet{padding:12px;grid-template-columns:24px 1fr;gap:4px 7px}.wallet>span{font-size:26px}.wallet strong{font-size:10px;letter-spacing:.4px}.wallet small{font-size:8px}.hangar-heading p{font-size:9px}.hangar-nav [role=tab]{font-size:11px}.hangar-nav [role=tablist]{gap:20px}.hangar-note{font-size:10px;margin:17px auto}.sector-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.sector-card{padding:0 15px 17px}.sector-art{height:77px;margin:0 -15px 17px}.sector-art>b{font-size:38px;left:15px}.planet{width:76px;height:76px;right:16%}.orbit-line{width:140px;right:4%;top:48px}.sector-card h3{font-size:19px}.sector-card>small{font-size:7px;letter-spacing:.8px}.sector-card p{font-size:10px}.sector-stats,.sector-record{font-size:8px}.sector-card .primary{font-size:10px;padding:10px 5px;min-height:42px}.skill-tree{grid-template-columns:1fr;gap:14px}.skill-node{min-height:0;padding:20px}.skill-node p{font-size:12px;margin:10px 0}.skill-node h4{font-size:18px}.skill-prereq{font-size:10px}.skill-buy{min-height:44px;font-size:12px}.rank-pips{margin:13px 0}.save-buttons{flex-wrap:wrap}.hangar-flight{padding:13px 0 23px;gap:10px}.hangar-flight>span{font-size:7px;letter-spacing:1.1px;max-width:100px;line-height:1.7}.hangar-flight .primary{font-size:11px;min-width:190px}}
+@media(pointer:coarse){footer#controls>span{display:none}footer#controls .mobile-copy{display:block}footer#controls em{display:none}.choice small kbd{display:none}.choice .card-action{display:none}}
+@media(max-width:440px){.top-actions button{font-size:9px;padding:7px}.brand{font-size:10px;letter-spacing:1px}.mark{width:17px}.playing .top-actions button{padding:5px;font-size:8px}.playing .brand{font-size:9px}.playing .mark{width:14px}.playing #fullscreen{max-width:61px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.hangar-heading{flex-direction:column}.wallet{width:100%}.wallet strong{font-size:12px}.wallet small{font-size:9px}.hud-top{grid-template-columns:84px minmax(0,1fr) 75px}.health{width:75px}.hud-center #wave{font-size:6px}.features{gap:16px}#menu{padding-top:24px}h1{font-size:77px}.mission-card small{font-size:7px;letter-spacing:.8px}}
+@media(max-width:355px){.brand .mark{display:none}header{padding-left:4%;padding-right:4%}.top-actions{gap:3px}.top-actions button{padding:6px;font-size:8px}.sector-grid{grid-template-columns:1fr}.features{gap:12px}.features span{font-size:6px}.encounters span:not(:last-child):after{display:none}#menu{margin:0 6%}h1{font-size:68px}.hangar-flight .primary{min-width:175px}.playing #hud .combo-box{width:73px}.combo-box>span{font-size:5px}.modal-wrap{padding:15px 12px}.choice{padding:11px 13px;gap:0 9px}}
+@media(max-height:720px) and (min-width:780px){#menu{padding-top:24px}h1{font-size:82px;margin:18px 0}.intro{font-size:12px;margin-bottom:17px}.mission-card{padding:11px 15px;margin-bottom:17px}.mission-card strong{margin:6px 0 10px}.features{display:none}.record{margin-top:10px}}
+@media(max-height:500px){header{height:48px}.playing header{height:44px}#menu{padding:18px 0 25px;margin-left:6%;width:58%;max-height:calc(100dvh - 49px)}h1{font-size:60px;margin:16px 0}.intro{font-size:11px}.mission-card{padding:10px 14px}.mission-card strong{font-size:15px}.mission-card small{font-size:7px}.menu-buttons .primary{min-width:160px;font-size:11px;padding:11px;min-height:42px}.menu-links{margin:5px 0}.features,.record,#hero-label,footer#controls{display:none}.save-status{bottom:8px}.playing #hud{top:52px}.hud-top{grid-template-columns:110px 1fr 110px}.health{margin:7px 0 4px}#hud b{font-size:19px}.hud-center #timer{font-size:22px}.hud-center #wave{font-size:7px}#nextboss{font-size:7px}.encounters{display:none}.bossbar{top:45px;left:32%;right:32%;padding:0 5px 4px}.combo-box{top:34px;width:95px}#hud .combo-box b{font-size:12px}.combo-box>span{font-size:6px}#hint{display:none}#build{bottom:39px}#dash{bottom:38px;width:56px;height:56px}#dash svg{height:20px}.xp{bottom:17px}.level{bottom:26px;font-size:7px}#banner{top:66px;padding:6px}#banner span{display:none}#hud #banner b{font-size:9px}.modal-wrap{padding:12px 18px}.modal{padding:4px 0}.modal h2,.is-result h2{font-size:35px;margin:10px 0}.modal>p{font-size:10px;margin:8px auto 13px}.modal .eyebrow{font-size:7px}#choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0 7px}.choice{display:flex;min-height:185px;padding:12px 13px 0}.choice>i{display:none}.choice>b{font-size:14px;margin-bottom:7px}.choice>span{font-size:10px}.choice>small{font-size:7px;margin:11px 0}.choice .rarity-label{margin-bottom:10px}.card-action{display:none}.modal .primary{min-height:40px;padding:11px 18px;font-size:11px}.secondary{display:inline-block;font-size:10px;margin:7px 6px 0;padding:8px 13px;min-height:35px}.debrief{grid-template-columns:repeat(4,minmax(0,1fr));margin:16px auto}.debrief>div{padding:13px 8px}.debrief strong{font-size:19px}.debrief .reward-strip{padding:10px;font-size:10px}.hangar{inset:48px 0 0;padding-top:20px}.hangar h2{font-size:36px}.hangar-heading{flex-direction:row;align-items:center}.wallet{width:auto}.skill-tree{grid-template-columns:repeat(3,minmax(0,1fr))}.skill-node{min-height:245px;padding:15px}.skill-node h4{font-size:15px}.skill-node p{font-size:10px}.skill-prereq{font-size:8px}.skill-buy{font-size:10px}.hangar-flight{padding-top:10px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.choice:hover:not(:disabled),.primary:hover:not(:disabled){transform:none}}
 
-#nextboss{display:block;font-size:9px;letter-spacing:1px;color:#ffc483;margin-top:5px}.playing #hud .bossbar{margin-top:8px}#build{max-width:calc(100% - 90px);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px}.level{font-size:9px;letter-spacing:.8px}@media(max-width:700px){#nextboss{font-size:8px;letter-spacing:0}#hud .level{font-size:8px;letter-spacing:.2px}#build{font-size:9px}.playing #hud .bossbar span{font-size:8px}}
-
-/* Campaign hangar shares the flight deck's restrained mint / ice / amber palette. */
-#menu{max-height:calc(100dvh - 185px);overflow-y:auto;width:54%;padding-bottom:24px;scrollbar-width:thin;pointer-events:auto}
-#menu h1{font-size:clamp(62px,7.5vw,118px)}
-.menu-buttons{display:flex;flex-wrap:wrap;gap:10px}.menu-buttons .primary{min-width:200px}.menu-buttons #continue:not([hidden])+#start{background:#12232e;color:#c7d8df;border:1px solid #7cfbe14d;box-shadow:none}
-.menu-links{display:flex;gap:22px;margin:18px 0 12px}.menu-links button,.text-button{border:0;padding:7px 0;background:none;color:#b4cbd5;font-size:12px;text-align:left;min-height:40px}.menu-links button:hover,.text-button:hover{color:var(--cyan)}.campaign-summary{font-size:11px;color:var(--cyan)}
-.save-status{position:fixed;z-index:4;right:5%;bottom:76px;font-size:10px;color:#79998e;max-width:43%;text-align:right;pointer-events:none}.save-error{color:#ffc483;background:#1c1825;padding:8px;border-radius:4px;z-index:12}.playing .save-status{bottom:8px;right:5%;font-size:9px;max-width:70%}.hangar:not([hidden])~.save-status{bottom:10px;right:5%;background:#070b15e8;padding:5px 8px;max-width:90%}
-.hangar{position:fixed;z-index:5;inset:100px 0 0;overflow-y:auto;padding:38px max(5%,env(safe-area-inset-right)) max(65px,env(safe-area-inset-bottom));background:linear-gradient(140deg,#0c1722f7,#070b15fa);scrollbar-width:thin;overscroll-behavior:contain}
-.hangar-heading{display:flex;justify-content:space-between;align-items:center;gap:25px;max-width:1200px;margin:0 auto 18px}.hangar h2{margin:10px 0;font-size:58px}.hangar-heading p{font-size:12px;color:#8ea3b5;margin:0}.wallet{display:grid;grid-template-columns:40px 1fr;gap:6px 10px;border:1px solid #7cfbe13a;background:#14342c55;border-radius:8px;padding:20px 24px}.wallet>span{font-size:35px;grid-row:span 2;color:var(--cyan);align-self:center}.wallet strong{font-size:14px;letter-spacing:1.5px;color:var(--cyan)}.wallet small{color:#8eada5;font-size:10px}
-.hangar-nav{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid #ffffff18;max-width:1200px;margin:auto}.hangar-nav [role=tablist]{display:flex;gap:22px}.hangar-nav [role=tab]{border:0;border-bottom:2px solid transparent;color:#8b9eaf;background:none;padding:17px 0;font-size:13px}.hangar-nav [aria-selected=true]{color:var(--cyan);border-color:var(--cyan)}.hangar-note{color:#8ea1b3;font-size:12px;line-height:1.7;max-width:1200px;margin:22px auto}
-.sector-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:1200px;margin:auto}.sector-card{padding:24px;border:1px solid #ffffff15;background:#101c2b;border-radius:8px;display:flex;flex-direction:column;position:relative;overflow:hidden}.sector-card:before{content:'';position:absolute;right:-20px;top:-25px;width:120px;height:120px;border:1px solid #ffffff08;transform:rotate(35deg);pointer-events:none}.sector-card small{font-size:9px;letter-spacing:2px;color:#8c9eb1}.sector-card h3{font-size:22px;letter-spacing:-.5px;margin:16px 0 8px}.sector-card p{font-size:12px;color:#95a7b8;line-height:1.6;min-height:38px;margin:0 0 20px}.sector-stats{font-size:10px;color:#90a5b2;line-height:1.7;margin-top:auto}.sector-card .primary{min-width:0;width:100%;margin-top:20px;font-size:12px;padding:13px}.sector-card.available{border-color:#7cfbe16b;background:linear-gradient(135deg,#152d32,#0f1c2c)}.sector-card.available small,.sector-card.completed small{color:var(--cyan)}.sector-card.completed{border-color:#7cfbe12e}.sector-card.locked{background:#0b1421}.sector-card.locked h3{color:#8c9eb1}.sector-card.locked .primary{color:#9aabb9;background:#25303e;border:1px solid #ffffff12;opacity:1;box-shadow:none}
-.skill-tree{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;max-width:1200px;margin:auto}.skill-branch>h3{font-size:11px;color:var(--cyan);letter-spacing:3px;margin:5px 0 20px}.skill-branch:nth-child(2)>h3{color:#9bcaff}.skill-branch:nth-child(3)>h3{color:#d5b6ff}.skill-node{position:relative;background:linear-gradient(145deg,#122332,#0e1926);border:1px solid #ffffff1a;padding:22px;border-radius:7px;margin-bottom:30px;min-height:220px;display:flex;flex-direction:column}.skill-node+.skill-node:before{content:'↓';position:absolute;top:-28px;left:50%;color:#546f7d;font-size:20px}.skill-node.owned{border-color:#7cfbe160}.skill-node h4{margin:0 0 8px;font-size:17px}.skill-node small{font-size:10px;letter-spacing:2px;color:var(--cyan)}.skill-node p{font-size:12px;color:#bdcbd5;line-height:1.7;margin:14px 0}.skill-prereq{font-size:10px;color:#849aac;margin-top:auto;margin-bottom:15px}.skill-buy{background:#203b40;color:var(--cyan);border:1px solid #7cfbe144;border-radius:4px;padding:12px;width:100%;font-size:12px}.skill-buy:disabled{opacity:1;background:#141f2b;border-color:#ffffff10;color:#6c8191}.refund{display:block;margin:0 auto 25px;text-align:center;text-decoration:underline;text-underline-offset:5px;font-size:11px}
-.save-tools{max-width:1200px;margin:28px auto 0;border-top:1px solid #ffffff18;padding-top:25px;display:flex;gap:30px;justify-content:space-between;align-items:center}.save-tools b{font-size:13px}.save-tools p{font-size:11px;color:#859aad;line-height:1.8;max-width:560px;margin:8px 0}.save-buttons{display:flex;gap:10px;flex-shrink:0}.save-buttons button{padding:12px 14px;font-size:11px;color:#c2d4dd;background:#142231;border:1px solid #ffffff20;border-radius:4px;min-height:44px}
-.choice{--rarity:#a6bfcd;border-color:color-mix(in srgb,var(--rarity) 45%,transparent);background:linear-gradient(150deg,#192a36,#0b1626);position:relative;padding-top:21px}.choice .rarity-label{font-size:10px;letter-spacing:2px;color:var(--rarity);text-transform:uppercase;border-bottom:1px solid #ffffff15;padding-bottom:10px;margin-bottom:15px}.choice i,.choice small{color:var(--rarity)}.choice:hover{border-color:var(--rarity)}.rarity-rare{--rarity:#8bc3ff;background:linear-gradient(145deg,#152c48,#0b1626)}.rarity-epic{--rarity:#d6a6ff;background:linear-gradient(145deg,#302340,#12172a)}.rarity-legendary{--rarity:#ffd384;background:linear-gradient(145deg,#3d3020,#191a26)}.rarity-legendary:after{content:'✦';position:absolute;right:15px;top:16px;color:var(--rarity);font-size:18px}.next-sector{color:var(--cyan);border:1px solid #7cfbe133;padding:12px 22px;border-radius:4px}
-@media(max-width:1000px){.edition{display:none}.top-actions{gap:6px}#menu{width:62%}.features{gap:20px}.features span{font-size:7px}.sector-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.save-tools{align-items:flex-start;flex-direction:column;gap:12px}.skill-tree{gap:13px}.skill-node{padding:16px}}
-@media(max-width:700px){header{height:75px;padding:0 4%;gap:8px}.top-actions button{font-size:10px;padding:7px 8px}.brand{font-size:11px;white-space:nowrap}.brand .mark{font-size:22px}#menu{width:auto;margin:25px 7% 0;max-height:calc(100dvh - 160px);padding-bottom:28px}#menu h1{font-size:clamp(56px,13vw,84px);margin:22px 0}.menu-buttons{flex-direction:column;align-items:flex-start}.menu-buttons .primary{min-width:230px;padding:15px}.menu-links{margin:8px 0}.record{margin-top:17px}.features{gap:15px;margin-top:23px}.features div{padding-left:12px}.features span{font-size:7px;letter-spacing:.5px}.save-status{bottom:57px;right:7%;max-width:86%;font-size:9px}footer{padding:20px 5%}.hangar{inset:75px 0 0;padding:23px 5% 70px}.hangar-heading{gap:15px;align-items:flex-start;flex-direction:column}.hangar h2{font-size:40px}.wallet{padding:12px 15px;width:100%;grid-template-columns:28px 1fr}.wallet>span{font-size:28px}.wallet strong{font-size:12px}.hangar-nav{gap:6px}.hangar-nav [role=tablist]{gap:18px}.hangar-nav [role=tab],.hangar-nav .text-button{font-size:11px}.hangar-note{font-size:11px;margin:16px auto}.sector-grid{gap:12px}.sector-card{padding:16px}.sector-card h3{font-size:19px}.sector-card small{font-size:8px;letter-spacing:1px}.sector-card p{font-size:11px}.sector-stats{font-size:9px}.sector-card .primary{font-size:11px;padding:13px 8px}.skill-tree{grid-template-columns:1fr;gap:8px}.skill-branch>h3{padding-bottom:10px;border-bottom:1px solid #ffffff17}.skill-node{min-height:0;padding:18px}.skill-node p{margin:10px 0}.skill-node h4{font-size:17px}.skill-buy{min-height:44px}.save-buttons{flex-wrap:wrap}.choice{grid-template-columns:36px 1fr;padding:12px 16px;gap:0 8px}.choice .rarity-label{grid-column:1/-1;font-size:9px;margin:0 0 10px;padding-bottom:7px}.choice i{grid-row:2/4}.choice b,.choice span{grid-column:2}.choice small{display:block;grid-column:2;margin-top:6px;font-size:8px;letter-spacing:1px}.rarity-legendary:after{top:8px;font-size:15px}.playing .top-actions button{font-size:9px;padding:6px}.playing header{padding:0 3%;gap:5px}.playing .brand{font-size:10px;gap:3px}.playing .mark{font-size:19px}}
-@media(max-width:380px){.top-actions{gap:3px}.top-actions button{padding:6px;font-size:9px}.brand{font-size:10px;letter-spacing:.5px}.brand .mark{display:none}.sector-grid{grid-template-columns:1fr}.playing .top-actions button{padding:5px;font-size:8px}.playing .brand{font-size:9px}}
-@media(max-height:560px){#menu{margin-top:12px;max-height:calc(100dvh - 75px);width:62%}#menu h1{font-size:48px;margin:12px 0}.intro{font-size:12px;margin:12px 0}.menu-buttons{flex-direction:row}.menu-buttons .primary{min-width:170px;padding:12px;font-size:12px}.menu-links{margin:4px 0}.campaign-summary{font-size:10px}.save-status{bottom:8px}.hangar{inset:55px 0 0}.hangar h2{font-size:36px}.hangar-heading{flex-direction:row}.wallet{width:auto}.skill-tree{grid-template-columns:repeat(3,minmax(0,1fr))}.skill-node{padding:14px;min-height:225px}.skill-node h4{font-size:14px}.skill-node p{font-size:11px}.skill-buy{font-size:10px}.choice{display:block}.choice .rarity-label{font-size:8px;margin-bottom:8px;padding-bottom:6px}.choice small{font-size:8px;letter-spacing:.3px}.choice b{margin:7px 0}.choice i{display:none}}
-
-.sector-record{display:block;font-size:10px;color:#8fbaa9;line-height:1.7;margin-top:8px}
-
-.hangar:not([hidden])~.save-status{z-index:6}@media(max-width:700px){#fullscreen{max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}@media(max-width:380px){.playing #fullscreen{max-width:60px}}
+.combo-box.hot b{text-shadow:0 0 calc(var(--pulse,0)*14px) #91f4d655}
+/* Keep the descriptions and actionable labels readable on a phone. */
+.sector-card p{font-size:12px}.sector-stats,.sector-record{font-size:10px}.skill-node p{font-size:12px}.skill-prereq{font-size:10px}.skill-node>small{font-size:9px}.skill-buy{font-size:12px}.hangar-note{font-size:12px}.sector-card .primary{font-size:12px}.choice .rarity-label>span{font-size:10px}.save-tools p{font-size:11px}
+@media(max-width:779px){.choice>span{font-size:11px}.choice>small{font-size:8px}.sector-card>small{font-size:8px}.hangar-note{font-size:11px}.sector-card .primary{font-size:11px}.sector-card p{font-size:11px}.sector-stats,.sector-record{font-size:9px}.skill-prereq{font-size:11px}.hud-center #wave{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+@media(max-height:500px){.skill-node p{font-size:11px}.skill-prereq{font-size:9px}.skill-buy{font-size:10px}.choice>span{font-size:10px}}
 </style>
 </head>
 <body>
   <canvas id="space" aria-label="Spelplan"></canvas>
   <header>
-    <a class="brand" href="./"><span class="mark">✳</span> NEON RIFT<span class="edition">LAST LIGHT</span></a>
+    <a class="brand" href="./"><svg class="mark" viewBox="0 0 32 36" aria-hidden="true"><path d="M16 1 29 29 18 23 16 35 14 23 3 29Z" fill="currentColor"/><path d="m16 9 4 13-4-3-4 3Z" fill="#09202a"/></svg> NEON RIFT<span class="edition">LAST LIGHT</span></a>
     <div class="top-actions">
       <button id="fullscreen" title="Fullskärm (F)">Fullskärm ⛶</button>
       <button id="sound" aria-label="Stäng av ljudeffekter">Ljud på</button>
@@ -51,9 +52,10 @@ body{overscroll-behavior:none;height:100dvh}header{padding-top:env(safe-area-ins
     </div>
   </header>
   <main id="menu">
-    <div class="eyebrow"><i></i> DIN RESA GENOM RIFTEN</div>
-    <h1>OWN THE<br><span>UNKNOWN.</span></h1>
-    <p class="intro">Tre bossar står i vägen. Sex banor väntar.<br>Vinn riftkärnor. Bygg skeppet på ditt sätt.</p>
+    <div class="eyebrow"><i></i> ETT SKEPP. SEX HORISONTER.</div>
+    <h1>INTO THE<br><span>AFTERGLOW.</span></h1>
+    <p class="intro">Flyg nära faran. Hitta ditt flyt.<br>Bygg ett skepp som ingen annan och stäng riften.</p>
+    <div class="mission-card"><small id="mission-caption">BANA 01 / 06</small><strong id="mission-name">Första ljuset</strong><div id="route" class="route" aria-label="Välj upplåst bana"></div></div>
     <div class="menu-buttons">
       <button class="primary" id="continue" hidden>Fortsätt flygningen ↗</button>
       <button class="primary" id="start">Spela bana 1 ↗</button>
@@ -61,17 +63,19 @@ body{overscroll-behavior:none;height:100dvh}header{padding-top:env(safe-area-ins
     <div class="menu-links"><button id="open-hangar">Bankarta ↗</button><button id="open-tree">Skill tree ↗</button></div>
     <div class="campaign-summary" id="campaign-summary">0/6 banor klarade · 0 riftkärnor</div>
     <div class="record">DITT REKORD <strong id="best">0</strong><span>POÄNG</span></div>
-    <div class="features"><div><b>06</b><span>BANOR ATT LÅSA UPP</span></div><div><b>09</b><span>PERMANENTA FÄRDIGHETER</span></div><div><b>04</b><span>RARITETER</span></div></div>
+    <div class="features"><div><b>06</b><span>HORISONTER</span></div><div><b>03</b><span>BOSSAR PER BANA</span></div><div><b>∞</b><span>DITT SÄTT ATT FLYGA</span></div></div>
   </main>
-  <div id="hero-label"><span>INTERCEPTOR / MK. IV</span><b>Byggd för det omöjliga.</b><small>JONDRIFT &nbsp; • &nbsp; AUTOSIKTE &nbsp; • &nbsp; PULSSKÖLD</small></div>
+  <div id="hero-label"><span>NR–04 / INTERCEPTOR</span><b>En liten gnista.<br>Ett stort avtryck.</b><small>ION DRIVE &nbsp; / &nbsp; AUTO TARGETING</small></div>
   <footer id="controls"><span><kbd>W A S D</kbd> / <kbd>↑ ↓ ← →</kbd> Flyg</span><span><kbd>SPACE</kbd> Dash</span><span><kbd>P</kbd> Paus</span><span class="mobile-copy">Dra som en styrspak för att flyga · Tryck ⚡ för dash</span><em>Vapnen skjuter automatiskt.</em></footer>
   <section id="hud" hidden>
-    <div class="hud-left"><small>SKÖLD</small><div class="health"><i id="hp"></i></div><span id="hptext"></span></div>
+    <div class="hud-top"><div class="hud-left"><small>SKÖLD</small><div class="health"><i id="hp"></i></div><span id="hptext"></span></div>
     <div class="hud-center"><small id="wave">BANA 1 · VÅG 01</small><b id="timer">00:00</b><span id="nextboss"></span></div>
-    <div class="hud-right"><small>POÄNG</small><b id="score">0</b></div>
+    <div class="hud-right"><small>POÄNG</small><b id="score">0</b></div></div>
+    <div id="combo-box" class="combo-box"><span id="combo-caption">KOMBO</span><b id="combo">×1.00</b><div><i id="combo-meter"></i></div></div>
+    <div class="encounters" aria-label="Bossframsteg"><span id="encounter-0">01 <b>SENTINEL</b></span><span id="encounter-1">02 <b>HIVE MOTHER</b></span><span id="encounter-2">03 <b>VOIDKEEPER</b></span></div>
     <div class="xp"><i id="xp"></i></div><div class="level" id="level">NIVÅ 1</div>
     <div class="bossbar" id="bossbar" hidden><span id="bossname">VOIDKEEPER</span><div><i id="bosshp"></i></div></div>
-    <button id="dash">⚡ <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div>
+    <button id="dash"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="m14 1-11 15h8L9 27l12-16h-8Z" fill="currentColor"/></svg> <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div>
   </section>
   <section id="hangar" class="hangar" aria-label="Hangar och progression" hidden>
     <div class="hangar-heading"><div><div class="eyebrow">INTERCEPTOR / UTVECKLING</div><h2>Gör det till ditt.</h2><p id="hangar-stats"></p></div><div class="wallet"><span>◈</span><strong id="hangar-wallet">0 RIFTKÄRNOR</strong><small>Vinn banor. Förstärk skeppet.</small></div></div>
@@ -81,12 +85,13 @@ body{overscroll-behavior:none;height:100dvh}header{padding-top:env(safe-area-ins
     <div id="skill-tree" class="skill-tree" role="tabpanel" aria-labelledby="tab-skills" hidden></div>
     <button id="refund" class="text-button refund" hidden>Återställ trädet · få tillbaka alla kärnor</button>
     <div class="save-tools"><div><b>Din resa, sparad.</b><p>Banor, skill tree, statistik, inställningar och pågående flygning sparas automatiskt på den här enheten. Exportera för en säkerhetskopia eller för att flytta till en annan enhet.</p></div><div class="save-buttons"><button id="export-save">Exportera sparfil ↓</button><button id="import-save">Importera sparfil ↑</button></div></div>
+    <div class="hangar-flight"><span>REDO FÖR NÄSTA HORISONT?</span><button id="hangar-launch" class="primary">Starta nästa bana ↗</button></div>
     <input id="save-file" type="file" accept="application/json,.json" hidden>
   </section>
   <div id="savestatus" class="save-status" role="status" aria-live="polite">Sparas automatiskt på den här enheten</div>
   <div class="modal-wrap" id="overlay" hidden>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
-      <div class="eyebrow" id="modalTag">FLYGNING PAUSAD</div><h2 id="modalTitle">Andas ut.</h2><p id="modalDesc"></p><div id="choices"></div>
+      <div class="eyebrow" id="modalTag">FLYGNING PAUSAD</div><h2 id="modalTitle">Andas ut.</h2><p id="modalDesc"></p><div id="debrief" class="debrief" hidden></div><div id="choices"></div>
       <button class="primary" id="resume">Fortsätt ↗</button><button class="secondary next-sector" id="nextsector" hidden>Spela nästa bana ↗</button><button class="secondary" id="restart">Börja om</button><button class="secondary" id="home">Till huvudmenyn</button>
     </section>
   </div>
@@ -139,13 +144,14 @@ function refundSkills(profile) {
 }
 function settleRun(profile,result) {
   if(!result||typeof result.runId!=='string'||!result.runId||profile.settled.includes(result.runId)||!canPlay(profile,result.sector)||!finite(result.score)||!finite(result.time)||!finite(result.kills)||!whole(result.bosses,0,3)||typeof result.won!=='boolean'||(result.won&&result.bosses!==3))return null;
+  if(result.peakCombo!==undefined&&!whole(result.peakCombo,0,1e9))return null;
   const firstClear=result.won&&result.sector>profile.cleared;
   const reward=result.won?(firstClear?SECTORS[result.sector-1].firstReward:2):0;
   profile.wallet+=reward;if(firstClear)profile.cleared=result.sector;
   profile.selected=Math.min(profile.cleared+1,SECTORS.length);
   profile.best=Math.max(profile.best,result.score);
   profile.stats.runs++;profile.stats.wins+=+result.won;profile.stats.kills+=result.kills;profile.stats.bosses+=result.bosses;profile.stats.seconds+=result.time;
-  if(result.won){const prev=profile.records[result.sector];profile.records[result.sector]={wins:(prev?.wins||0)+1,best:Math.max(prev?.best||0,result.score),time:Math.min(prev?.time??Infinity,result.time)};}
+  if(result.won){const prev=profile.records[result.sector];profile.records[result.sector]={wins:(prev?.wins||0)+1,best:Math.max(prev?.best||0,result.score),time:Math.min(prev?.time??Infinity,result.time),combo:Math.max(prev?.combo||0,result.peakCombo||0)};}
   profile.settled.push(result.runId);profile.settled=profile.settled.slice(-2000);
   profile.activeRun=null;profile.lastResult={...result,reward,firstClear};return profile.lastResult;
 }
@@ -158,7 +164,7 @@ function validateProfile(raw) {
   for(const key of ['effects','particles','shake'])if(typeof raw.settings[key]!=='boolean')return null;
   if(!finite(raw.settings.volume,0,1)||raw.settled.some(id=>typeof id!=='string'||!id||id.length>100))return null;
   const p=newProfile();Object.assign(p,{cleared:raw.cleared,wallet:raw.wallet,skills,selected:raw.selected,best:raw.best,settings:{...raw.settings},stats:{...raw.stats},settled:[...raw.settled]});
-  for(let i=1;i<=raw.cleared;i++){const r=raw.records?.[i];if(!r||!whole(r.wins,1,1e9)||!finite(r.best)||!finite(r.time))return null;p.records[i]={wins:r.wins,best:r.best,time:r.time};}
+  for(let i=1;i<=raw.cleared;i++){const r=raw.records?.[i];if(!r||!whole(r.wins,1,1e9)||!finite(r.best)||!finite(r.time))return null;if(r.combo!==undefined&&!whole(r.combo,0,1e9))return null;p.records[i]={wins:r.wins,best:r.best,time:r.time,combo:r.combo||0};}
   if(raw.activeRun!=null){if(!raw.activeRun||raw.activeRun.version!==1||!canPlay(p,raw.activeRun.sector)||typeof raw.activeRun.runId!=='string'||!raw.activeRun.runId||p.settled.includes(raw.activeRun.runId))return null;p.activeRun=raw.activeRun;}
   if(raw.lastResult!=null){const r=raw.lastResult;if(!r||typeof r.runId!=='string'||!p.settled.includes(r.runId)||!whole(r.sector,1,SECTORS.length)||typeof r.won!=='boolean'||!finite(r.score)||!finite(r.time)||!finite(r.reward,0,20))return null;p.lastResult=r;}
   return p;
@@ -202,6 +208,9 @@ function rollRarity(random, minimum = 0) {
   return RARITIES[Math.max(minimum,tier)].id;
 }
 const BOSS_TIME = 480;
+const COMBO_WINDOW = 5;
+const BOSS_RECOVERY = 3;
+const comboMultiplier = streak => Math.min(3,1+Math.floor(streak/4)*.25);
 const BOSSES = [
   { kind: 'sentinel', name: 'SENTINEL', at: 75, hp: 1800, r: 44,
     intro: 'En bepansrad jägare. Undvik skottsvärmen och lämna den markerade rusningsbanan.' },
@@ -256,6 +265,7 @@ class Game {
     this.permanent=cleanSkills(skills);this.runId=runId;
     this.potency=Object.fromEntries(UPGRADES.map(u=>[u.id,0]));
     this.choiceRarities={};this.upgradeHistory=[];
+    this.combo={streak:0,peak:0,left:0,bonus:0};this.nextEncounterAt=BOSSES[0].at;
     this.state = 'play'; this.time = 0; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.need = 6;
     this.id = 1; this.enemies = []; this.bullets = []; this.shots = []; this.gems = []; this.hazards = []; this.events = [];
     this.ranks = Object.fromEntries(UPGRADES.map(u => [u.id, 0])); this.choices = []; this.spawnTimer = 1.8; this.fireTimer = 0;
@@ -306,13 +316,16 @@ class Game {
   snapshot() {
     const data={version:1};
     for(const key of RUN_KEYS)data[key]=this[key];
-    data.bossId=this.boss?.id??null;
+    data.bossId=this.boss?.id??null;data.combo=this.combo;data.nextEncounterAt=this.nextEncounterAt;
     return JSON.parse(JSON.stringify(data));
   }
   restore(data) {
     if(!validSnapshot(data))return false;
     const width=this.w,height=this.h;
     for(const key of RUN_KEYS)this[key]=JSON.parse(JSON.stringify(data[key]));
+    this.combo=JSON.parse(JSON.stringify(data.combo||{streak:0,peak:0,left:0,bonus:0}));
+    this.nextEncounterAt=data.nextEncounterAt??BOSSES[this.bossIndex]?.at??BOSS_TIME;
+    if(this.upgradeReason==='boss'&&!this.bossSpawned&&this.intermissionUntil>this.time)this.intermissionUntil=Math.min(this.intermissionUntil,this.time+BOSS_RECOVERY);
     this.boss=this.enemies.find(e=>e.id===data.bossId)||null;this.events=[];
     this.resize(width,height);
     if(this.state==='upgrade')this.emit('upgrade',{reason:this.upgradeReason});
@@ -339,7 +352,7 @@ class Game {
   damage(amount, source, x, y) {
     if (this.state !== 'play' || this.player.inv > 0) return false;
     amount=Math.round(amount*this.difficulty().damage*this.combatStats().armor*10)/10;
-    const p = this.player; p.hp = Math.max(0, p.hp - amount); p.inv = .85; this.damageTaken += amount; this.lastDamage = source;
+    const p = this.player; p.hp = Math.max(0, p.hp - amount); p.inv = .85; this.damageTaken += amount; this.lastDamage = source;this.combo.streak=0;this.combo.left=0;
     this.emit('damage', { x: p.x, y: p.y, fromX: x, fromY: y, amount, source });
     if (!p.hp) this.finish(false); return true;
   }
@@ -415,8 +428,12 @@ class Game {
       }
     }
     if (e.hp > 0 || this.state !== 'play') return;
-    this.kills++; this.score += e.type === 'boss' ? 2000 : 25 * Math.max(1, e.value);
-    this.emit('kill', { x: e.x, y: e.y, enemy: e.type });
+    this.kills++;
+    const base=e.type==='boss'?2000:25*Math.max(1,e.value);
+    this.combo.streak++;this.combo.peak=Math.max(this.combo.peak,this.combo.streak);this.combo.left=COMBO_WINDOW;
+    const points=Math.round(base*comboMultiplier(this.combo.streak));this.combo.bonus+=points-base;this.score+=points;
+    this.emit('kill', { x: e.x, y: e.y, enemy: e.type, points });
+    if(this.combo.streak%4===0)this.emit('combo',{streak:this.combo.streak,multiplier:comboMultiplier(this.combo.streak)});
     if (e.type === 'boss') {
       this.bossesDefeated++;
       if (e.bossKind === 'voidkeeper') { this.finish(true); return; }
@@ -425,7 +442,10 @@ class Game {
       this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
       this.player.hp = Math.min(this.player.max, this.player.hp + 30);
       this.player.inv = Math.max(this.player.inv, 2);
-      this.intermissionUntil = this.time + 12; this.spawnTimer = 4;
+      this.intermissionUntil = this.time + BOSS_RECOVERY; this.spawnTimer = .3;
+      this.nextEncounterAt=Math.min(BOSSES[this.bossIndex].at,this.time+(this.bossIndex===1?85:105));
+      // Sweep the cleared arena so a boss reward never erases earned energy.
+      for(const gem of this.gems)if(!gem.dead){this.xp+=gem.value;this.score+=gem.value*5;}this.gems=[];
       this.emit('bossDefeated', { name: e.name, x: e.x, y: e.y });
       this.offer('boss'); return;
     }
@@ -452,11 +472,11 @@ class Game {
       return { x: this.player.x + Math.cos(a) * r, y: this.player.y + Math.sin(a) * r, angle: a };
     });
   }
-  nextBossAt() { return Math.max(BOSSES[this.bossIndex]?.at ?? Infinity, this.intermissionUntil); }
+  nextBossAt() { return Math.max(this.bossIndex<3?Math.min(BOSSES[this.bossIndex].at,this.nextEncounterAt??BOSSES[this.bossIndex].at):Infinity,this.intermissionUntil); }
   beginBoss() {
     const spec = BOSSES[this.bossIndex];
     if (!spec || this.bossSpawned || this.state !== 'play') return false;
-    this.bossIndex++; this.bossSpawned = true; this.resting = false;
+    this.bossIndex++; this.bossSpawned = true; this.resting = false;this.nextEncounterAt=BOSSES[this.bossIndex]?.at??BOSS_TIME;
     this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
     this.boss = this.spawn('boss', { x: this.w / 2, y: -80 });
     Object.assign(this.boss, { name: spec.name, bossKind: spec.kind, hp: spec.hp*this.difficulty().hp, max: spec.hp*this.difficulty().hp, r: spec.r, timer: 2 });
@@ -540,6 +560,7 @@ class Game {
   update(dt, input = { x: 0, y: 0 }) {
     if (this.state !== 'play') return;
     this.time += dt; const p = this.player,stats=this.combatStats();
+    this.combo.left=Math.max(0,this.combo.left-dt);if(this.combo.left===0)this.combo.streak=0;
     p.inv = Math.max(0, p.inv - dt); this.resumeGrace = Math.max(0, this.resumeGrace - dt); p.dashCooldown = Math.max(0, p.dashCooldown - dt);
     let mx = input.x || 0, my = input.y || 0, magnitude = length(mx, my);
     if (magnitude > 1) { mx /= magnitude; my /= magnitude; }
@@ -560,7 +581,9 @@ class Game {
     const stage = Math.min(INTRO.length-1,INTRO.reduce((s, a, i) => this.time >= a[0] ? i : s, 0)+this.difficulty().threat);
     if (stage !== this.stage && !this.bossSpawned) { this.stage = stage; this.emit('banner', { title: INTRO[stage][1], text: INTRO[stage][2] }); }
     const cycle = Math.floor(this.time / 60), phase = this.time % 60;
-    this.resting = (phase >= 50 || this.time < this.intermissionUntil) && !this.bossSpawned;
+    // A recent boss recovery replaces this cycle's breather, never stacks with it.
+    const waveBreak=phase>=55&&this.intermissionUntil<=cycle*60+45;
+    this.resting = (waveBreak || this.time < this.intermissionUntil) && !this.bossSpawned;
     if (this.resting && this.time >= this.intermissionUntil && cycle !== this.lastRest) {
       this.lastRest = cycle; p.hp = Math.min(p.max, p.hp + stats.repair); this.emit('banner', { title: `SIGNALPAUS / +${stats.repair} SKÖLD`, text: 'Samla kvarvarande energi. Nästa våg närmar sig.' });
     }
@@ -679,6 +702,8 @@ function validSnapshot(d) {
     const fields=(o,names)=>o&&names.every(k=>num(o[k],-1e8,1e8));
     if(!safe(d)||d.version!==1||RUN_KEYS.some(k=>!(k in d))||!['play','paused','upgrade'].includes(d.state)||d.terminal!==false)return false;
     if(!int(d.sector,1,SECTORS.length)||typeof d.runId!=='string'||!d.runId||!num(d.w,100,20000)||!num(d.h,100,20000))return false;
+    if(d.nextEncounterAt!==undefined&&!num(d.nextEncounterAt))return false;
+    if(d.combo!==undefined&&(!d.combo||!int(d.combo.streak,0,1e9)||!int(d.combo.peak,d.combo.streak,1e9)||!num(d.combo.left,0,COMBO_WINDOW)||!num(d.combo.bonus)))return false;
     const skill=cleanSkills(d.permanent);if(SKILL_KEYS.some(k=>skill[k]!==d.permanent[k]))return false;
     for(const k of ['time','score','kills','xp','need','hitCount','dashes','damageTaken','resumeGrace','intermissionUntil','lastUpgradeAt'])if(!num(d[k]))return false;
     if(!int(d.level,1,200)||!int(d.id,1,1e9)||!int(d.bossIndex,0,3)||!int(d.bossesDefeated,0,3)||!num(d.spawnTimer,-1e6)||!num(d.fireTimer,-1e6))return false;
@@ -709,6 +734,7 @@ const saveStore=new SaveStore(storage,validSnapshot);
 let profile=saveStore.load(),settings=profile.settings,best=profile.best;
 if(reduced){settings.particles=false;settings.shake=false;}
 const game=new Game(),keys=new Set(),pointer={active:false,id:null,x:0,y:0,ox:0,oy:0};
+let backdrop=null,backdropKey='',trail=[],launchGlow=0,damageGlow=0,comboPulse=0;
 let W=0,H=0,scale=1,offsetX=0,offsetY=0,last=0,acc=0,runTime=0,hudTimer=0,saveTimer=0,shake=0,particles=[],marks=[],bannerTime=0,modalState='',audio,voices=0,lastSound={},hangarTab='map';
 const stars=Array.from({length:110},()=>({x:Math.random(),y:Math.random(),s:.4+Math.random()*1.5,z:Math.random()}));
 const fmt=t=>`${String(Math.floor(t/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}`;
@@ -721,17 +747,35 @@ function persist(capture=true){
 }
 function soundLabel(){$('sound').textContent=settings.effects?'Ljud på':'Ljud av';$('sound').setAttribute('aria-label',settings.effects?'Stäng av ljudeffekter':'Slå på ljudeffekter');}
 function unlock(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume().catch(()=>{})}catch{}}
-function sound(kind){if(!settings.effects||!audio||audio.state!=='running'||voices>=10)return;const t=audio.currentTime;if(t-(lastSound[kind]??-10)<(kind==='shot'?.09:kind==='hit'?.055:.06))return;lastSound[kind]=t;const map={shot:[640,.045,.018],hit:[200,.06,.035],kill:[100,.16,.06],dash:[480,.24,.07],damage:[80,.22,.09],pickup:[1100,.04,.012],choice:[800,.3,.08],upgrade:[950,.3,.07],charge:[150,.25,.045],bossFire:[75,.3,.08],finish:[600,.6,.08]};const [hz,dur,vol]=map[kind]||[280,.1,.03];try{const o=audio.createOscillator(),g=audio.createGain();o.type=kind==='damage'?'triangle':'sine';o.frequency.setValueAtTime(hz,t);o.frequency.exponentialRampToValueAtTime(hz*(kind==='choice'?1.8:.45),t+dur);g.gain.setValueAtTime(vol*settings.volume,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(audio.destination);voices++;o.onended=()=>{voices--;o.disconnect();g.disconnect()};o.start();o.stop(t+dur)}catch{}}
-function resize(){W=innerWidth;H=innerHeight;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const top=W<700?148:175,bottom=55;const available=Math.max(180,H-top-bottom);scale=Math.min(W/680,available/600,1.25);game.resize(W/scale,available/scale);offsetX=0;offsetY=top;pointer.active=false;acc=0;}
+function sound(kind){
+  if(!settings.effects||settings.volume<=0||!audio||audio.state!=='running'||voices>=10)return;
+  const now=audio.currentTime;if(now-(lastSound[kind]??-10)<(kind==='shot'?.095:kind==='hit'?.07:.08))return;
+  lastSound[kind]=now;
+  const tones={shot:[660,.04,.016],hit:[220,.055,.025],kill:[120,.13,.035],dash:[420,.21,.055],damage:[85,.2,.065],pickup:[1080,.035,.009],choice:[740,.24,.055],upgrade:[830,.22,.045],charge:[155,.23,.03],bossFire:[78,.26,.055],combo:[650+Math.min(32,game.combo.streak)*12,.16,.025],victory:[520,.45,.035],defeat:[130,.4,.035]};
+  const tone=tones[kind];if(!tone)return;
+  const [hz,duration,volume]=tone;
+  for(const [i,harmony]of (kind==='victory'?[1,1.25,1.5]:[1]).entries()){
+    if(voices>=10)break;
+    try{const o=audio.createOscillator(),gain=audio.createGain(),t=now+i*.09;o.type=['damage','kill','defeat'].includes(kind)?'triangle':'sine';
+      o.frequency.setValueAtTime(hz*harmony,t);o.frequency.exponentialRampToValueAtTime(hz*harmony*(kind==='victory'?1:kind==='choice'?1.5:.5),t+duration);
+      gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(volume*settings.volume+.0001,t+.006);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);
+      o.connect(gain);gain.connect(audio.destination);voices++;o.onended=()=>{voices--;o.disconnect();gain.disconnect();};o.start(t);o.stop(t+duration);
+    }catch{}
+  }
+}
+function resize(){W=innerWidth;H=innerHeight;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const top=H<500?110:W<700?155:172,bottom=H<500?36:62;const available=Math.max(180,H-top-bottom);scale=Math.min(W/680,available/600,1.25);game.resize(W/scale,available/scale);offsetX=0;offsetY=top;pointer.active=false;acc=0;backdropKey='';}
 addEventListener('resize',resize);resize();
 function clearInput(){keys.clear();pointer.active=false;acc=0;}
-function modal(tag,title,desc,label,action){clearInput();$('overlay').hidden=false;$('modalTag').textContent=tag;$('modalTitle').textContent=title;$('modalDesc').textContent=desc;$('choices').replaceChildren();$('resume').hidden=!action;$('resume').textContent=label||'';$('resume').onclick=action;$('restart').hidden=!['play','paused','upgrade','over'].includes(game.state);$('nextsector').hidden=true;$('home').textContent=['play','paused','upgrade'].includes(game.state)?'Spara och gå till menyn':'Till huvudmenyn';if(action)$('resume').focus();}
+function modal(tag,title,desc,label,action){clearInput();$('overlay').hidden=false;$('modalTag').textContent=tag;$('modalTitle').textContent=title;$('modalDesc').textContent=desc;$('choices').replaceChildren();$('debrief').replaceChildren();$('debrief').hidden=true;$('overlay').classList.remove('is-result','is-upgrade');$('resume').hidden=!action;$('resume').textContent=label||'';$('resume').onclick=action;$('restart').hidden=!['play','paused','upgrade','over'].includes(game.state);$('nextsector').hidden=true;$('home').textContent=['play','paused','upgrade'].includes(game.state)?'Spara och gå till menyn':'Till huvudmenyn';if(action)$('resume').focus();}
 function closeModal(){$('overlay').hidden=true;modalState='';clearInput();}
 function refreshMenu(){
   $('best').textContent=best.toLocaleString('sv');$('campaign-summary').textContent=`${profile.cleared}/6 banor klarade · ${profile.wallet} riftkärnor`;
   $('start').textContent=`Spela bana ${profile.selected} ↗`;
   $('continue').hidden=!profile.activeRun;
   if(profile.activeRun)$('continue').textContent=`Fortsätt bana ${profile.activeRun.sector} · ${fmt(profile.activeRun.time)}`;
+  const sector=SECTORS[profile.selected-1];$('mission-name').textContent=sector.name;$('mission-caption').textContent=`BANA ${String(sector.id).padStart(2,'0')} / 06 · ${sector.firstReward} KÄRNOR VID FÖRSTA SEGERN`;
+  $('route').replaceChildren();for(const level of SECTORS){const node=document.createElement('button');node.className='route-node'+(level.id<=profile.cleared?' cleared':level.id===profile.selected?' selected':'');node.textContent=String(level.id).padStart(2,'0');node.disabled=!canPlay(profile,level.id);node.setAttribute('aria-label',`Bana ${level.id}: ${level.name}${node.disabled?', låst':''}`);node.onclick=()=>{if(canPlay(profile,level.id)){profile.selected=level.id;refreshMenu();persist(false);}};$('route').append(node);}
+
 }
 function enterFlight(){closeModal();$('hangar').hidden=true;$('menu').hidden=true;$('hero-label').hidden=true;$('controls').hidden=true;$('hud').hidden=false;$('pause').hidden=false;document.body.classList.add('playing');}
 function start(sector=profile.selected){
@@ -739,12 +783,12 @@ function start(sector=profile.selected){
   if(profile.activeRun&&game.state==='menu'&&!confirm('En flygning är sparad. Vill du ersätta den med en ny?'))return false;
   unlock();profile.selected=sector;
   const runId=globalThis.crypto?.randomUUID?.()||`flight-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  game.reset({sector,skills:profile.skills,runId});particles=[];marks=[];shake=0;bannerTime=0;saveTimer=0;
+  game.reset({sector,skills:profile.skills,runId});particles=[];marks=[];trail=[];shake=0;damageGlow=0;launchGlow=1;bannerTime=0;saveTimer=0;
   enterFlight();game.offer('start');events();hud();persist();return true;
 }
 function continueRun(){
   const saved=profile.activeRun;if(!saved||!canPlay(profile,saved.sector)||!game.restore(saved)){status('Den sparade flygningen kunde inte läsas. Exportera sparfilen innan du börjar om.',true);return false;}
-  unlock();particles=[];marks=[];enterFlight();
+  unlock();particles=[];marks=[];trail=[];damageGlow=0;enterFlight();
   if(game.state==='upgrade')events();else showPause('Din sparade flygning är redo.');hud();return true;
 }
 function home(){if(['play','paused','upgrade'].includes(game.state))persist();game.state='menu';closeModal();$('hangar').hidden=true;$('menu').hidden=false;$('hero-label').hidden=false;$('controls').hidden=false;$('hud').hidden=true;$('pause').hidden=true;document.body.classList.remove('playing');refreshMenu();}
@@ -784,39 +828,49 @@ function input(){if(pointer.active){const dx=pointer.x-pointer.ox,dy=pointer.y-p
 function choose(id){if(game.choose(id)){closeModal();events();hud();persist();}}
 function showUpgrade(e){
   modalState='upgrade';modal(e.reason==='start'?`BANA ${game.sector} · VÄLJ STARTSYSTEM`:e.reason==='boss'?`${game.lastBossName} BESEGRAD · +30 SKÖLD`:`UPPGRADERING / NIVÅ ${game.level}`,e.reason==='boss'?'Din bossbelöning.':e.reason==='start'?'Hur vill du slåss?':'Gör skeppet starkare.','Välj ett kort eller tryck 1, 2, 3. Högre raritet ger starkare bonus. Valet gäller den här flygningen.');
+  $('overlay').classList.add('is-upgrade');
   for(const [i,id]of game.choices.entries()){
     const u=UPGRADES.find(u=>u.id===id),rarity=RARITIES.find(r=>r.id===game.choiceRarities[id])||RARITIES[0],b=document.createElement('button');
-    b.className=`choice rarity-${rarity.id}`;
-    b.innerHTML=`<div class="rarity-label">${rarity.name}</div><i>${u.icon}</i><b>${u.name}</b><span>${game.describeUpgrade(id)}</span><small>${i+1} · ${u.family} · ${game.ranks[id]+1}/${u.max}</small>`;
+    b.className=`choice rarity-${rarity.id}`;b.style.setProperty('--order',i);
+    b.innerHTML=`<div class="rarity-label"><span>${rarity.name}</span><span>${'◆'.repeat(RARITIES.indexOf(rarity)+1)}</span></div><i>${u.icon}</i><b>${u.name}</b><span>${game.describeUpgrade(id)}</span><small><span>${u.family} · NIVÅ ${game.ranks[id]+1}/${u.max}</span><kbd>${i+1}</kbd></small><div class="card-action">INSTALLERA <span>↗</span></div>`;
     b.onclick=()=>choose(id);$('choices').append(b);
   }$('choices').firstChild.focus();
 }
 function showResult(e){
-  const result=settleRun(profile,{runId:game.runId,sector:game.sector,won:e.won,score:game.score,time:game.time,kills:game.kills,bosses:game.bossesDefeated,dashes:game.dashes,upgrades:game.upgradeHistory})||profile.lastResult;
+  const oldBest=profile.records[game.sector]?.best||0;
+  const result=settleRun(profile,{runId:game.runId,sector:game.sector,won:e.won,score:game.score,time:game.time,kills:game.kills,bosses:game.bossesDefeated,dashes:game.dashes,damageTaken:game.damageTaken,peakCombo:game.combo.peak,comboBonus:game.combo.bonus,upgrades:game.upgradeHistory})||profile.lastResult;
   best=Math.max(best,game.score);persist(false);refreshMenu();modalState='result';
-  modal(e.won?`BANA ${game.sector} KLAR · +${result?.reward||0} RIFTKÄRNOR`:'SIGNALEN FÖRLORAD',e.won?'Skeppet kan bli starkare.':'Försök igen.',`${game.score.toLocaleString('sv')} poäng · ${game.kills} fiender · ${fmt(game.time)} · ${game.bossesDefeated}/3 bossar. `+(e.won?(game.sector<6?`Bana ${game.sector+1} är upplåst. Spendera dina riftkärnor i skill tree.`:'Alla sex banor är klarade. Du kan fortsätta förbättra skeppet och spela om.'):`Sista träffen: ${game.lastDamage}. Dina permanenta förbättringar finns kvar.`),e.won?'Öppna skill tree ↗':'Försök igen ↗',e.won?()=>openHangar('skills'):()=>start(game.sector));
-  $('restart').hidden=true;
-  if(e.won&&game.sector<6){$('nextsector').hidden=false;$('nextsector').textContent=`Spela bana ${game.sector+1} ↗`;$('nextsector').onclick=()=>start(game.sector+1);}
+  const next=game.sector<6?game.sector+1:game.sector;
+  modal(e.won?`BANA ${game.sector} KLAR · ${game.score>oldBest?'NYTT BANREKORD':'UPPDRAG SLUTFÖRT'}`:'SIGNALEN FÖRLORAD',e.won?(game.sector<6?'Nästa horisont.':'Riften är din.'):'Du är inte klar än.',e.won?(game.sector<6?`${SECTORS[next-1].name} är upplåst. Nästa flygning börjar direkt när du är redo.`:'Alla sex banor är säkrade. Finslipa skeppet eller slå ditt banrekord.'):`Sista träffen: ${game.lastDamage}. Dina permanenta förbättringar finns kvar.`,e.won?(game.sector<6?`Starta bana ${next} ↗`:'Spela igen ↗'):'Försök igen ↗',()=>start(e.won?next:game.sector));
+  $('overlay').classList.add('is-result');$('debrief').hidden=false;
+  for(const [label,value]of [['POÄNG',game.score.toLocaleString('sv')],['FLYGTID',fmt(game.time)],['BÄSTA KOMBO',`${game.combo.peak} i rad`],['BOSSAR',`${game.bossesDefeated} / 3`]]){const cell=document.createElement('div'),small=document.createElement('small'),strong=document.createElement('strong');small.textContent=label;strong.textContent=value;cell.append(small,strong);$('debrief').append(cell);}
+  const reward=document.createElement('div');reward.className='reward-strip';reward.textContent=e.won?`◈ +${result?.reward||0} riftkärnor · ${profile.wallet} att använda i skill tree`:`Kombo gav +${game.combo.bonus.toLocaleString('sv')} bonuspoäng`; $('debrief').append(reward);
+  $('restart').hidden=true;$('nextsector').hidden=!e.won;$('nextsector').textContent='Förbättra skeppet · Skill tree ↗';$('nextsector').onclick=()=>openHangar('skills');
 }
 function burst(x,y,color,n){const cap=settings.particles?220:45;n=settings.particles?n:Math.ceil(n/4);for(let i=0;i<n&&particles.length<cap;i++){const a=Math.random()*Math.PI*2,s=30+Math.random()*150;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.2+Math.random()*.3,color});}}
 function events(){for(const e of game.drainEvents()){
-  sound(e.type);
+  sound(e.type==='finish'?(e.won?'victory':'defeat'):e.type);
   if(e.type==='banner'){$('banner').replaceChildren();const b=document.createElement('b'),s=document.createElement('span');b.textContent=e.title;s.textContent=e.text;$('banner').append(b,s);bannerTime=6;}
   if(e.type==='hit')burst(e.x,e.y,'#d8fff6',3);
-  if(e.type==='kill')burst(e.x,e.y,'#ffba86',18);
+  if(e.type==='kill'){burst(e.x,e.y,e.enemy==='boss'?'#f7d59a':'#f1bca3',e.enemy==='boss'?65:14);if(marks.length<90)marks.push({...e,kind:'points',life:.65});if(settings.shake&&e.enemy==='boss')shake=3;}
+  if(e.type==='combo'){comboPulse=.6;}
   if(e.type==='bossDefeated'){burst(e.x,e.y,'#c8fff0',70);marks.push({...e,kind:'ring',life:.6,r:100});}
-  if(e.type==='dash'){marks.push({...e,kind:'ring',life:.35,r:35});burst(e.x,e.y,'#7cfbe1',12);}
+  if(e.type==='dash'){launchGlow=.35;marks.push({...e,kind:'ring',life:.35,r:35});burst(e.x,e.y,'#7cfbe1',12);}
   if(e.type==='arc')marks.push({...e,kind:'arc',life:.16});
   if(e.type==='nova')marks.push({...e,kind:'ring',life:.35,r:e.radius});
   if(e.type==='spawn')marks.push({...e,kind:'spawn',life:.7,r:16});
-  if(e.type==='damage'){shake=settings.shake?4:0;marks.push({...e,kind:'damage',life:1});$('hint').textContent=`−${e.amount} sköld · ${e.source}`;burst(e.x,e.y,'#ff8e9e',10);}
+  if(e.type==='damage'){damageGlow=.7;shake=settings.shake?4:0;marks.push({...e,kind:'damage',life:1});$('hint').textContent=`−${e.amount} sköld · ${e.source}`;burst(e.x,e.y,'#ff8e9e',10);}
+  if(e.type==='choice'){launchGlow=.5;burst(game.player.x,game.player.y,'#b5fff0',12);}
   if(e.type==='upgrade'){showUpgrade(e);persist();}
   if(e.type==='finish'){burst(e.x,e.y,'#c8fff0',100);showResult(e);}
 }}
 function hud(){
   const p=game.player,stats=game.combatStats();
+  $('combo').textContent=`×${comboMultiplier(game.combo.streak).toFixed(2)}`;$('combo-caption').textContent=game.combo.streak?`${game.combo.streak} i rad`:'KOMBO';$('combo-meter').style.width=(game.combo.left/COMBO_WINDOW*100)+'%';$('combo-box').classList.toggle('hot',game.combo.streak>=4);$('combo-box').style.setProperty('--pulse',comboPulse);
+  $('hud').classList.toggle('low-shield',p.hp/p.max<.3);
+  for(let i=0;i<3;i++){$('encounter-'+i).className=i<game.bossesDefeated?'done':i===game.bossesDefeated?'current':'';}
   $('hp').style.width=100*p.hp/p.max+'%';$('hptext').textContent=`${Math.ceil(p.hp)} / ${p.max}`;$('timer').textContent=fmt(game.time);$('score').textContent=game.score.toLocaleString('sv');
-  $('wave').textContent=game.bossSpawned?game.boss.name+' · FAS '+game.boss.phase:game.resting?'SIGNALPAUS':`BANA ${game.sector} · VÅG ${Math.min(8,1+Math.floor(game.time/60))}/8`;
+  $('wave').textContent=game.bossSpawned?game.boss.name+' · FAS '+game.boss.phase:game.resting?'OMGRUPPERAR':`BANA ${game.sector} · ${SECTORS[game.sector-1].name.toUpperCase()}`;
   $('xp').style.width=Math.min(100,Math.max(game.xp/game.need,(game.time-game.lastUpgradeAt)/45)*100)+'%';
   $('level').textContent=`NIVÅ ${game.level} · ENERGI ${game.xp}/${game.need} · UPPGRADERING INOM ${Math.max(0,Math.ceil(45-(game.time-game.lastUpgradeAt)))} s`;
   const next=BOSSES[game.bossIndex];$('nextboss').textContent=game.bossSpawned?`BOSS ${game.bossIndex}/3`:next?`${next.name} OM ${fmt(Math.max(0,game.nextBossAt()-game.time))}`:'ALLA BOSSAR BESEGRADE';
@@ -825,25 +879,26 @@ function hud(){
   $('banner').style.opacity=bannerTime>0?'1':'0';$('settings').disabled=game.state==='upgrade';
   $('build').textContent=UPGRADES.filter(u=>game.ranks[u.id]).map(u=>`${u.icon} ${u.name} ${game.ranks[u.id]}`).join(' · ');
   if(game.time<14)$('hint').textContent=matchMedia('(pointer: coarse)').matches?'Dra som en styrspak. ⚡ ger dash + skydd.':'WASD / pilar: flyg · SPACE: dash · F: fullskärm · P: paus';
-  else if(game.player.inv===0)$('hint').textContent=game.resting?'Samla energi. Bärgningsfältet är förstärkt.':'Diamanter = energi · Flygningen sparas automatiskt';
+  else if(game.player.inv===0)$('hint').textContent=game.resting?'Nästa anfall närmar sig. Samla energin.':'Slå ut fiender inom 5 s för kombo · Träffar bryter sviten';
 }
 function openHangar(tab='map'){
   if(['play','paused','upgrade'].includes(game.state))persist();
   game.state='menu';closeModal();$('menu').hidden=true;$('hero-label').hidden=true;$('controls').hidden=true;$('hud').hidden=true;$('pause').hidden=true;document.body.classList.remove('playing');$('hangar').hidden=false;hangarTab=tab;renderHangar();
 }
 function renderHangar(){
+  $('hangar-launch').textContent=profile.activeRun?'Fortsätt sparad flygning ↗':`Starta bana ${profile.selected} ↗`;$('hangar-launch').onclick=()=>profile.activeRun?continueRun():start(profile.selected);
   $('hangar-wallet').textContent=`${profile.wallet} RIFTKÄRNOR`;
   $('hangar-stats').textContent=`${profile.cleared}/6 banor · ${profile.stats.wins} segrar · ${profile.stats.kills} fiender`;
   $('tab-map').setAttribute('aria-selected',hangarTab==='map');$('tab-skills').setAttribute('aria-selected',hangarTab==='skills');
   $('sector-grid').hidden=hangarTab!=='map';$('skill-tree').hidden=hangarTab!=='skills';$('refund').hidden=hangarTab!=='skills';
   $('hangar-note').textContent=hangarTab==='map'?'Klara alla tre bossar på en bana för att låsa upp nästa. En första seger ger 5–10 riftkärnor. Omspel ger 2.':profile.cleared?'Dina förbättringar följer med till varje ny flygning. Sparade flygningar behåller sin tidigare utrustning.':'Klara första banan för att få riftkärnor. Trädet sparas mellan flygningar.';
   $('sector-grid').replaceChildren();
-  for(const s of SECTORS){const available=canPlay(profile,s.id),done=s.id<=profile.cleared,card=document.createElement('article');card.className=`sector-card ${done?'completed':available?'available':'locked'}`;
+  for(const s of SECTORS){const available=canPlay(profile,s.id),done=s.id<=profile.cleared,card=document.createElement('article');card.style.setProperty('--sector',SECTOR_LOOKS[s.id-1].accent);card.className=`sector-card ${done?'completed':available?'available':'locked'}`;
     const tag=document.createElement('small');tag.textContent=`BANA ${String(s.id).padStart(2,'0')} · ${done?'KLAR':available?'UPPLÅST':'LÅST'}`;
     const h=document.createElement('h3');h.textContent=s.name;const p=document.createElement('p');p.textContent=s.description;
     const stats=document.createElement('span');stats.className='sector-stats';stats.textContent=`Fiendeliv ×${s.hp.toFixed(2)} · skada ×${s.damage.toFixed(2)} · ${s.firstReward} kärnor första gången`;
     const button=document.createElement('button');button.className='primary';button.disabled=!available;button.textContent=available?`${done?'Spela igen':'Spela bana '+s.id} ↗`:`Klara bana ${s.id-1} först`;button.onclick=()=>{if(canPlay(profile,s.id))start(s.id);};
-    card.append(tag,h,p,stats);if(done){const record=document.createElement('span');record.className='sector-record';const r=profile.records[s.id];record.textContent=`Rekord ${r.best.toLocaleString('sv')} · bästa tid ${fmt(r.time)} · ${r.wins} segrar`;card.append(record);}card.append(button);$('sector-grid').append(card);
+    const orbit=document.createElement('div');orbit.className='sector-art';orbit.setAttribute('aria-hidden','true');orbit.innerHTML=`<span class="planet"></span><span class="orbit-line"></span><b>${String(s.id).padStart(2,'0')}</b>`;card.append(orbit,tag,h,p,stats);if(done){const record=document.createElement('span');record.className='sector-record';const r=profile.records[s.id];record.textContent=`Rekord ${r.best.toLocaleString('sv')} · bästa tid ${fmt(r.time)} · kombo ${r.combo||0}`;card.append(record);}card.append(button);$('sector-grid').append(card);
   }
   $('skill-tree').replaceChildren();
   for(const branch of ['VAPEN','FÖRSVAR','RÖRLIGHET']){const lane=document.createElement('section');lane.className='skill-branch';const heading=document.createElement('h3');heading.textContent=branch;lane.append(heading);
@@ -851,7 +906,7 @@ function renderHangar(){
       const h=document.createElement('h4');h.textContent=`${s.icon} ${s.name}`;const rank=document.createElement('small');rank.textContent=`NIVÅ ${profile.skills[s.id]}/${s.max}`;const p=document.createElement('p');p.textContent=s.desc;
       const req=document.createElement('span');req.className='skill-prereq';req.textContent=s.requires?`Kräver ${SKILLS.find(x=>x.id===s.requires).name} nivå ${s.requiredRank}`:'Grundsystem';
       const b=document.createElement('button');b.className='skill-buy';b.disabled=!canBuy(profile,s.id);b.textContent=profile.skills[s.id]>=s.max?'MAXNIVÅ':`Uppgradera · ${skillCost(profile,s.id)} kärnor`;b.onclick=()=>{if(buySkill(profile,s.id)){persist(false);renderHangar();sound('choice');}};
-      card.append(h,rank,p,req,b);lane.append(card);
+      const ranks=document.createElement('div');ranks.className='rank-pips';ranks.setAttribute('aria-hidden','true');for(let i=0;i<s.max;i++){const pip=document.createElement('i');pip.className=i<profile.skills[s.id]?'filled':'';ranks.append(pip);}card.append(h,rank,p,req,ranks,b);lane.append(card);
     }$('skill-tree').append(lane);
   }
   $('refund').disabled=!SKILLS.some(s=>profile.skills[s.id]>0);
@@ -873,7 +928,63 @@ $('save-file').onchange=async e=>{
 };
 soundLabel();refreshMenu();
 if(saveStore.error)status(saveStore.error,true);else if(profile.activeRun&&!validSnapshot(profile.activeRun))status('Flygningen kunde inte läsas. Exportera sparfilen innan du börjar om.',true);else status(saveStore.recovered?'En säkerhetskopia av dina framsteg har återställts.':'Sparas automatiskt på den här enheten');
-function ship(x,y,size,angle,hero=false){ctx.save();ctx.translate(x,y);ctx.rotate(angle+Math.PI/2);ctx.shadowColor='#6ffff0';ctx.shadowBlur=hero?35:15;let flicker=1+Math.sin(runTime*32)*.2;ctx.fillStyle='#57f9df';ctx.beginPath();ctx.moveTo(-size*.2,size*.6);ctx.lineTo(0,size*(hero?1.9:1.5)*flicker);ctx.lineTo(size*.2,size*.6);ctx.fill();ctx.shadowBlur=hero?22:8;ctx.fillStyle='#c4e6e9';ctx.beginPath();ctx.moveTo(0,-size);ctx.lineTo(size*.7,size*.7);ctx.lineTo(size*.22,size*.46);ctx.lineTo(0,size*.68);ctx.lineTo(-size*.22,size*.46);ctx.lineTo(-size*.7,size*.7);ctx.closePath();ctx.fill();ctx.fillStyle='#264357';ctx.beginPath();ctx.moveTo(0,-size*.65);ctx.lineTo(size*.23,size*.4);ctx.lineTo(0,size*.24);ctx.lineTo(-size*.23,size*.4);ctx.closePath();ctx.fill();ctx.fillStyle='#80ffe9';ctx.fillRect(-size*.055,-size*.4,size*.11,size*.53);ctx.strokeStyle='#70efeb';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-size*.56,size*.5);ctx.lineTo(-size*.25,size*.1);ctx.moveTo(size*.56,size*.5);ctx.lineTo(size*.25,size*.1);ctx.stroke();ctx.restore()}
+const SECTOR_LOOKS=[
+  {accent:'#84f5d2',nebula:'#173d44',planet:'#315b61',name:'LJUSBÄLTET'},
+  {accent:'#ffc98d',nebula:'#3d2c29',planet:'#775b40',name:'JÄRNSTORM'},
+  {accent:'#98bbff',nebula:'#1c2e50',planet:'#3d527f',name:'EKOSEKTORN'},
+  {accent:'#c2a7ff',nebula:'#302344',planet:'#675077',name:'SVÄRMEN'},
+  {accent:'#f6a4c2',nebula:'#341f35',planet:'#734b6e',name:'MÖRK MATERIA'},
+  {accent:'#e3d5a5',nebula:'#333b39',planet:'#506d66',name:'SISTA HORISONTEN'}
+];
+function ship(x,y,size,angle,hero=false){
+  ctx.save();ctx.translate(x,y);ctx.rotate(angle+Math.PI/2);ctx.scale(size,size);
+  const flame=reduced?1:1+Math.sin(runTime*24)*.08;
+  // Three ion engines, faceted hull and inset cockpit stay readable at game scale.
+  for(const engine of [-.48,0,.48]){
+    const edge=engine===0?.8:.65;
+    ctx.fillStyle='#72f4d633';ctx.beginPath();ctx.moveTo(engine-.13,edge);ctx.lineTo(engine,edge+flame*(hero?.9:.65));ctx.lineTo(engine+.13,edge);ctx.fill();
+    ctx.fillStyle='#8bfbe5';ctx.beginPath();ctx.moveTo(engine-.06,edge);ctx.lineTo(engine,edge+flame*.42);ctx.lineTo(engine+.06,edge);ctx.fill();
+    ctx.fillStyle='#e5fff6';ctx.fillRect(engine-.055,edge-.06,.11,.13);
+  }
+  ctx.shadowColor='#7cfbe1';ctx.shadowBlur=hero?13:3;ctx.fillStyle='#b7ced3';ctx.strokeStyle='#98c8c9';ctx.lineWidth=.018;
+  path([[0,-1.25],[.22,-.53],[.36,-.33],[.76,.14],[.91,.79],[.43,.57],[.26,.7],[0,.46],[-.26,.7],[-.43,.57],[-.91,.79],[-.76,.14],[-.36,-.33],[-.22,-.53]]);
+  ctx.shadowBlur=0;
+  for(const side of [-1,1]){
+    ctx.fillStyle=side===-1?'#658a95':'#365362';ctx.strokeStyle='#547780';
+    path([[side*.22,-.53],[side*.4,.05],[side*.91,.79],[side*.43,.57],[side*.26,.7],[side*.18,.06]]);
+    ctx.fillStyle=side===-1?'#dce9e6':'#90b0b6';ctx.strokeStyle='#b7d3d5';
+    path([[side*.39,.03],[side*.7,.21],[side*.78,.58],[side*.46,.4]]);
+    ctx.fillStyle='#162b37';ctx.strokeStyle='#203f4b';path([[side*.5,-.02],[side*.57,.04],[side*.57,.7],[side*.47,.66]]);
+    ctx.strokeStyle='#8af6dc';ctx.lineWidth=.027;line(side*.53,.18,side*.53,.45);
+    ctx.strokeStyle='#203c49';ctx.lineWidth=.018;line(side*.43,.39,side*.7,.55);
+  }
+  ctx.fillStyle='#eff6ef';ctx.strokeStyle='#c4ded9';path([[0,-1.25],[.2,-.48],[.15,.43],[0,.58],[-.15,.43],[-.2,-.48]]);
+  ctx.fillStyle='#233e4f';ctx.strokeStyle='#4c828b';path([[0,-.83],[.135,-.35],[.1,.14],[0,.25],[-.1,.14],[-.135,-.35]]);
+  ctx.fillStyle='#a6ffe1';ctx.strokeStyle='#91eadc';path([[0,-.7],[.053,-.28],[.04,.04],[0,.11],[-.04,.04],[-.053,-.28]]);
+  ctx.strokeStyle='#567882';ctx.lineWidth=.016;line(0,.32,0,.5);
+  if(hero){ctx.strokeStyle='#d8eeea66';ctx.lineWidth=.008;line(-.19,-.35,-.36,.28);line(.19,-.35,.36,.28);}
+  ctx.restore();
+}
+function drawBackdrop(){
+  const menu=game.state==='menu',sector=menu?profile.selected:game.sector,look=SECTOR_LOOKS[sector-1];
+  const key=`${W}/${H}/${sector}/${menu}`;
+  if(backdropKey!==key){
+    backdropKey=key;backdrop=document.createElement('canvas');const ratio=Math.min(1,1600/W,1100/H);backdrop.width=Math.ceil(W*ratio);backdrop.height=Math.ceil(H*ratio);const b=backdrop.getContext('2d');b.scale(ratio,ratio);
+    b.fillStyle='#060a13';b.fillRect(0,0,W,H);
+    const haze=b.createRadialGradient(W*.75,H*.35,0,W*.7,H*.4,Math.max(W,H)*.7);haze.addColorStop(0,look.nebula);haze.addColorStop(.58,'#0c1523');haze.addColorStop(1,'#060a13');b.fillStyle=haze;b.fillRect(0,0,W,H);
+    // A distant eclipse and thin orbital debris establish depth without hiding combat.
+    const px=W*(menu?.77:.86),py=H*(menu?.41:.18),r=Math.min(W*.24,H*.3);b.save();b.globalAlpha=menu?.8:.25;
+    const air=b.createRadialGradient(px,py,r*.8,px,py,r*1.16);air.addColorStop(0,look.planet);air.addColorStop(.85,look.nebula);air.addColorStop(1,'#00000000');b.fillStyle=air;b.beginPath();b.arc(px,py,r*1.16,0,Math.PI*2);b.fill();
+    const surface=b.createRadialGradient(px-r*.5,py-r*.5,1,px,py,r);surface.addColorStop(0,look.planet);surface.addColorStop(.42,'#142433');surface.addColorStop(1,'#060b16');b.fillStyle=surface;b.beginPath();b.arc(px,py,r,0,Math.PI*2);b.fill();
+    b.strokeStyle=look.accent+'32';b.lineWidth=1;b.beginPath();b.ellipse(px,py,r*1.6,r*.37,-.45,0,Math.PI*2);b.stroke();
+    b.beginPath();b.arc(px,py,r+.5,Math.PI*.85,Math.PI*1.76);b.stroke();b.restore();
+    for(let i=0;i<27;i++){const x=((i*197+sector*63)%997)/997*W,y=((i*311+sector*137)%991)/991*H;b.fillStyle=i%2?'#95b6c707':'#9bbbc40b';b.beginPath();b.moveTo(x,y-3);b.lineTo(x+6,y);b.lineTo(x+2,y+5);b.lineTo(x-4,y+1);b.fill();}
+    const shade=b.createLinearGradient(0,0,W,0);shade.addColorStop(0,'#060a13df');shade.addColorStop(menu?.45:.2,'#060a1333');shade.addColorStop(1,'#060a1300');b.fillStyle=shade;b.fillRect(0,0,W,H);
+  }
+  ctx.drawImage(backdrop,0,0,W,H);
+  for(const s of stars){ctx.globalAlpha=.18+s.z*.43;ctx.fillStyle=s.z>.7?'#e4f7ee':'#8098b3';const x=(s.x*W-game.player.x*s.z*.016+W)%W,y=(s.y*H+(reduced?0:runTime*(1+s.z*3)))%H;ctx.fillRect(x,y,s.s,s.s);if(s.z>.94){ctx.globalAlpha=.12;ctx.fillRect(x-2,y+.5,5,1);}}
+  ctx.globalAlpha=1;
+}
 const colors={hunter:'#ff7991',sniper:'#ffc483',rammer:'#c3a0ff',splitter:'#ff9dcc',warden:'#ffbd75',shard:'#ff7991',boss:'#ff99be'};
 function path(points,fill=true){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();if(fill)ctx.fill();ctx.stroke()}
 function circle(x,y,r,fill=false){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);if(fill)ctx.fill();ctx.stroke()}
@@ -888,30 +999,57 @@ if(e.type==='boss'&&e.bossKind==='sentinel'){path([[r,0],[r*.2,-r*.8],[-r,-r],[-
 if(e.type==='boss'&&e.bossKind==='hive'){ctx.rotate(-angle+game.time*.16);path([[r,0],[r*.5,-r*.86],[-r*.5,-r*.86],[-r,0],[-r*.5,r*.86],[r*.5,r*.86]]);circle(0,0,r*.55);for(let i=0;i<6;i++){ctx.rotate(Math.PI/3);ctx.fillStyle='#413454';ctx.strokeRect(r*.55,-8,19,16)}ctx.fillStyle='#d4bcff';circle(0,0,14,true)}
 if(e.type==='boss'&&e.bossKind!=='sentinel'&&e.bossKind!=='hive'){ctx.rotate(-angle+Math.sin(game.time*.3)*.1);path([[0,-r*.9],[r*.4,-r*.5],[r*1.4,-r*.7],[r*1.2,r*.7],[r*.55,r*.25],[0,r],[-r*.55,r*.25],[-r*1.2,r*.7],[-r*1.4,-r*.7],[-r*.4,-r*.5]]);ctx.strokeStyle='#e4ddff';ctx.fillStyle='#302444';path([[0,-r*.6],[r*.32,0],[0,r*.6],[-r*.32,0]]);ctx.fillStyle='#ffcce4';circle(0,0,10+e.phase*3,true);ctx.strokeStyle=colors.boss;for(const side of [-1,1]){ctx.strokeRect(side*r*.85-8,-r*.35,16,r*.65);line(side*r*.55,-r*.2,side*r*1.1,-r*.4)}}
 ctx.restore();if(e.hp<e.max&&e.type!=='boss'){ctx.fillStyle='#ffffff20';ctx.fillRect(e.x-18,e.y-e.r-9,36,3);ctx.fillStyle=colors[e.type];ctx.fillRect(e.x-18,e.y-e.r-9,36*Math.max(0,e.hp/e.max),3)}}
-function warnings(){for(const e of game.enemies){if(e.mode==='aim'||e.mode==='warn'){ctx.save();ctx.strokeStyle=e.mode==='aim'?'#ffc483aa':'#c3a0ff99';ctx.lineWidth=e.mode==='aim'?1.5:(e.r+game.player.r)*2;ctx.setLineDash(e.mode==='aim'?[8,7]:[10,12]);const dist=e.mode==='aim'?1400:330;line(e.x,e.y,e.x+Math.cos(e.angle)*dist,e.y+Math.sin(e.angle)*dist);if(e.bossKind==='sentinel'&&e.mode==='aim'){const spread=(1+e.phase-1)*.19;for(const side of [-1,1])line(e.x,e.y,e.x+Math.cos(e.angle+side*spread)*dist,e.y+Math.sin(e.angle+side*spread)*dist)}ctx.restore()}if(e.type==='boss'&&e.mode==='ring'){ctx.strokeStyle='#ffb4c9';ctx.lineWidth=2;circle(e.x,e.y,e.r+15+(1.3-e.timer)*20);ctx.strokeStyle='#7cfbe1';for(const s of [-1,1])line(e.x,e.y,e.x+Math.cos(e.angle+s*.37)*160,e.y+Math.sin(e.angle+s*.37)*160)}}
+function warnings(){for(const e of game.enemies){if(e.mode==='aim'||e.mode==='warn'){ctx.save();ctx.strokeStyle=e.mode==='aim'?'#ffc483aa':'#c3a0ff44';ctx.lineWidth=e.mode==='aim'?1.5:(e.r+game.player.r)*2;ctx.setLineDash(e.mode==='aim'?[8,7]:[10,12]);const dist=e.mode==='aim'?1400:330;line(e.x,e.y,e.x+Math.cos(e.angle)*dist,e.y+Math.sin(e.angle)*dist);if(e.bossKind==='sentinel'&&e.mode==='aim'){const spread=(1+e.phase-1)*.19;for(const side of [-1,1])line(e.x,e.y,e.x+Math.cos(e.angle+side*spread)*dist,e.y+Math.sin(e.angle+side*spread)*dist)}ctx.restore()}if(e.type==='boss'&&e.mode==='ring'){ctx.strokeStyle='#ffb4c9';ctx.lineWidth=2;circle(e.x,e.y,e.r+15+(1.3-e.timer)*20);ctx.strokeStyle='#7cfbe1';for(const s of [-1,1])line(e.x,e.y,e.x+Math.cos(e.angle+s*.37)*160,e.y+Math.sin(e.angle+s*.37)*160)}}
 for(const h of game.hazards){ctx.save();ctx.strokeStyle=h.active?'#ffd5ad':'#ffb477aa';ctx.fillStyle=h.active?'#ff99442b':'#ff99440b';ctx.lineWidth=2;if(!h.active)ctx.setLineDash([6,7]);if(h.kind==='mine'){circle(h.x,h.y,h.radius,true);ctx.setLineDash([]);if(!h.active){ctx.beginPath();ctx.arc(h.x,h.y,h.radius+5,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-h.warn/h.warning));ctx.stroke()}line(h.x-8,h.y-8,h.x+8,h.y+8);line(h.x+8,h.y-8,h.x-8,h.y+8)}else{ctx.translate(h.x,h.y);ctx.rotate(h.angle);ctx.fillRect(0,-h.radius,2400,h.radius*2);ctx.strokeRect(0,-h.radius,2400,h.radius*2);if(h.active){ctx.lineWidth=5;line(0,0,2400,0)}}ctx.restore()}}
-function draw(){ctx.clearRect(0,0,W,H);const bg=ctx.createRadialGradient(W*.7,H*.45,0,W*.7,H*.45,W*.8);bg.addColorStop(0,'#102331');bg.addColorStop(.5,'#0a1220');bg.addColorStop(1,'#050911');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);for(const s of stars){ctx.globalAlpha=.25+s.z*.55;ctx.fillStyle='#c7e2e9';ctx.fillRect((s.x*W-game.player.x*s.z*.015+W)%W,(s.y*H+runTime*(2+s.z*6))%H,s.s,s.s)}ctx.globalAlpha=1;
-if(game.state==='menu'){const size=W<700?65:Math.min(W*.095,140),x=W<700?W*.88:W*.73,y=H*.46;ctx.strokeStyle='#7cfbe119';ctx.lineWidth=1;for(let i=0;i<3;i++)circle(x,y,size*(1.7+i*.45));ship(x,y+(reduced?0:Math.sin(runTime)*8),size,-Math.PI/2-.35,true);return}
-ctx.save();ctx.translate(offsetX,offsetY);ctx.scale(scale,scale);ctx.beginPath();ctx.rect(0,0,game.w,game.h);ctx.clip();if(shake>0)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);ctx.strokeStyle='#7cfbe108';ctx.lineWidth=1;for(let x=0;x<game.w;x+=100)line(x,0,x,game.h);for(let y=0;y<game.h;y+=100)line(0,y,game.w,y);
-warnings();for(const g of game.gems){ctx.fillStyle='#7cfbe1';ctx.strokeStyle='#d9fff5';const r=g.value>2?6:4;ctx.save();ctx.translate(g.x,g.y);path([[0,-r],[r,0],[0,r],[-r,0]]);ctx.restore()}
-for(const p of particles){ctx.globalAlpha=clamp(p.life*2,0,1);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,2,2)}ctx.globalAlpha=1;
-for(const e of game.enemies)enemy(e);
-ctx.strokeStyle='#adfff0';ctx.lineWidth=3;for(const b of game.bullets)line(b.x,b.y,b.x-b.vx*.014,b.y-b.vy*.014);
-ctx.strokeStyle='#ffe7d6';ctx.fillStyle='#fa7585';ctx.lineWidth=1.5;for(const s of game.shots)circle(s.x,s.y,5,true);
-for(const d of game.dronePositions()){ctx.save();ctx.translate(d.x,d.y);ctx.rotate(d.angle);ctx.strokeStyle='#aebaff';ctx.fillStyle='#323a61';path([[0,-10],[7,0],[0,10],[-7,0]]);ctx.restore()}
-const p=game.player;ship(p.x,p.y,18,p.angle);if(game.ranks.split){ctx.strokeStyle='#7cfbe1';ctx.lineWidth=3;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);for(const s of [-1,1])line(-8,s*16,7,s*16);ctx.restore()}
-if(p.inv>0){ctx.strokeStyle=p.dashTime>0?'#d9fff8':'#7cfbe199';ctx.lineWidth=p.dashTime>0?3:1.5;circle(p.x,p.y,25);if(p.dashTime>0){ctx.strokeStyle='#7cfbe166';line(p.x-p.dx*45,p.y-p.dy*45,p.x-p.dx*22,p.y-p.dy*22)}}
-for(const m of marks){ctx.globalAlpha=Math.min(1,m.life*3);ctx.lineWidth=2;if(m.kind==='arc'){ctx.strokeStyle='#b9baff';line(m.x,m.y,(m.x+m.tx)/2+8,(m.y+m.ty)/2-8);line((m.x+m.tx)/2+8,(m.y+m.ty)/2-8,m.tx,m.ty)}else if(m.kind==='damage'){ctx.strokeStyle='#ffc1b7';line(m.x,m.y,m.fromX,m.fromY);ctx.fillStyle='#ffe5dc';ctx.font='14px monospace';ctx.fillText('−'+m.amount,m.x+20,m.y-20-(1-m.life)*20)}else{ctx.strokeStyle=m.kind==='spawn'?'#ff9fb0':'#7cfbe1';circle(m.x,m.y,m.r*(1.4-m.life))}}ctx.globalAlpha=1;ctx.restore();
-if(pointer.active){ctx.strokeStyle='#a0eed866';ctx.fillStyle='#7cfbe111';ctx.lineWidth=2;circle(pointer.ox,pointer.oy,48,true);const dx=pointer.x-pointer.ox,dy=pointer.y-pointer.oy,d=Math.hypot(dx,dy);circle(pointer.ox+dx/Math.max(1,d/48),pointer.oy+dy/Math.max(1,d/48),15,true)}}
+function draw(){
+  ctx.clearRect(0,0,W,H);drawBackdrop();
+  if(game.state==='menu'){
+    if(W>=780){const x=W*.75,y=H*.48,size=Math.min(W*.105,H*.185,155);ctx.strokeStyle='#93d3c42a';ctx.lineWidth=1;ctx.setLineDash([3,11]);circle(x,y,size*1.55);ctx.setLineDash([]);for(const side of [-1,1]){line(x+side*size*1.65,y-15,x+side*size*1.65,y+15);line(x+side*size*1.65,y,x+side*size*1.8,y);}ship(x,y+(reduced?0:Math.sin(runTime*.6)*5),size,-Math.PI/2-.3,true);}
+    return;
+  }
+  ctx.save();ctx.translate(offsetX,offsetY);ctx.scale(scale,scale);ctx.beginPath();ctx.rect(0,0,game.w,game.h);ctx.clip();
+  if(shake>0)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  ctx.strokeStyle='#8bb6ab10';ctx.lineWidth=1;
+  for(const x of [14,game.w-14])for(const y of [14,game.h-14]){line(x,y,x+(x<30?28:-28),y);line(x,y,x,y+(y<30?28:-28));}
+  // Ghosts and particle trails sit beneath all hazards, enemies and projectiles.
+  if(!reduced)for(const t of trail){ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.angle+Math.PI/2);ctx.globalAlpha=t.life*(t.dash?.38:.13);ctx.fillStyle='#84f5d2';ctx.beginPath();ctx.moveTo(0,-22);ctx.lineTo(14,14);ctx.lineTo(0,8);ctx.lineTo(-14,14);ctx.fill();ctx.restore();}
+  for(const p of particles){ctx.globalAlpha=clamp(p.life*1.6,0,.65);ctx.strokeStyle=p.color;ctx.lineWidth=1.4;line(p.x,p.y,p.x-p.vx*.035,p.y-p.vy*.035);}ctx.globalAlpha=1;
+  if(game.ranks.drone){ctx.strokeStyle='#baabff18';ctx.lineWidth=1;ctx.setLineDash([3,12]);circle(game.player.x,game.player.y,game.combatStats().orbit);ctx.setLineDash([]);}
+  warnings();
+  for(const g of game.gems){ctx.fillStyle='#8bf5cf';ctx.strokeStyle='#c5ffe7';ctx.lineWidth=1;const r=g.value>2?6:4;ctx.save();ctx.translate(g.x,g.y);path([[0,-r],[r,0],[0,r],[-r,0]]);ctx.fillStyle='#edfff0';ctx.fillRect(-1,-2,2,3);ctx.restore();}
+  for(const e of game.enemies)enemy(e);
+  const shotColor=game.ranks.chain?'#bcb1ff':game.ranks.power?'#f8dd9b':'#8bf9da';
+  for(const b of game.bullets){ctx.strokeStyle=shotColor+'66';ctx.lineWidth=5;line(b.x,b.y,b.x-b.vx*.021,b.y-b.vy*.021);ctx.strokeStyle='#eefff4';ctx.lineWidth=1.7;line(b.x,b.y,b.x-b.vx*.014,b.y-b.vy*.014);}
+  ctx.strokeStyle='#ffd6b8';ctx.fillStyle='#ed7188';ctx.lineWidth=1.3;for(const s of game.shots){circle(s.x,s.y,5,true);ctx.fillStyle='#ffe1b5';ctx.fillRect(s.x-1,s.y-1,2,2);ctx.fillStyle='#ed7188';}
+  for(const d of game.dronePositions()){ctx.save();ctx.translate(d.x,d.y);ctx.rotate(d.angle);ctx.strokeStyle='#c4b6ff';ctx.fillStyle='#39415c';ctx.lineWidth=1.5;path([[0,-11],[8,-2],[6,7],[0,11],[-6,7],[-8,-2]]);ctx.fillStyle='#e8e0ff';ctx.fillRect(-2,-5,4,10);ctx.restore();}
+  const p=game.player;ship(p.x,p.y,18,p.angle);
+  if(game.ranks.split){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.strokeStyle='#c0fff1';ctx.fillStyle='#344e5c';ctx.lineWidth=1;for(const side of [-1,1]){ctx.fillRect(-7,side*17-3,16,6);line(5,side*17,13,side*17);}ctx.restore();}
+  if(p.inv>0){ctx.strokeStyle=p.dashTime>0?'#ccfff3':'#8af7d7a0';ctx.lineWidth=p.dashTime>0?2:1;ctx.setLineDash(p.dashTime>0?[]:[10,5]);circle(p.x,p.y,26);ctx.setLineDash([]);}
+  if(launchGlow>0){ctx.strokeStyle='#a3f9df';ctx.globalAlpha=launchGlow*.45;ctx.lineWidth=1;circle(p.x,p.y,29+(1-launchGlow)*26);ctx.globalAlpha=1;}
+  for(const m of marks){ctx.globalAlpha=Math.min(.8,m.life*2);ctx.lineWidth=1.5;
+    if(m.kind==='arc'){ctx.strokeStyle='#cec2ff';line(m.x,m.y,(m.x+m.tx)/2+8,(m.y+m.ty)/2-8);line((m.x+m.tx)/2+8,(m.y+m.ty)/2-8,m.tx,m.ty);}
+    else if(m.kind==='points'){ctx.globalAlpha=Math.min(.75,m.life*2);ctx.fillStyle='#c5ebd8';ctx.font='10px "Space Grotesk", sans-serif';ctx.fillText('+'+m.points,m.x+12,m.y-12-(.65-m.life)*25);}
+    else if(m.kind==='damage'){ctx.strokeStyle='#ffc1b799';line(m.x,m.y,m.fromX,m.fromY);ctx.fillStyle='#ffd2bd';ctx.font='bold 14px sans-serif';ctx.fillText('−'+m.amount,m.x+20,m.y-20-(1-m.life)*20);}
+    else{ctx.strokeStyle=m.kind==='spawn'?'#efa5aa':'#9be8d5';circle(m.x,m.y,m.r*(1.4-m.life));}
+  }ctx.globalAlpha=1;ctx.restore();
+  if(damageGlow>0&&!reduced){ctx.strokeStyle=`rgba(244,133,142,${damageGlow*.32})`;ctx.lineWidth=4;ctx.strokeRect(2,offsetY+2,W-4,H-offsetY-4);}
+  if(pointer.active){ctx.strokeStyle='#a0eed866';ctx.fillStyle='#7cfbe10a';ctx.lineWidth=1.5;circle(pointer.ox,pointer.oy,48,true);const dx=pointer.x-pointer.ox,dy=pointer.y-pointer.oy,d=Math.hypot(dx,dy);circle(pointer.ox+dx/Math.max(1,d/48),pointer.oy+dy/Math.max(1,d/48),15,true);}
+}
 function frame(t){
   const dt=last?Math.min((t-last)/1000,.25):0;last=t;
   if(game.state==='play'){
     acc+=dt;while(acc>=STEP&&game.state==='play'){game.update(STEP,input());acc-=STEP;events();}if(game.state!=='play')acc=0;
-    runTime+=dt;bannerTime=Math.max(0,bannerTime-dt);shake=Math.max(0,shake-dt*25);
-    for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;}particles=particles.filter(p=>p.life>0);
-    for(const m of marks)m.life-=dt;marks=marks.filter(m=>m.life>0);
+    runTime+=dt;bannerTime=Math.max(0,bannerTime-dt);
+    if(!reduced&&dt>0){const p=game.player,previous=trail.at(-1);if(!previous||Math.hypot(p.x-previous.x,p.y-previous.y)>5)trail.push({x:p.x,y:p.y,angle:p.angle,dash:p.dashTime>0,life:p.dashTime>0?.35:.2});if(trail.length>(settings.particles?26:8))trail.shift();}
     saveTimer+=dt;if(saveTimer>=3){saveTimer=0;persist();}
   }else{acc=0;if(game.state==='menu'&&!reduced)runTime+=dt;}
+  // Cosmetic tails may finish over a reward screen; simulation timers stay frozen.
+  if(game.state!=='paused'){
+    shake=Math.max(0,shake-dt*25);launchGlow=Math.max(0,launchGlow-dt*1.7);damageGlow=Math.max(0,damageGlow-dt);comboPulse=Math.max(0,comboPulse-dt);
+    for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;}particles=particles.filter(p=>p.life>0);
+    for(const m of marks)m.life-=dt;marks=marks.filter(m=>m.life>0).slice(-90);
+    for(const t of trail)t.life-=dt;trail=trail.filter(t=>t.life>0);
+  }
   hudTimer+=dt;if(hudTimer>=.1){hudTimer=0;hud();}draw();requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

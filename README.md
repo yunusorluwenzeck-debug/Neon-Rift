@@ -12,13 +12,36 @@ the hangar as a backup, especially when playing directly from a downloaded file.
 
 ## Bosses and upgrades
 - Choose rapid fire, chain lightning or an orbit drone before launch.
-- Sentinel arrives at 1:15, Hive Mother at 4:00 and Voidkeeper at 8:00.
-  Only one boss encounter runs at a time; a long encounter delays the next one.
+- Sentinel arrives at 1:15. After a victory, the next boss countdown is capped
+  at 85 seconds for Hive Mother and 105 seconds for Voidkeeper. If the original
+  4:00 / 8:00 schedule comes sooner, that earlier time is kept. Only one boss
+  encounter runs at a time, with a safe three-second recovery after a victory.
 - The first two bosses each award a free upgrade and restore 30 shield.
 - Collect energy for upgrades, or receive a guaranteed choice after 45 seconds
   without an upgrade. Combat pauses while choosing.
 - Ten upgrade types support rapid fire, lightning, drones and dash builds.
 - The HUD shows the next boss countdown, energy and time to the next upgrade.
+
+## Afterglow presentation and game flow
+- Reworked faceted player ship, engine trails, clearer projectiles, restrained
+  debris, six sector palettes, distant planets and layered star parallax.
+  Large background gradients are cached until a resize or scene/sector change.
+- A redesigned launch screen, selectable sector route, cockpit HUD, rarity
+  cards, planet cards, connected skill branches and post-flight debrief.
+- The victory screen starts the next unlocked sector with one click, while
+  keeping the skill tree available. The hangar also has a direct launch button.
+- Boss recovery is 3 seconds instead of 12. Regular wave breaks are 5 seconds
+  instead of 10. A wave break cannot extend the boss recovery. Energy remaining
+  after a defeated miniboss is collected before the reward choice.
+- Eliminate an enemy within 5 seconds of the previous one to extend a combo.
+  Every 4 eliminations adds 25% to kill points, up to 3×. Taking actual damage
+  breaks the combo; invulnerability still protects it. Pause and upgrade
+  choices freeze its timer. The HUD shows the multiplier and time remaining.
+- Best combos are saved per sector and shown in the debrief and sector records.
+  Combos affect points, not damage, drop odds or permanent currency rewards.
+- Softer, rate-limited effects include separate victory and defeat tones.
+  Reduced motion disables menu transitions and decorative ship ghosts;
+  particle and camera-shake settings continue to work.
 
 ## Campaign, skill tree and rarity
 - Six sectors unlock in sequence. Defeat all three bosses in a sector to open
@@ -27,7 +50,7 @@ the hangar as a backup, especially when playing directly from a downloaded file.
   earlier enemy combinations and advanced boss phases. Telegraph durations
   stay unchanged so attacks can still be read and avoided.
 - First clears award 5–10 rift cores; replay wins award 2. Defeats award none.
-- The post-victory screen opens a permanent skill tree: weapons, defense and
+- The post-victory screen links to a permanent skill tree: weapons, defense and
   mobility, with three skills per branch. Nodes have parent requirements,
   explicit effects, level caps and increasing costs. Refund all spent cores
   for free to try another build. Changes apply when starting a new flight;
@@ -62,6 +85,7 @@ is blocked. Old best-score and sound settings are migrated automatically.
 - dist/progression.mjs: campaign, skills, settlement, validation and persistence
 - tests/core.test.mjs: 24 simulation tests
 - tests/progression.test.mjs: 20 campaign, skill, rarity and persistence tests
+- tests/flow.test.mjs: 17 tempo, combo and backwards-compatibility tests
 - tests/runtime.test.mjs: mocked DOM/canvas integration smoke test
 - tests/benchmark.mjs: simulation stress scenario, not a browser FPS test
 - hosting/hosting.json: original Sites configuration for reference
@@ -93,21 +117,25 @@ With a modern Node.js installation (tested here with Node 24), run:
 
     node tests/core.test.mjs
     node tests/progression.test.mjs
+    node tests/flow.test.mjs
     node tests/runtime.test.mjs
     node tests/benchmark.mjs
 
-Verification for this update: all 44 logic tests passed. Controller integration
+Verification for this update: all 61 logic tests passed. Controller integration
 with DOM/canvas doubles covers keyboard and touch movement, dash, pause/blur,
 settings, all three bosses, victory/loss/restart, locked sectors, skill purchases,
 rarity rewards, autosave, reload/continue, import/export, fullscreen request/exit
-calls, resize at 390×844 and 844×390, and offline-bundle syntax.
+calls, direct next-sector and hangar launch, cached backgrounds, resize at
+390×844 and 844×390, and offline-bundle syntax. JavaScript syntax and HTML
+controller references were checked. Older version-one save data is covered by
+compatibility tests, including records without combo data.
 
-The simulation benchmark completed a win at 521.9 simulated seconds / 62,628
-updates in approximately 1.24 seconds of CPU runtime in this environment.
-This uses a prebuilt ship and invulnerability, and is not a balance or FPS test.
+A simulation stress scenario completed a win with a prebuilt ship and damage
+disabled. It is not evidence of gameplay balance or rendered performance.
 Visual browser playtesting, real mobile layout/usability, native fullscreen,
-sound mixing and actual rendered FPS remain unverified: the supported browser
-control environment was unavailable. Automated integration is not visual QA.
+sound mixing and actual rendered FPS remain unverified: the Sites skill requires
+the supported control-browser environment, which was unavailable here.
+Automated integration is not visual QA.
 
 ## Hosting
 Upload the contents of dist/ to a static web host. There is no backend.

@@ -47,13 +47,14 @@ export function refundSkills(profile) {
 }
 export function settleRun(profile,result) {
   if(!result||typeof result.runId!=='string'||!result.runId||profile.settled.includes(result.runId)||!canPlay(profile,result.sector)||!finite(result.score)||!finite(result.time)||!finite(result.kills)||!whole(result.bosses,0,3)||typeof result.won!=='boolean'||(result.won&&result.bosses!==3))return null;
+  if(result.peakCombo!==undefined&&!whole(result.peakCombo,0,1e9))return null;
   const firstClear=result.won&&result.sector>profile.cleared;
   const reward=result.won?(firstClear?SECTORS[result.sector-1].firstReward:2):0;
   profile.wallet+=reward;if(firstClear)profile.cleared=result.sector;
   profile.selected=Math.min(profile.cleared+1,SECTORS.length);
   profile.best=Math.max(profile.best,result.score);
   profile.stats.runs++;profile.stats.wins+=+result.won;profile.stats.kills+=result.kills;profile.stats.bosses+=result.bosses;profile.stats.seconds+=result.time;
-  if(result.won){const prev=profile.records[result.sector];profile.records[result.sector]={wins:(prev?.wins||0)+1,best:Math.max(prev?.best||0,result.score),time:Math.min(prev?.time??Infinity,result.time)};}
+  if(result.won){const prev=profile.records[result.sector];profile.records[result.sector]={wins:(prev?.wins||0)+1,best:Math.max(prev?.best||0,result.score),time:Math.min(prev?.time??Infinity,result.time),combo:Math.max(prev?.combo||0,result.peakCombo||0)};}
   profile.settled.push(result.runId);profile.settled=profile.settled.slice(-2000);
   profile.activeRun=null;profile.lastResult={...result,reward,firstClear};return profile.lastResult;
 }
@@ -66,7 +67,7 @@ export function validateProfile(raw) {
   for(const key of ['effects','particles','shake'])if(typeof raw.settings[key]!=='boolean')return null;
   if(!finite(raw.settings.volume,0,1)||raw.settled.some(id=>typeof id!=='string'||!id||id.length>100))return null;
   const p=newProfile();Object.assign(p,{cleared:raw.cleared,wallet:raw.wallet,skills,selected:raw.selected,best:raw.best,settings:{...raw.settings},stats:{...raw.stats},settled:[...raw.settled]});
-  for(let i=1;i<=raw.cleared;i++){const r=raw.records?.[i];if(!r||!whole(r.wins,1,1e9)||!finite(r.best)||!finite(r.time))return null;p.records[i]={wins:r.wins,best:r.best,time:r.time};}
+  for(let i=1;i<=raw.cleared;i++){const r=raw.records?.[i];if(!r||!whole(r.wins,1,1e9)||!finite(r.best)||!finite(r.time))return null;if(r.combo!==undefined&&!whole(r.combo,0,1e9))return null;p.records[i]={wins:r.wins,best:r.best,time:r.time,combo:r.combo||0};}
   if(raw.activeRun!=null){if(!raw.activeRun||raw.activeRun.version!==1||!canPlay(p,raw.activeRun.sector)||typeof raw.activeRun.runId!=='string'||!raw.activeRun.runId||p.settled.includes(raw.activeRun.runId))return null;p.activeRun=raw.activeRun;}
   if(raw.lastResult!=null){const r=raw.lastResult;if(!r||typeof r.runId!=='string'||!p.settled.includes(r.runId)||!whole(r.sector,1,SECTORS.length)||typeof r.won!=='boolean'||!finite(r.score)||!finite(r.time)||!finite(r.reward,0,20))return null;p.lastResult=r;}
   return p;

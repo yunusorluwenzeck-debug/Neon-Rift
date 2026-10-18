@@ -1,4 +1,4 @@
-import {SECTORS,cleanSkills,bonuses} from './progression.mjs?v=campaign-1';
+import {SECTORS,cleanSkills,bonuses} from './progression.mjs?v=afterglow-1';
 // Deterministic simulation. No DOM, audio, rendering or wall-clock dependencies.
 export const STEP = 1 / 120;
 export const RARITIES = [
@@ -12,6 +12,9 @@ export function rollRarity(random, minimum = 0) {
   return RARITIES[Math.max(minimum,tier)].id;
 }
 export const BOSS_TIME = 480;
+export const COMBO_WINDOW = 5;
+export const BOSS_RECOVERY = 3;
+export const comboMultiplier = streak => Math.min(3,1+Math.floor(streak/4)*.25);
 export const BOSSES = [
   { kind: 'sentinel', name: 'SENTINEL', at: 75, hp: 1800, r: 44,
     intro: 'En bepansrad jägare. Undvik skottsvärmen och lämna den markerade rusningsbanan.' },
@@ -66,6 +69,7 @@ export class Game {
     this.permanent=cleanSkills(skills);this.runId=runId;
     this.potency=Object.fromEntries(UPGRADES.map(u=>[u.id,0]));
     this.choiceRarities={};this.upgradeHistory=[];
+    this.combo={streak:0,peak:0,left:0,bonus:0};this.nextEncounterAt=BOSSES[0].at;
     this.state = 'play'; this.time = 0; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.need = 6;
     this.id = 1; this.enemies = []; this.bullets = []; this.shots = []; this.gems = []; this.hazards = []; this.events = [];
     this.ranks = Object.fromEntries(UPGRADES.map(u => [u.id, 0])); this.choices = []; this.spawnTimer = 1.8; this.fireTimer = 0;
@@ -116,13 +120,16 @@ export class Game {
   snapshot() {
     const data={version:1};
     for(const key of RUN_KEYS)data[key]=this[key];
-    data.bossId=this.boss?.id??null;
+    data.bossId=this.boss?.id??null;data.combo=this.combo;data.nextEncounterAt=this.nextEncounterAt;
     return JSON.parse(JSON.stringify(data));
   }
   restore(data) {
     if(!validSnapshot(data))return false;
     const width=this.w,height=this.h;
     for(const key of RUN_KEYS)this[key]=JSON.parse(JSON.stringify(data[key]));
+    this.combo=JSON.parse(JSON.stringify(data.combo||{streak:0,peak:0,left:0,bonus:0}));
+    this.nextEncounterAt=data.nextEncounterAt??BOSSES[this.bossIndex]?.at??BOSS_TIME;
+    if(this.upgradeReason==='boss'&&!this.bossSpawned&&this.intermissionUntil>this.time)this.intermissionUntil=Math.min(this.intermissionUntil,this.time+BOSS_RECOVERY);
     this.boss=this.enemies.find(e=>e.id===data.bossId)||null;this.events=[];
     this.resize(width,height);
     if(this.state==='upgrade')this.emit('upgrade',{reason:this.upgradeReason});
@@ -149,7 +156,7 @@ export class Game {
   damage(amount, source, x, y) {
     if (this.state !== 'play' || this.player.inv > 0) return false;
     amount=Math.round(amount*this.difficulty().damage*this.combatStats().armor*10)/10;
-    const p = this.player; p.hp = Math.max(0, p.hp - amount); p.inv = .85; this.damageTaken += amount; this.lastDamage = source;
+    const p = this.player; p.hp = Math.max(0, p.hp - amount); p.inv = .85; this.damageTaken += amount; this.lastDamage = source;this.combo.streak=0;this.combo.left=0;
     this.emit('damage', { x: p.x, y: p.y, fromX: x, fromY: y, amount, source });
     if (!p.hp) this.finish(false); return true;
   }
@@ -225,8 +232,12 @@ export class Game {
       }
     }
     if (e.hp > 0 || this.state !== 'play') return;
-    this.kills++; this.score += e.type === 'boss' ? 2000 : 25 * Math.max(1, e.value);
-    this.emit('kill', { x: e.x, y: e.y, enemy: e.type });
+    this.kills++;
+    const base=e.type==='boss'?2000:25*Math.max(1,e.value);
+    this.combo.streak++;this.combo.peak=Math.max(this.combo.peak,this.combo.streak);this.combo.left=COMBO_WINDOW;
+    const points=Math.round(base*comboMultiplier(this.combo.streak));this.combo.bonus+=points-base;this.score+=points;
+    this.emit('kill', { x: e.x, y: e.y, enemy: e.type, points });
+    if(this.combo.streak%4===0)this.emit('combo',{streak:this.combo.streak,multiplier:comboMultiplier(this.combo.streak)});
     if (e.type === 'boss') {
       this.bossesDefeated++;
       if (e.bossKind === 'voidkeeper') { this.finish(true); return; }
@@ -235,7 +246,10 @@ export class Game {
       this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
       this.player.hp = Math.min(this.player.max, this.player.hp + 30);
       this.player.inv = Math.max(this.player.inv, 2);
-      this.intermissionUntil = this.time + 12; this.spawnTimer = 4;
+      this.intermissionUntil = this.time + BOSS_RECOVERY; this.spawnTimer = .3;
+      this.nextEncounterAt=Math.min(BOSSES[this.bossIndex].at,this.time+(this.bossIndex===1?85:105));
+      // Sweep the cleared arena so a boss reward never erases earned energy.
+      for(const gem of this.gems)if(!gem.dead){this.xp+=gem.value;this.score+=gem.value*5;}this.gems=[];
       this.emit('bossDefeated', { name: e.name, x: e.x, y: e.y });
       this.offer('boss'); return;
     }
@@ -262,11 +276,11 @@ export class Game {
       return { x: this.player.x + Math.cos(a) * r, y: this.player.y + Math.sin(a) * r, angle: a };
     });
   }
-  nextBossAt() { return Math.max(BOSSES[this.bossIndex]?.at ?? Infinity, this.intermissionUntil); }
+  nextBossAt() { return Math.max(this.bossIndex<3?Math.min(BOSSES[this.bossIndex].at,this.nextEncounterAt??BOSSES[this.bossIndex].at):Infinity,this.intermissionUntil); }
   beginBoss() {
     const spec = BOSSES[this.bossIndex];
     if (!spec || this.bossSpawned || this.state !== 'play') return false;
-    this.bossIndex++; this.bossSpawned = true; this.resting = false;
+    this.bossIndex++; this.bossSpawned = true; this.resting = false;this.nextEncounterAt=BOSSES[this.bossIndex]?.at??BOSS_TIME;
     this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
     this.boss = this.spawn('boss', { x: this.w / 2, y: -80 });
     Object.assign(this.boss, { name: spec.name, bossKind: spec.kind, hp: spec.hp*this.difficulty().hp, max: spec.hp*this.difficulty().hp, r: spec.r, timer: 2 });
@@ -350,6 +364,7 @@ export class Game {
   update(dt, input = { x: 0, y: 0 }) {
     if (this.state !== 'play') return;
     this.time += dt; const p = this.player,stats=this.combatStats();
+    this.combo.left=Math.max(0,this.combo.left-dt);if(this.combo.left===0)this.combo.streak=0;
     p.inv = Math.max(0, p.inv - dt); this.resumeGrace = Math.max(0, this.resumeGrace - dt); p.dashCooldown = Math.max(0, p.dashCooldown - dt);
     let mx = input.x || 0, my = input.y || 0, magnitude = length(mx, my);
     if (magnitude > 1) { mx /= magnitude; my /= magnitude; }
@@ -370,7 +385,9 @@ export class Game {
     const stage = Math.min(INTRO.length-1,INTRO.reduce((s, a, i) => this.time >= a[0] ? i : s, 0)+this.difficulty().threat);
     if (stage !== this.stage && !this.bossSpawned) { this.stage = stage; this.emit('banner', { title: INTRO[stage][1], text: INTRO[stage][2] }); }
     const cycle = Math.floor(this.time / 60), phase = this.time % 60;
-    this.resting = (phase >= 50 || this.time < this.intermissionUntil) && !this.bossSpawned;
+    // A recent boss recovery replaces this cycle's breather, never stacks with it.
+    const waveBreak=phase>=55&&this.intermissionUntil<=cycle*60+45;
+    this.resting = (waveBreak || this.time < this.intermissionUntil) && !this.bossSpawned;
     if (this.resting && this.time >= this.intermissionUntil && cycle !== this.lastRest) {
       this.lastRest = cycle; p.hp = Math.min(p.max, p.hp + stats.repair); this.emit('banner', { title: `SIGNALPAUS / +${stats.repair} SKÖLD`, text: 'Samla kvarvarande energi. Nästa våg närmar sig.' });
     }
@@ -489,6 +506,8 @@ export function validSnapshot(d) {
     const fields=(o,names)=>o&&names.every(k=>num(o[k],-1e8,1e8));
     if(!safe(d)||d.version!==1||RUN_KEYS.some(k=>!(k in d))||!['play','paused','upgrade'].includes(d.state)||d.terminal!==false)return false;
     if(!int(d.sector,1,SECTORS.length)||typeof d.runId!=='string'||!d.runId||!num(d.w,100,20000)||!num(d.h,100,20000))return false;
+    if(d.nextEncounterAt!==undefined&&!num(d.nextEncounterAt))return false;
+    if(d.combo!==undefined&&(!d.combo||!int(d.combo.streak,0,1e9)||!int(d.combo.peak,d.combo.streak,1e9)||!num(d.combo.left,0,COMBO_WINDOW)||!num(d.combo.bonus)))return false;
     const skill=cleanSkills(d.permanent);if(SKILL_KEYS.some(k=>skill[k]!==d.permanent[k]))return false;
     for(const k of ['time','score','kills','xp','need','hitCount','dashes','damageTaken','resumeGrace','intermissionUntil','lastUpgradeAt'])if(!num(d[k]))return false;
     if(!int(d.level,1,200)||!int(d.id,1,1e9)||!int(d.bossIndex,0,3)||!int(d.bossesDefeated,0,3)||!num(d.spawnTimer,-1e6)||!num(d.fireTimer,-1e6))return false;
