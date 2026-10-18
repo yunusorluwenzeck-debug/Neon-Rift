@@ -1,4 +1,4 @@
-import {SECTORS,cleanSkills,bonuses} from './progression.mjs?v=afterglow-1';
+import {SECTORS,cleanSkills,bonuses,validSkills} from './progression.mjs?v=horizons-1';
 // Deterministic simulation. No DOM, audio, rendering or wall-clock dependencies.
 export const STEP = 1 / 120;
 export const RARITIES = [
@@ -69,7 +69,7 @@ export class Game {
     this.permanent=cleanSkills(skills);this.runId=runId;
     this.potency=Object.fromEntries(UPGRADES.map(u=>[u.id,0]));
     this.choiceRarities={};this.upgradeHistory=[];
-    this.combo={streak:0,peak:0,left:0,bonus:0};this.nextEncounterAt=BOSSES[0].at;
+    this.combo={streak:0,peak:0,left:0,bonus:0};this.nextEncounterAt=BOSSES[0].at;this.lifelineUsed=false;
     this.state = 'play'; this.time = 0; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.need = 6;
     this.id = 1; this.enemies = []; this.bullets = []; this.shots = []; this.gems = []; this.hazards = []; this.events = [];
     this.ranks = Object.fromEntries(UPGRADES.map(u => [u.id, 0])); this.choices = []; this.spawnTimer = 1.8; this.fireTimer = 0;
@@ -87,7 +87,7 @@ export class Game {
       fire:Math.max(.085,.44*.83**e('rapid')*b.fire),
       side:.55+.12*(e('split')-ranks.split),
       chainDamage:.65+.12*(e('chain')-ranks.chain),
-      chainRange:155+15*(e('chain')-ranks.chain),
+      chainRange:155+15*(e('chain')-ranks.chain)+b.chainRange,
       droneDamage:(26+e('orbit')*10)*(1+.2*(e('drone')-ranks.drone))*b.damage*b.resonance,
       orbit:65+e('orbit')*22,
       dashCooldown:Math.max(.65,(3-e('dash')*.45)*b.dash),
@@ -96,7 +96,9 @@ export class Game {
       novaRadius:70+e('nova')*30,
       speed:235*(1+e('magnet')*.05)*b.speed,
       magnet:100+e('magnet')*55+b.magnet,
-      resonance:b.resonance, armor:b.armor, repair:8+b.repair
+      resonance:b.resonance, armor:b.armor, repair:8+b.repair,
+      bossDamage:b.bossDamage,chainEvery:b.chainEvery,bossHeal:b.bossHeal,hitGrace:b.hitGrace,
+      lifeline:b.lifeline,dashSpeed:b.dashSpeed,dashGrace:b.dashGrace,vacuum:b.vacuum
     };
   }
   describeUpgrade(id,rarity=this.choiceRarities[id]||'common') {
@@ -108,7 +110,7 @@ export class Game {
       rapid:`Skottintervall ${sec(before.fire)} → ${sec(after.fire)} s.`,
       power:`Projektilskada ${n(before.damage)} → ${n(after.damage)}. Förstärker även kedjeblixtar.`,
       split:`${1+this.ranks.split*2} → ${1+ranks.split*2} skott per salva. Sidoskott: ${n(after.side*100)} % skada.`,
-      chain:`Blixt var tredje träff: ${ranks.chain} extra mål. ${n(after.chainDamage*after.damage*after.resonance)} skada per mål inom ${n(after.chainRange)} m.`,
+      chain:`Blixt var ${after.chainEvery}:e träff: ${ranks.chain} extra mål. ${n(after.chainDamage*after.damage*after.resonance)} skada per mål inom ${n(after.chainRange)} m.`,
       drone:`${this.ranks.drone} → ${ranks.drone} drönare. ${n(after.droneDamage)} skada per drönare var 0,5 s per fiende.`,
       orbit:`Drönarradie ${n(before.orbit)} → ${n(after.orbit)} m. Drönarskada ${n(before.droneDamage)} → ${n(after.droneDamage)}.`,
       dash:`Dashladdning ${sec(before.dashCooldown)} → ${sec(after.dashCooldown)} s. ${n(after.dashDamage)} skada per passerad fiende.`,
@@ -120,13 +122,14 @@ export class Game {
   snapshot() {
     const data={version:1};
     for(const key of RUN_KEYS)data[key]=this[key];
-    data.bossId=this.boss?.id??null;data.combo=this.combo;data.nextEncounterAt=this.nextEncounterAt;
+    data.bossId=this.boss?.id??null;data.combo=this.combo;data.nextEncounterAt=this.nextEncounterAt;data.lifelineUsed=this.lifelineUsed;
     return JSON.parse(JSON.stringify(data));
   }
   restore(data) {
     if(!validSnapshot(data))return false;
     const width=this.w,height=this.h;
     for(const key of RUN_KEYS)this[key]=JSON.parse(JSON.stringify(data[key]));
+    this.permanent=cleanSkills(data.permanent);this.lifelineUsed=data.lifelineUsed??false;
     this.combo=JSON.parse(JSON.stringify(data.combo||{streak:0,peak:0,left:0,bonus:0}));
     this.nextEncounterAt=data.nextEncounterAt??BOSSES[this.bossIndex]?.at??BOSS_TIME;
     if(this.upgradeReason==='boss'&&!this.bossSpawned&&this.intermissionUntil>this.time)this.intermissionUntil=Math.min(this.intermissionUntil,this.time+BOSS_RECOVERY);
@@ -150,14 +153,17 @@ export class Game {
   dash() {
     const p = this.player;
     if (this.state !== 'play' || p.dashCooldown > 0) return false;
-    p.dashCooldown = this.combatStats().dashCooldown; p.dashTime = .2; p.inv = Math.max(p.inv, .35); p.dashId++;
+    const stats=this.combatStats();
+    p.dashCooldown = stats.dashCooldown; p.dashTime = .2; p.inv = Math.max(p.inv, stats.dashGrace); p.dashId++;
+    if(stats.vacuum){for(const gem of this.gems)if(!gem.dead&&length(gem.x-p.x,gem.y-p.y)<=200){this.xp+=gem.value;this.score+=gem.value*5;gem.dead=true;}this.gems=this.gems.filter(g=>!g.dead);this.emit('nova',{x:p.x,y:p.y,radius:200});}
     this.dashes++; this.emit('dash', { x: p.x, y: p.y }); return true;
   }
   damage(amount, source, x, y) {
     if (this.state !== 'play' || this.player.inv > 0) return false;
     amount=Math.round(amount*this.difficulty().damage*this.combatStats().armor*10)/10;
-    const p = this.player; p.hp = Math.max(0, p.hp - amount); p.inv = .85; this.damageTaken += amount; this.lastDamage = source;this.combo.streak=0;this.combo.left=0;
+    const p = this.player,stats=this.combatStats(); p.hp = Math.max(0, p.hp - amount); p.inv = stats.hitGrace; this.damageTaken += amount; this.lastDamage = source;this.combo.streak=0;this.combo.left=0;
     this.emit('damage', { x: p.x, y: p.y, fromX: x, fromY: y, amount, source });
+    if(!p.hp&&stats.lifeline&&!this.lifelineUsed){this.lifelineUsed=true;p.hp=Math.ceil(p.max*.3);p.inv=2;this.shots=this.shots.filter(s=>length(s.x-p.x,s.y-p.y)>120);this.emit('nova',{x:p.x,y:p.y,radius:120});this.emit('banner',{title:'SISTA GNISTAN / RÄDDAD',text:'30 % sköld återställd. Nödreaktorn är förbrukad för den här flygningen.'});}
     if (!p.hp) this.finish(false); return true;
   }
   finish(won) {
@@ -220,8 +226,9 @@ export class Game {
   }
   hit(e, amount, chain = false) {
     if (e.hp <= 0 || this.state !== 'play' || (e.type === 'boss' && e.age < 3)) return;
+    if(e.type==='boss')amount*=this.combatStats().bossDamage;
     e.hp -= amount; e.hit = .065; this.emit('hit', { x: e.x, y: e.y, amount });
-    if (chain && this.ranks.chain && ++this.hitCount % 3 === 0) {
+    if (chain && this.ranks.chain && ++this.hitCount % this.combatStats().chainEvery === 0) {
       let prev = e; const used = new Set([e.id]);
       for (let i = 0; i < this.ranks.chain; i++) {
         let next = null, near = this.combatStats().chainRange;
@@ -244,7 +251,7 @@ export class Game {
       this.lastBossName = e.name;
       this.boss = null; this.bossSpawned = false;
       this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
-      this.player.hp = Math.min(this.player.max, this.player.hp + 30);
+      this.player.hp = Math.min(this.player.max, this.player.hp + this.combatStats().bossHeal);
       this.player.inv = Math.max(this.player.inv, 2);
       this.intermissionUntil = this.time + BOSS_RECOVERY; this.spawnTimer = .3;
       this.nextEncounterAt=Math.min(BOSSES[this.bossIndex].at,this.time+(this.bossIndex===1?85:105));
@@ -277,13 +284,19 @@ export class Game {
     });
   }
   nextBossAt() { return Math.max(this.bossIndex<3?Math.min(BOSSES[this.bossIndex].at,this.nextEncounterAt??BOSSES[this.bossIndex].at):Infinity,this.intermissionUntil); }
+  enemyPool(stage=this.stage) {
+    const formation=this.difficulty().formation;
+    const mixes={crossfire:['hunter','sniper','sniper','rammer'],charge:['rammer','hunter','hunter','sniper'],swarm:['splitter','splitter','hunter','warden'],siege:['warden','sniper','warden','hunter'],hunt:['hunter','hunter','rammer','splitter']};
+    if(formation!=='classic'){const key=formation==='convergence'?Object.keys(mixes)[Math.floor(this.time/30)%5]:formation;return mixes[key];}
+    const pool=['hunter','hunter'];if(stage>=1)pool.push('sniper');if(stage>=2)pool.push('rammer');if(stage>=3)pool.push('splitter');if(stage>=4)pool.push('warden');return pool;
+  }
   beginBoss() {
     const spec = BOSSES[this.bossIndex];
     if (!spec || this.bossSpawned || this.state !== 'play') return false;
     this.bossIndex++; this.bossSpawned = true; this.resting = false;this.nextEncounterAt=BOSSES[this.bossIndex]?.at??BOSS_TIME;
     this.enemies = []; this.shots = []; this.bullets = []; this.hazards = [];
     this.boss = this.spawn('boss', { x: this.w / 2, y: -80 });
-    Object.assign(this.boss, { name: spec.name, bossKind: spec.kind, hp: spec.hp*this.difficulty().hp, max: spec.hp*this.difficulty().hp, r: spec.r, timer: 2 });
+    Object.assign(this.boss, { name: spec.name, bossKind: spec.kind, hp: spec.hp*this.difficulty().hp, max: spec.hp*this.difficulty().hp, r: spec.r, timer: 2, pattern:this.difficulty().opening });
     this.player.inv = Math.max(this.player.inv, 3);
     this.emit('banner', { title: `BOSS ${this.bossIndex} / 3 · ${spec.name}`, text: spec.intro });
     return true;
@@ -371,7 +384,7 @@ export class Game {
     if (magnitude > .08 && !p.dashTime) { const n = length(mx, my); p.dx = mx / n; p.dy = my / n; }
     const oldX = p.x, oldY = p.y, wasDash = p.dashTime > 0;
     if (wasDash) { mx = p.dx; my = p.dy; p.dashTime = Math.max(0, p.dashTime - dt); }
-    const speed = p.speed * (wasDash ? 3.6 : 1);
+    const speed = p.speed * (wasDash ? 3.6*stats.dashSpeed : 1);
     p.x = clamp(p.x + mx * speed * dt, 16, this.w - 16); p.y = clamp(p.y + my * speed * dt, 16, this.h - 16);
     if (wasDash && this.ranks.dash) for (const e of this.enemies) {
       if (e.mark !== p.dashId && e.age > .7 && segmentDistance(e.x, e.y, oldX, oldY, p.x, p.y) < e.r + 20) { e.mark = p.dashId; this.hit(e, stats.dashDamage); }
@@ -383,7 +396,7 @@ export class Game {
     }
     if (this.state !== 'play') return;
     const stage = Math.min(INTRO.length-1,INTRO.reduce((s, a, i) => this.time >= a[0] ? i : s, 0)+this.difficulty().threat);
-    if (stage !== this.stage && !this.bossSpawned) { this.stage = stage; this.emit('banner', { title: INTRO[stage][1], text: INTRO[stage][2] }); }
+    if (stage !== this.stage && !this.bossSpawned) { this.stage = stage; this.emit('banner', { title: this.sector>6?this.difficulty().name.toUpperCase():INTRO[stage][1], text: this.sector>6?this.difficulty().description:INTRO[stage][2] }); }
     const cycle = Math.floor(this.time / 60), phase = this.time % 60;
     // A recent boss recovery replaces this cycle's breather, never stacks with it.
     const waveBreak=phase>=55&&this.intermissionUntil<=cycle*60+45;
@@ -395,7 +408,7 @@ export class Game {
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0 && !this.resting && !this.bossSpawned) {
       this.spawnTimer = Math.max(.35,(1.7 - this.time * .0025)/this.difficulty().spawn);
-      const pool = ['hunter', 'hunter']; if (stage >= 1) pool.push('sniper'); if (stage >= 2) pool.push('rammer'); if (stage >= 3) pool.push('splitter'); if (stage >= 4) pool.push('warden');
+      const pool = this.enemyPool(stage);
       this.spawn(pool[Math.floor(this.random() * pool.length)]);
       if (stage >= 3 && phase > 30 && this.random() < .25) this.spawn('hunter');
     }
@@ -508,7 +521,8 @@ export function validSnapshot(d) {
     if(!int(d.sector,1,SECTORS.length)||typeof d.runId!=='string'||!d.runId||!num(d.w,100,20000)||!num(d.h,100,20000))return false;
     if(d.nextEncounterAt!==undefined&&!num(d.nextEncounterAt))return false;
     if(d.combo!==undefined&&(!d.combo||!int(d.combo.streak,0,1e9)||!int(d.combo.peak,d.combo.streak,1e9)||!num(d.combo.left,0,COMBO_WINDOW)||!num(d.combo.bonus)))return false;
-    const skill=cleanSkills(d.permanent);if(SKILL_KEYS.some(k=>skill[k]!==d.permanent[k]))return false;
+    if(!validSkills(d.permanent))return false;
+    if(d.lifelineUsed!==undefined&&typeof d.lifelineUsed!=='boolean')return false;
     for(const k of ['time','score','kills','xp','need','hitCount','dashes','damageTaken','resumeGrace','intermissionUntil','lastUpgradeAt'])if(!num(d[k]))return false;
     if(!int(d.level,1,200)||!int(d.id,1,1e9)||!int(d.bossIndex,0,3)||!int(d.bossesDefeated,0,3)||!num(d.spawnTimer,-1e6)||!num(d.fireTimer,-1e6))return false;
     if(typeof d.bossSpawned!=='boolean'||typeof d.resting!=='boolean'||!int(d.stage,-1,5)||!int(d.lastRest,-1,100000))return false;
@@ -529,4 +543,3 @@ export function validSnapshot(d) {
     return true;
   }catch{return false;}
 }
-const SKILL_KEYS=Object.keys(cleanSkills());

@@ -7,19 +7,48 @@ export const SECTORS = [
   ['Ekofältet','Prickskyttar finns med från början.'],
   ['Svärmens hjärta','Bossarna öppnar med sin andra fas.'],
   ['Mörk materia','Murbräckor jagar dig redan från start.'],
-  ['Den sista riften','Kampanjens hårdaste möte. Bygg ditt bästa skepp.']
-].map(([name,description],i)=>({id:i+1,name,description,hp:1+i*.28,damage:1+i*.12,speed:1+i*.04,spawn:1+i*.13,attack:1+i*.05,threat:Math.floor(i/2),bossPhase:i>=3?1:0,firstReward:5+i}));
+  ['Den sista riften','Stäng den första riften. Sex nya horisonter väntar.'],
+  ['Prismavalvet','Prickskyttar och spjut korsar dina flyktvägar. Byt riktning efter siktlinjen.'],
+  ['Rosenstormen','Murbräckor leder jakten. Locka fram rusningen och smit åt sidan.'],
+  ['Tvillingmånarna','Delande svärmar fyller närstriden. Blixtar och drönare hittar fler mål.'],
+  ['Nollzonen','Minläggare och prickskyttar delar upp arenan. Spara dash till en öppning.'],
+  ['Solbrottet','Snabba jaktgrupper avlöser tungt pansar. Växla mellan avstånd och närstrid.'],
+  ['Efterglödens kärna','Alla formationer växlar. Tre rasande väktare skyddar kampanjens sista kärna.']
+].map(([name,description],i)=>({id:i+1,name,description,
+  hp:i<6?1+i*.28:2.65+(i-6)*.24,damage:i<6?1+i*.12:1.65+(i-6)*.06,
+  speed:1+Math.min(i,8)*.04,spawn:1+Math.min(i,8)*.13,attack:1+Math.min(i,8)*.05,
+  threat:i<6?Math.floor(i/2):4,bossPhase:i>=3?1:0,firstReward:5+i,
+  chapter:i<6?'YTTRE RIFTEN':'BORTOM HORISONTEN',
+  formation:i<6?'classic':['crossfire','charge','swarm','siege','hunt','convergence'][i-6],
+  opening:i<6?0:(i-5)%3
+}));
 export const SKILLS = [
   {id:'reactor',name:'Jonreaktor',branch:'VAPEN',icon:'✦',max:3,cost:1,desc:'+6 % skada med alla vapen per nivå.'},
   {id:'coil',name:'Pulsladdare',branch:'VAPEN',icon:'≋',max:3,cost:2,requires:'reactor',requiredRank:2,desc:'5 % kortare skottintervall per nivå.'},
   {id:'resonance',name:'Resonans',branch:'VAPEN',icon:'ϟ',max:2,cost:3,requires:'coil',requiredRank:2,desc:'+12 % skada med blixtar och drönare per nivå.'},
+  {id:'lancer',name:'Väktarbrytare',branch:'VAPEN',icon:'⋔',max:2,cost:3,requires:'coil',requiredRank:2,desc:'+12 % skada mot bossar med alla vapen per nivå.'},
+  {id:'relay',name:'Blixtrelä',branch:'VAPEN',icon:'⌁',max:2,cost:3,requires:'resonance',requiredRank:1,desc:'+35 m räckvidd per blixtsprång och nivå. Kräver Kedjeblixt i flygningen.'},
+  {id:'overdrive',name:'Åskhjärta',branch:'VAPEN',icon:'ϟ',max:1,cost:5,requires:'resonance',requiredRank:2,capstone:true,desc:'Kedjeblixt utlöses varannan träff i stället för var tredje. Kräver Kedjeblixt i flygningen.'},
   {id:'hull',name:'Förstärkt skrov',branch:'FÖRSVAR',icon:'⊕',max:3,cost:1,desc:'+15 maxsköld från flygningens start per nivå.'},
   {id:'regen',name:'Reparationsväv',branch:'FÖRSVAR',icon:'⊛',max:3,cost:2,requires:'hull',requiredRank:2,desc:'+4 sköld vid varje signalpaus per nivå.'},
   {id:'bastion',name:'Bastion',branch:'FÖRSVAR',icon:'◈',max:2,cost:3,requires:'regen',requiredRank:2,desc:'5 % mindre inkommande skada per nivå.'},
+  {id:'recovery',name:'Fältverkstad',branch:'FÖRSVAR',icon:'⊕',max:2,cost:3,requires:'regen',requiredRank:1,desc:'+8 extra sköld efter Sentinel och Hive Mother per nivå.'},
+  {id:'aegis',name:'Fasskrov',branch:'FÖRSVAR',icon:'◇',max:2,cost:3,requires:'bastion',requiredRank:1,desc:'+0,15 s osårbarhet efter en träff per nivå. Grundvärde: 0,85 s.'},
+  {id:'lifeline',name:'Sista gnistan',branch:'FÖRSVAR',icon:'✧',max:1,cost:5,requires:'bastion',requiredRank:2,capstone:true,desc:'En gång per flygning: överlev en dödlig träff med 30 % sköld, 2 s skydd och rensa skott inom 120 m.'},
   {id:'thrusters',name:'Jondrift',branch:'RÖRLIGHET',icon:'↗',max:3,cost:1,desc:'+4 % flyghastighet per nivå.'},
   {id:'capacitor',name:'Riftkondensator',branch:'RÖRLIGHET',icon:'◎',max:3,cost:2,requires:'thrusters',requiredRank:2,desc:'6 % kortare dashladdning per nivå.'},
-  {id:'salvager',name:'Bärgningssensor',branch:'RÖRLIGHET',icon:'⌖',max:2,cost:3,requires:'capacitor',requiredRank:2,desc:'+25 m radie för att samla energi per nivå.'}
+  {id:'salvager',name:'Bärgningssensor',branch:'RÖRLIGHET',icon:'⌖',max:2,cost:3,requires:'capacitor',requiredRank:2,desc:'+25 m radie för att samla energi per nivå.'},
+  {id:'slipstream',name:'Solsegel',branch:'RÖRLIGHET',icon:'»',max:2,cost:3,requires:'capacitor',requiredRank:1,desc:'+10 % hastighet under dash per nivå. Vanlig flyghastighet påverkas inte.'},
+  {id:'dashguard',name:'Fasspår',branch:'RÖRLIGHET',icon:'◎',max:2,cost:3,requires:'salvager',requiredRank:1,desc:'+0,08 s osårbarhet vid dash per nivå. Grundvärde: 0,35 s.'},
+  {id:'vacuum',name:'Stjärnsamlare',branch:'RÖRLIGHET',icon:'⌖',max:1,cost:5,requires:'salvager',requiredRank:2,capstone:true,desc:'Dash samlar direkt all energi inom 200 m från startpunkten.'}
 ];
+// The nine original keys remain required; added skills default to zero in old saves.
+export const LEGACY_SKILL_IDS=['reactor','coil','resonance','hull','regen','bastion','thrusters','capacitor','salvager'];
+export function validSkills(raw) {
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))return false;
+  const clean=cleanSkills(raw);
+  return SKILLS.every(s=>raw[s.id]===clean[s.id]||(!Object.hasOwn(raw,s.id)&&!LEGACY_SKILL_IDS.includes(s.id)));
+}
 const whole=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
 const finite=(v,min=0,max=1e12)=>Number.isFinite(v)&&v>=min&&v<=max;
 export function cleanSkills(input={}) {
@@ -29,7 +58,8 @@ export function cleanSkills(input={}) {
 }
 export function bonuses(skills={}) {
   const r=cleanSkills(skills);
-  return {damage:1+r.reactor*.06,fire:.95**r.coil,resonance:1+r.resonance*.12,shield:r.hull*15,repair:r.regen*4,armor:1-r.bastion*.05,speed:1+r.thrusters*.04,dash:1-r.capacitor*.06,magnet:r.salvager*25};
+  return {damage:1+r.reactor*.06,fire:.95**r.coil,resonance:1+r.resonance*.12,shield:r.hull*15,repair:r.regen*4,armor:1-r.bastion*.05,speed:1+r.thrusters*.04,dash:1-r.capacitor*.06,magnet:r.salvager*25,
+    bossDamage:1+r.lancer*.12,chainRange:r.relay*35,chainEvery:r.overdrive?2:3,bossHeal:30+r.recovery*8,hitGrace:.85+r.aegis*.15,lifeline:!!r.lifeline,dashSpeed:1+r.slipstream*.1,dashGrace:.35+r.dashguard*.08,vacuum:!!r.vacuum};
 }
 export function newProfile() {
   return {version:SAVE_VERSION,cleared:0,wallet:0,skills:cleanSkills(),selected:1,best:0,settings:{effects:true,particles:true,shake:true,volume:.35},records:{},stats:{runs:0,wins:0,kills:0,bosses:0,seconds:0},settled:[],activeRun:null,lastResult:null};
@@ -61,7 +91,7 @@ export function settleRun(profile,result) {
 // Validate imported content before allowing it to replace a working save.
 export function validateProfile(raw) {
   if(!raw||raw.version!==SAVE_VERSION||!whole(raw.cleared,0,SECTORS.length)||!whole(raw.wallet,0,1e7)||!finite(raw.best)||!raw.skills||!raw.settings||!raw.stats||!Array.isArray(raw.settled)||raw.settled.length>2000)return null;
-  const skills=cleanSkills(raw.skills);for(const s of SKILLS)if(raw.skills[s.id]!==skills[s.id])return null;
+  if(!validSkills(raw.skills))return null;const skills=cleanSkills(raw.skills);
   if(!whole(raw.selected,1,Math.min(SECTORS.length,raw.cleared+1)))return null;
   for(const key of ['runs','wins','kills','bosses','seconds'])if(!finite(raw.stats[key]))return null;
   for(const key of ['effects','particles','shake'])if(typeof raw.settings[key]!=='boolean')return null;

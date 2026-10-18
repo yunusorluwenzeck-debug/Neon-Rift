@@ -4,3 +4,5 @@ Thumbs.db
 .env
 .env.*
 *.log
+portal-builds/
+__pycache__/

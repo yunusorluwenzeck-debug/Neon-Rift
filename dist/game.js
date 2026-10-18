@@ -1,14 +1,16 @@
-import {Game,STEP,UPGRADES,BOSSES,RARITIES,COMBO_WINDOW,comboMultiplier,clamp,validSnapshot} from './core.mjs?v=afterglow-1';
-import {SECTORS,SKILLS,SAVE_KEY,SaveStore,validateProfile,canPlay,canBuy,skillCost,buySkill,refundSkills,settleRun} from './progression.mjs?v=afterglow-1';
+import {Game,STEP,UPGRADES,BOSSES,RARITIES,COMBO_WINDOW,comboMultiplier,clamp,validSnapshot} from './core.mjs?v=horizons-1';
+import {SECTORS,SKILLS,bonuses,SAVE_KEY,SaveStore,validateProfile,canPlay,canBuy,skillCost,buySkill,refundSkills,settleRun} from './progression.mjs?v=horizons-1';
 const $=id=>document.getElementById(id),canvas=$('space'),ctx=canvas.getContext('2d');
+const portal=globalThis.NEON_PORTAL;let adGate=false;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let storage;try{storage=localStorage;}catch{storage={getItem(){throw Error('storage blocked')},setItem(){throw Error('storage blocked')}};}
+let storage;try{storage=portal?.storage||localStorage;}catch{storage={getItem(){throw Error('storage blocked')},setItem(){throw Error('storage blocked')}};}
 const saveStore=new SaveStore(storage,validSnapshot);
 let profile=saveStore.load(),settings=profile.settings,best=profile.best;
 if(reduced){settings.particles=false;settings.shake=false;}
 const game=new Game(),keys=new Set(),pointer={active:false,id:null,x:0,y:0,ox:0,oy:0};
 let backdrop=null,backdropKey='',trail=[],launchGlow=0,damageGlow=0,comboPulse=0;
 let W=0,H=0,scale=1,offsetX=0,offsetY=0,last=0,acc=0,runTime=0,hudTimer=0,saveTimer=0,shake=0,particles=[],marks=[],bannerTime=0,modalState='',audio,voices=0,lastSound={},hangarTab='map';
+if(portal){portal.onMute=muted=>{if(muted){clearInput();audio?.suspend().catch(()=>{})}else if(!document.hidden)audio?.resume().catch(()=>{})};$('fullscreen').hidden=!portal.allowFullscreen;}
 const stars=Array.from({length:110},()=>({x:Math.random(),y:Math.random(),s:.4+Math.random()*1.5,z:Math.random()}));
 const fmt=t=>`${String(Math.floor(t/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}`;
 function status(text,error=false){if($('savestatus').textContent!==text)$('savestatus').textContent=text;$('savestatus').classList.toggle('save-error',error);}
@@ -19,9 +21,9 @@ function persist(capture=true){
   status(ok?'Sparat på den här enheten':saveStore.error,!ok);return ok;
 }
 function soundLabel(){$('sound').textContent=settings.effects?'Ljud på':'Ljud av';$('sound').setAttribute('aria-label',settings.effects?'Stäng av ljudeffekter':'Slå på ljudeffekter');}
-function unlock(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume().catch(()=>{})}catch{}}
+function unlock(){if(portal?.muted)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume().catch(()=>{})}catch{}}
 function sound(kind){
-  if(!settings.effects||settings.volume<=0||!audio||audio.state!=='running'||voices>=10)return;
+  if(portal?.muted||!settings.effects||settings.volume<=0||!audio||audio.state!=='running'||voices>=10)return;
   const now=audio.currentTime;if(now-(lastSound[kind]??-10)<(kind==='shot'?.095:kind==='hit'?.07:.08))return;
   lastSound[kind]=now;
   const tones={shot:[660,.04,.016],hit:[220,.055,.025],kill:[120,.13,.035],dash:[420,.21,.055],damage:[85,.2,.065],pickup:[1080,.035,.009],choice:[740,.24,.055],upgrade:[830,.22,.045],charge:[155,.23,.03],bossFire:[78,.26,.055],combo:[650+Math.min(32,game.combo.streak)*12,.16,.025],victory:[520,.45,.035],defeat:[130,.4,.035]};
@@ -42,31 +44,33 @@ function clearInput(){keys.clear();pointer.active=false;acc=0;}
 function modal(tag,title,desc,label,action){clearInput();$('overlay').hidden=false;$('modalTag').textContent=tag;$('modalTitle').textContent=title;$('modalDesc').textContent=desc;$('choices').replaceChildren();$('debrief').replaceChildren();$('debrief').hidden=true;$('overlay').classList.remove('is-result','is-upgrade');$('resume').hidden=!action;$('resume').textContent=label||'';$('resume').onclick=action;$('restart').hidden=!['play','paused','upgrade','over'].includes(game.state);$('nextsector').hidden=true;$('home').textContent=['play','paused','upgrade'].includes(game.state)?'Spara och gå till menyn':'Till huvudmenyn';if(action)$('resume').focus();}
 function closeModal(){$('overlay').hidden=true;modalState='';clearInput();}
 function refreshMenu(){
-  $('best').textContent=best.toLocaleString('sv');$('campaign-summary').textContent=`${profile.cleared}/6 banor klarade · ${profile.wallet} riftkärnor`;
+  $('best').textContent=best.toLocaleString('sv');$('campaign-summary').textContent=`${profile.cleared}/${SECTORS.length} banor klarade · ${profile.wallet} riftkärnor`;
   $('start').textContent=`Spela bana ${profile.selected} ↗`;
   $('continue').hidden=!profile.activeRun;
   if(profile.activeRun)$('continue').textContent=`Fortsätt bana ${profile.activeRun.sector} · ${fmt(profile.activeRun.time)}`;
-  const sector=SECTORS[profile.selected-1];$('mission-name').textContent=sector.name;$('mission-caption').textContent=`BANA ${String(sector.id).padStart(2,'0')} / 06 · ${sector.firstReward} KÄRNOR VID FÖRSTA SEGERN`;
+  const sector=SECTORS[profile.selected-1];$('mission-name').textContent=sector.name;$('mission-caption').textContent=`BANA ${String(sector.id).padStart(2,'0')} / ${SECTORS.length} · ${sector.firstReward} KÄRNOR VID FÖRSTA SEGERN`;
   $('route').replaceChildren();for(const level of SECTORS){const node=document.createElement('button');node.className='route-node'+(level.id<=profile.cleared?' cleared':level.id===profile.selected?' selected':'');node.textContent=String(level.id).padStart(2,'0');node.disabled=!canPlay(profile,level.id);node.setAttribute('aria-label',`Bana ${level.id}: ${level.name}${node.disabled?', låst':''}`);node.onclick=()=>{if(canPlay(profile,level.id)){profile.selected=level.id;refreshMenu();persist(false);}};$('route').append(node);}
 
 }
 function enterFlight(){closeModal();$('hangar').hidden=true;$('menu').hidden=true;$('hero-label').hidden=true;$('controls').hidden=true;$('hud').hidden=false;$('pause').hidden=false;document.body.classList.add('playing');}
-function start(sector=profile.selected){
+function start(sector=profile.selected,adChecked=false){
+  if(adGate)return false;
+  if(!adChecked&&portal?.breakDue){adGate=true;clearInput();document.body.classList.add('ad-break');return portal.breakBeforePlay().finally(()=>{adGate=false;document.body.classList.remove('ad-break')}).then(()=>start(sector,true));}
   if(!canPlay(profile,sector))return false;
   if(profile.activeRun&&game.state==='menu'&&!confirm('En flygning är sparad. Vill du ersätta den med en ny?'))return false;
   unlock();profile.selected=sector;
   const runId=globalThis.crypto?.randomUUID?.()||`flight-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   game.reset({sector,skills:profile.skills,runId});particles=[];marks=[];trail=[];shake=0;damageGlow=0;launchGlow=1;bannerTime=0;saveTimer=0;
-  enterFlight();game.offer('start');events();hud();persist();return true;
+  enterFlight();game.offer('start');if(portal?.quickStart&&profile.stats.runs===0){game.drainEvents();game.choose('rapid');}events();hud();persist();if(document.hidden)unfocus();return true;
 }
 function continueRun(){
   const saved=profile.activeRun;if(!saved||!canPlay(profile,saved.sector)||!game.restore(saved)){status('Den sparade flygningen kunde inte läsas. Exportera sparfilen innan du börjar om.',true);return false;}
   unlock();particles=[];marks=[];trail=[];damageGlow=0;enterFlight();
   if(game.state==='upgrade')events();else showPause('Din sparade flygning är redo.');hud();return true;
 }
-function home(){if(['play','paused','upgrade'].includes(game.state))persist();game.state='menu';closeModal();$('hangar').hidden=true;$('menu').hidden=false;$('hero-label').hidden=false;$('controls').hidden=false;$('hud').hidden=true;$('pause').hidden=true;document.body.classList.remove('playing');refreshMenu();}
+function home(){if(adGate)return;if(['play','paused','upgrade'].includes(game.state))persist();game.state='menu';closeModal();$('hangar').hidden=true;$('menu').hidden=false;$('hero-label').hidden=false;$('controls').hidden=false;$('hud').hidden=true;$('pause').hidden=true;document.body.classList.remove('playing');refreshMenu();}
 $('start').onclick=()=>start();$('continue').onclick=continueRun;$('restart').onclick=()=>start(game.sector);$('home').onclick=home;
-function resume(){game.resume();closeModal();hud();persist();}
+function resume(){if(adGate)return;unlock();game.resume();closeModal();hud();persist();}
 function showPause(prefix='Tid och strid är stoppade.'){
   modalState='pause';modal('FLYGNING PAUSAD','Andas ut.',prefix+' Skydd i 1,2 s när du fortsätter. System: '+UPGRADES.filter(u=>game.ranks[u.id]).map(u=>`${u.name} ${game.ranks[u.id]}/${u.max}`).join(' · '),'Fortsätt ↗',resume);
 }
@@ -82,6 +86,7 @@ $('settings').onclick=()=>{
   const l=document.createElement('label');l.textContent='Effektvolym ';const v=document.createElement('input');v.type='range';v.min=0;v.max=1;v.step=.05;v.value=settings.volume;v.oninput=()=>{settings.volume=+v.value;persist();};l.append(v);box.append(l);$('choices').append(box);
 };
 async function fullscreen(){
+  if(portal&&!portal.allowFullscreen)return;
   try{if(document.fullscreenElement||document.webkitFullscreenElement){await(document.exitFullscreen?.()??document.webkitExitFullscreen?.());}
     else{const root=document.documentElement,request=root.requestFullscreen||root.webkitRequestFullscreen;if(!request){status('Fullskärm stöds inte här. På dator kan du använda F11.',true);return;}await request.call(root);}
   }catch{status('Fullskärm blockerades av webbläsaren. Öppna spellänken direkt och försök igen.',true);}
@@ -90,7 +95,7 @@ function fullscreenLabel(){$('fullscreen').textContent=(document.fullscreenEleme
 $('fullscreen').onclick=fullscreen;document.addEventListener('fullscreenchange',fullscreenLabel);document.addEventListener('webkitfullscreenchange',fullscreenLabel);
 function dash(){unlock();game.dash();events();hud();}
 $('dash').onpointerdown=e=>{e.preventDefault();dash();};
-addEventListener('keydown',e=>{if(e.target.matches('input'))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)&&game.state!=='menu')e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space'&&$('overlay').hidden)dash();if(e.code==='KeyP'||e.code==='Escape')pause();if(e.code==='KeyF'&&$('overlay').hidden)fullscreen();if(game.state==='upgrade'&&/^Digit[123]$/.test(e.code))choose(game.choices[+e.code.slice(-1)-1]);}});
+addEventListener('keydown',e=>{if(adGate){e.preventDefault();return}if(e.target.matches('input'))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)&&game.state!=='menu')e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='Space'&&$('overlay').hidden)dash();if(e.code==='KeyP'||e.code==='Escape')pause();if(e.code==='KeyF'&&$('overlay').hidden)fullscreen();if(game.state==='upgrade'&&/^Digit[123]$/.test(e.code))choose(game.choices[+e.code.slice(-1)-1]);}});
 addEventListener('keyup',e=>keys.delete(e.code));
 function unfocus(){clearInput();if(game.state==='play'){game.pause();showPause();}persist();}
 addEventListener('blur',unfocus);document.addEventListener('visibilitychange',()=>{if(document.hidden)unfocus();});addEventListener('pagehide',()=>persist());
@@ -100,7 +105,7 @@ canvas.onpointerup=canvas.onpointercancel=e=>{if(e.pointerId===pointer.id)pointe
 function input(){if(pointer.active){const dx=pointer.x-pointer.ox,dy=pointer.y-pointer.oy,d=Math.hypot(dx,dy);return d<5?{x:0,y:0}:{x:dx/Math.max(48,d),y:dy/Math.max(48,d)};}return{x:(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0),y:(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-(keys.has('KeyW')||keys.has('ArrowUp')?1:0)};}
 function choose(id){if(game.choose(id)){closeModal();events();hud();persist();}}
 function showUpgrade(e){
-  modalState='upgrade';modal(e.reason==='start'?`BANA ${game.sector} · VÄLJ STARTSYSTEM`:e.reason==='boss'?`${game.lastBossName} BESEGRAD · +30 SKÖLD`:`UPPGRADERING / NIVÅ ${game.level}`,e.reason==='boss'?'Din bossbelöning.':e.reason==='start'?'Hur vill du slåss?':'Gör skeppet starkare.','Välj ett kort eller tryck 1, 2, 3. Högre raritet ger starkare bonus. Valet gäller den här flygningen.');
+  modalState='upgrade';modal(e.reason==='start'?`BANA ${game.sector} · VÄLJ STARTSYSTEM`:e.reason==='boss'?`${game.lastBossName} BESEGRAD · +${game.combatStats().bossHeal} SKÖLD`:`UPPGRADERING / NIVÅ ${game.level}`,e.reason==='boss'?'Din bossbelöning.':e.reason==='start'?'Hur vill du slåss?':'Gör skeppet starkare.','Välj ett kort eller tryck 1, 2, 3. Högre raritet ger starkare bonus. Valet gäller den här flygningen.');
   $('overlay').classList.add('is-upgrade');
   for(const [i,id]of game.choices.entries()){
     const u=UPGRADES.find(u=>u.id===id),rarity=RARITIES.find(r=>r.id===game.choiceRarities[id])||RARITIES[0],b=document.createElement('button');
@@ -110,11 +115,12 @@ function showUpgrade(e){
   }$('choices').firstChild.focus();
 }
 function showResult(e){
+  portal?.completed(game.time);
   const oldBest=profile.records[game.sector]?.best||0;
   const result=settleRun(profile,{runId:game.runId,sector:game.sector,won:e.won,score:game.score,time:game.time,kills:game.kills,bosses:game.bossesDefeated,dashes:game.dashes,damageTaken:game.damageTaken,peakCombo:game.combo.peak,comboBonus:game.combo.bonus,upgrades:game.upgradeHistory})||profile.lastResult;
   best=Math.max(best,game.score);persist(false);refreshMenu();modalState='result';
-  const next=game.sector<6?game.sector+1:game.sector;
-  modal(e.won?`BANA ${game.sector} KLAR · ${game.score>oldBest?'NYTT BANREKORD':'UPPDRAG SLUTFÖRT'}`:'SIGNALEN FÖRLORAD',e.won?(game.sector<6?'Nästa horisont.':'Riften är din.'):'Du är inte klar än.',e.won?(game.sector<6?`${SECTORS[next-1].name} är upplåst. Nästa flygning börjar direkt när du är redo.`:'Alla sex banor är säkrade. Finslipa skeppet eller slå ditt banrekord.'):`Sista träffen: ${game.lastDamage}. Dina permanenta förbättringar finns kvar.`,e.won?(game.sector<6?`Starta bana ${next} ↗`:'Spela igen ↗'):'Försök igen ↗',()=>start(e.won?next:game.sector));
+  const next=game.sector<SECTORS.length?game.sector+1:game.sector;
+  modal(e.won?`BANA ${game.sector} KLAR · ${game.score>oldBest?'NYTT BANREKORD':'UPPDRAG SLUTFÖRT'}`:'SIGNALEN FÖRLORAD',e.won?(game.sector<SECTORS.length?'Nästa horisont.':'Riften är din.'):'Du är inte klar än.',e.won?(game.sector<SECTORS.length?`${SECTORS[next-1].name} är upplåst. Nästa flygning börjar direkt när du är redo.`:'Alla tolv banor är säkrade. Finslipa skeppet eller slå ditt banrekord.'):`Sista träffen: ${game.lastDamage}. Dina permanenta förbättringar finns kvar.`,e.won?(game.sector<SECTORS.length?`Starta bana ${next} ↗`:'Spela igen ↗'):'Försök igen ↗',()=>start(e.won?next:game.sector));
   $('overlay').classList.add('is-result');$('debrief').hidden=false;
   for(const [label,value]of [['POÄNG',game.score.toLocaleString('sv')],['FLYGTID',fmt(game.time)],['BÄSTA KOMBO',`${game.combo.peak} i rad`],['BOSSAR',`${game.bossesDefeated} / 3`]]){const cell=document.createElement('div'),small=document.createElement('small'),strong=document.createElement('strong');small.textContent=label;strong.textContent=value;cell.append(small,strong);$('debrief').append(cell);}
   const reward=document.createElement('div');reward.className='reward-strip';reward.textContent=e.won?`◈ +${result?.reward||0} riftkärnor · ${profile.wallet} att använda i skill tree`:`Kombo gav +${game.combo.bonus.toLocaleString('sv')} bonuspoäng`; $('debrief').append(reward);
@@ -151,7 +157,7 @@ function hud(){
   $('bossbar').hidden=!game.bossSpawned;$('bossname').textContent=game.boss?.name||'';$('bosshp').style.width=game.boss?Math.max(0,100*game.boss.hp/game.boss.max)+'%':'0%';
   $('banner').style.opacity=bannerTime>0?'1':'0';$('settings').disabled=game.state==='upgrade';
   $('build').textContent=UPGRADES.filter(u=>game.ranks[u.id]).map(u=>`${u.icon} ${u.name} ${game.ranks[u.id]}`).join(' · ');
-  if(game.time<14)$('hint').textContent=matchMedia('(pointer: coarse)').matches?'Dra som en styrspak. ⚡ ger dash + skydd.':'WASD / pilar: flyg · SPACE: dash · F: fullskärm · P: paus';
+  if(game.time<14)$('hint').textContent=matchMedia('(pointer: coarse)').matches?'Dra som en styrspak. ⚡ ger dash + skydd.':'WASD / pilar: flyg · SPACE: dash · P: paus';
   else if(game.player.inv===0)$('hint').textContent=game.resting?'Nästa anfall närmar sig. Samla energin.':'Slå ut fiender inom 5 s för kombo · Träffar bryter sviten';
 }
 function openHangar(tab='map'){
@@ -161,13 +167,13 @@ function openHangar(tab='map'){
 function renderHangar(){
   $('hangar-launch').textContent=profile.activeRun?'Fortsätt sparad flygning ↗':`Starta bana ${profile.selected} ↗`;$('hangar-launch').onclick=()=>profile.activeRun?continueRun():start(profile.selected);
   $('hangar-wallet').textContent=`${profile.wallet} RIFTKÄRNOR`;
-  $('hangar-stats').textContent=`${profile.cleared}/6 banor · ${profile.stats.wins} segrar · ${profile.stats.kills} fiender`;
+  $('hangar-stats').textContent=`${profile.cleared}/${SECTORS.length} banor · ${profile.stats.wins} segrar · ${profile.stats.kills} fiender`;
   $('tab-map').setAttribute('aria-selected',hangarTab==='map');$('tab-skills').setAttribute('aria-selected',hangarTab==='skills');
   $('sector-grid').hidden=hangarTab!=='map';$('skill-tree').hidden=hangarTab!=='skills';$('refund').hidden=hangarTab!=='skills';
-  $('hangar-note').textContent=hangarTab==='map'?'Klara alla tre bossar på en bana för att låsa upp nästa. En första seger ger 5–10 riftkärnor. Omspel ger 2.':profile.cleared?'Dina förbättringar följer med till varje ny flygning. Sparade flygningar behåller sin tidigare utrustning.':'Klara första banan för att få riftkärnor. Trädet sparas mellan flygningar.';
+  $('hangar-note').textContent=hangarTab==='map'?'Klara alla tre bossar på en bana för att låsa upp nästa. En första seger ger 5–16 riftkärnor. Omspel ger 2.':profile.cleared?'Dina förbättringar följer med till varje ny flygning. Sparade flygningar behåller sin tidigare utrustning.':'Klara första banan för att få riftkärnor. Trädet sparas mellan flygningar.';
   $('sector-grid').replaceChildren();
   for(const s of SECTORS){const available=canPlay(profile,s.id),done=s.id<=profile.cleared,card=document.createElement('article');card.style.setProperty('--sector',SECTOR_LOOKS[s.id-1].accent);card.className=`sector-card ${done?'completed':available?'available':'locked'}`;
-    const tag=document.createElement('small');tag.textContent=`BANA ${String(s.id).padStart(2,'0')} · ${done?'KLAR':available?'UPPLÅST':'LÅST'}`;
+    const tag=document.createElement('small');tag.textContent=`${s.chapter} · BANA ${String(s.id).padStart(2,'0')} · ${done?'KLAR':available?'UPPLÅST':'LÅST'}`;
     const h=document.createElement('h3');h.textContent=s.name;const p=document.createElement('p');p.textContent=s.description;
     const stats=document.createElement('span');stats.className='sector-stats';stats.textContent=`Fiendeliv ×${s.hp.toFixed(2)} · skada ×${s.damage.toFixed(2)} · ${s.firstReward} kärnor första gången`;
     const button=document.createElement('button');button.className='primary';button.disabled=!available;button.textContent=available?`${done?'Spela igen':'Spela bana '+s.id} ↗`:`Klara bana ${s.id-1} först`;button.onclick=()=>{if(canPlay(profile,s.id))start(s.id);};
@@ -175,13 +181,14 @@ function renderHangar(){
   }
   $('skill-tree').replaceChildren();
   for(const branch of ['VAPEN','FÖRSVAR','RÖRLIGHET']){const lane=document.createElement('section');lane.className='skill-branch';const heading=document.createElement('h3');heading.textContent=branch;lane.append(heading);
-    for(const s of SKILLS.filter(s=>s.branch===branch)){const card=document.createElement('article');card.className='skill-node'+(profile.skills[s.id]?' owned':'');
-      const h=document.createElement('h4');h.textContent=`${s.icon} ${s.name}`;const rank=document.createElement('small');rank.textContent=`NIVÅ ${profile.skills[s.id]}/${s.max}`;const p=document.createElement('p');p.textContent=s.desc;
+    for(const s of SKILLS.filter(s=>s.branch===branch)){const card=document.createElement('article');card.className='skill-node'+(profile.skills[s.id]?' owned':'')+(s.capstone?' capstone':'')+(canBuy(profile,s.id)?' purchasable':'');
+      const h=document.createElement('h4');h.textContent=`${s.icon} ${s.name}`;const rank=document.createElement('small');rank.textContent=`${s.capstone?'SIGNATURSYSTEM · ':''}NIVÅ ${profile.skills[s.id]}/${s.max}`;const p=document.createElement('p');p.textContent=s.desc;
       const req=document.createElement('span');req.className='skill-prereq';req.textContent=s.requires?`Kräver ${SKILLS.find(x=>x.id===s.requires).name} nivå ${s.requiredRank}`:'Grundsystem';
-      const b=document.createElement('button');b.className='skill-buy';b.disabled=!canBuy(profile,s.id);b.textContent=profile.skills[s.id]>=s.max?'MAXNIVÅ':`Uppgradera · ${skillCost(profile,s.id)} kärnor`;b.onclick=()=>{if(buySkill(profile,s.id)){persist(false);renderHangar();sound('choice');}};
+      const b=document.createElement('button');b.className='skill-buy';b.disabled=!canBuy(profile,s.id);b.textContent=profile.skills[s.id]>=s.max?'MAXNIVÅ':s.requires&&profile.skills[s.requires]<s.requiredRank?'FÖRKRAV SAKNAS':`Uppgradera · ${skillCost(profile,s.id)} kärnor`;b.onclick=()=>{if(buySkill(profile,s.id)){persist(false);renderHangar();sound('choice');}};
       const ranks=document.createElement('div');ranks.className='rank-pips';ranks.setAttribute('aria-hidden','true');for(let i=0;i<s.max;i++){const pip=document.createElement('i');pip.className=i<profile.skills[s.id]?'filled':'';ranks.append(pip);}card.append(h,rank,p,req,ranks,b);lane.append(card);
     }$('skill-tree').append(lane);
   }
+  const stats=bonuses(profile.skills);$('loadout-summary').hidden=hangarTab!=='skills';$('loadout-summary').textContent=`DIN NÄSTA FLYGNING · ${100+stats.shield} sköld · +${Math.round((stats.damage-1)*100)} % vapenskada · ${(3*stats.dash).toFixed(2)} s dash · ${SKILLS.reduce((sum,s)=>sum+profile.skills[s.id],0)} installerade nivåer`;
   $('refund').disabled=!SKILLS.some(s=>profile.skills[s.id]>0);
 }
 $('open-hangar').onclick=()=>openHangar('map');$('open-tree').onclick=()=>openHangar('skills');$('close-hangar').onclick=home;
@@ -207,7 +214,13 @@ const SECTOR_LOOKS=[
   {accent:'#98bbff',nebula:'#1c2e50',planet:'#3d527f',name:'EKOSEKTORN'},
   {accent:'#c2a7ff',nebula:'#302344',planet:'#675077',name:'SVÄRMEN'},
   {accent:'#f6a4c2',nebula:'#341f35',planet:'#734b6e',name:'MÖRK MATERIA'},
-  {accent:'#e3d5a5',nebula:'#333b39',planet:'#506d66',name:'SISTA HORISONTEN'}
+  {accent:'#e3d5a5',nebula:'#333b39',planet:'#506d66',name:'SISTA HORISONTEN'},
+  {accent:'#90e0ff',nebula:'#122f47',planet:'#466882',name:'PRISMAVALVET'},
+  {accent:'#ff9db7',nebula:'#422331',planet:'#854858',name:'ROSENSTORMEN'},
+  {accent:'#d3aeff',nebula:'#2c2249',planet:'#635081',name:'TVILLINGMÅNARNA'},
+  {accent:'#a1e4bf',nebula:'#14332d',planet:'#35564b',name:'NOLLZONEN'},
+  {accent:'#ffc377',nebula:'#402c19',planet:'#896247',name:'SOLBROTTET'},
+  {accent:'#e6eeff',nebula:'#303552',planet:'#606b91',name:'EFTERGLÖDENS KÄRNA'}
 ];
 function ship(x,y,size,angle,hero=false){
   ctx.save();ctx.translate(x,y);ctx.rotate(angle+Math.PI/2);ctx.scale(size,size);
@@ -309,6 +322,7 @@ function draw(){
   if(pointer.active){ctx.strokeStyle='#a0eed866';ctx.fillStyle='#7cfbe10a';ctx.lineWidth=1.5;circle(pointer.ox,pointer.oy,48,true);const dx=pointer.x-pointer.ox,dy=pointer.y-pointer.oy,d=Math.hypot(dx,dy);circle(pointer.ox+dx/Math.max(1,d/48),pointer.oy+dy/Math.max(1,d/48),15,true);}
 }
 function frame(t){
+  portal?.sync(game.state==='play');
   const dt=last?Math.min((t-last)/1000,.25):0;last=t;
   if(game.state==='play'){
     acc+=dt;while(acc>=STEP&&game.state==='play'){game.update(STEP,input());acc-=STEP;events();}if(game.state!=='play')acc=0;

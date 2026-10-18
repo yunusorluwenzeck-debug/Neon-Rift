@@ -18,15 +18,15 @@ const root=new Element();root.requestFullscreen=async()=>{requests++;document.fu
 globalThis.document={getElementById:id=>{assert.ok(elements[id],`Missing DOM id ${id}`);return elements[id]},createElement:t=>{if(t==='canvas')backgrounds++;return new Element(t)},createTextNode:t=>t,body:new Element(),documentElement:root,addEventListener:on,fullscreenElement:null,exitFullscreen:async()=>{exits++;document.fullscreenElement=null;dispatch('fullscreenchange')}};
 globalThis.window=globalThis;globalThis.innerWidth=1280;globalThis.innerHeight=800;globalThis.devicePixelRatio=1;globalThis.matchMedia=()=>({matches:false});globalThis.confirm=()=>true;
 const saved=new Map();globalThis.localStorage={getItem:k=>saved.get(k)??null,setItem:(k,v)=>saved.set(k,v)};globalThis.addEventListener=on;globalThis.requestAnimationFrame=f=>frame=f;
-const {Game,BOSSES,STEP,validSnapshot}=await import('../dist/core.mjs?v=afterglow-1');
-const {SAVE_KEY,validateProfile}=await import('../dist/progression.mjs?v=afterglow-1');
+const {Game,BOSSES,STEP,validSnapshot}=await import('../dist/core.mjs?v=horizons-1');
+const {SAVE_KEY,validateProfile}=await import('../dist/progression.mjs?v=horizons-1');
 const read=()=>JSON.parse(saved.get(SAVE_KEY));
 // Observer and invulnerability are test-only; production has no debug shortcuts.
 const originalReset=Game.prototype.reset;Game.prototype.reset=function(options){originalReset.call(this,options);this.random=()=>.42;current=this;this.player.inv=1000};
 await import('../dist/game.js');frame(0);
 await elements.fullscreen.onclick();assert.equal(requests,1);assert.equal(elements.fullscreen.textContent,'Lämna fullskärm');await elements.fullscreen.onclick();assert.equal(exits,1);
-elements['open-hangar'].onclick();assert.equal(elements['sector-grid'].children.length,6);assert.equal(elements['sector-grid'].children[1].children.at(-1).disabled,true);elements['sector-grid'].children[1].children.at(-1).onclick();assert.equal(current.state,'menu');elements['close-hangar'].onclick();
-elements.start.onclick();assert.equal(elements.choices.children.length,3);assert.match(elements.modalTag.textContent,/BANA 1/);assert.equal(current.time,0);assert.ok(validSnapshot(read().activeRun));assert.equal(elements.choices.children[2].className,'choice rarity-common');elements.choices.children[2].onclick();assert.equal(current.ranks.drone,1);assert.equal(elements.overlay.hidden,true);assert.equal(elements.route.children.length,6);
+elements['open-hangar'].onclick();assert.equal(elements['sector-grid'].children.length,12);assert.equal(elements['sector-grid'].children[1].children.at(-1).disabled,true);elements['sector-grid'].children[1].children.at(-1).onclick();assert.equal(current.state,'menu');elements['close-hangar'].onclick();
+elements.start.onclick();assert.equal(elements.choices.children.length,3);assert.match(elements.modalTag.textContent,/BANA 1/);assert.equal(current.time,0);assert.ok(validSnapshot(read().activeRun));assert.equal(elements.choices.children[2].className,'choice rarity-common');elements.choices.children[2].onclick();assert.equal(current.ranks.drone,1);assert.equal(elements.overlay.hidden,true);assert.equal(elements.route.children.length,12);
 let wall=0;for(;wall<30000;wall+=16)frame(wall);
 assert.equal(backgrounds,2,'Menu and flight backdrops are cached across frames');assert.ok(read().activeRun.time>25);assert.equal(read().activeRun.ranks.drone,1);
 // Keyboard movement, dash, paused simulation and focus-loss protection.

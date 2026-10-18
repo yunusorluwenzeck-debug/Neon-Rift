@@ -1,0 +1,34 @@
+TITLE
+NEON RIFT
+
+SHORT DESCRIPTION
+Fly close to danger. Build your own starfighter across twelve sectors, chain lightning through swarms and dash through three powerful guardians.
+
+DESCRIPTION
+NEON RIFT is a neon space survival shooter with automatic weapons and responsive movement. Chain fast eliminations for score multipliers, read the enemy tells and dash through danger with temporary protection.
+
+Unlock twelve sectors in order. Each sector ends with three guardians: Sentinel, Hive Mother and Voidkeeper. The later campaign mixes sniper crossfire, charging hunters, splitting swarms and minefield sieges.
+
+During each flight, choose from three upgrades. Common, Rare, Epic and Legendary cards change the power of your weapons. Combine rapid fire, chain lightning, orbital drones or a damaging dash to find your own build.
+
+Between flights, spend earned rift cores on eighteen permanent skills. Choose specialist systems such as Storm Heart, Last Spark or Star Collector. Reset your skill tree for a full refund whenever you want to try a new build.
+
+Progress saves automatically. An active flight can be resumed, and save files can be exported and imported. Sound effects, particles and camera shake are adjustable.
+
+CONTROLS
+WASD or arrow keys: move.
+Space: dash with brief invulnerability.
+P or Escape: pause and resume.
+1, 2 or 3: choose an upgrade.
+Touch: drag anywhere in the arena like a joystick; tap the lightning button to dash.
+Weapons fire automatically.
+
+SUGGESTED TAGS
+space, action, survival, shooter, roguelite, single-player, upgrades, boss battles
+
+TECHNICAL NOTES FOR REVIEWERS
+HTML5 Canvas 2D / JavaScript. No engine runtime or backend required.
+Responsive portrait and landscape layouts. Local fonts and generated audio.
+Portal-specific SDK adapters. No accounts, purchases, chat or user-generated content inside the game.
+Static covers are promotional artwork, not gameplay screenshots.
+Browser/device playtesting and real SDK QA remain required before release.
