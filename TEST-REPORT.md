@@ -1,5 +1,24 @@
 # Verification · 18 October 2026
 
+## Visibility correction
+
+- Removed a malformed font-import fragment that was joined to the `:root`
+  selector, preventing the shared text, neon and font tokens from being read.
+  The offline builder now preserves the bundled-font stylesheet verbatim.
+- Brightened the arena, menus, cards, disabled labels, ship hulls and projectiles.
+  Increased health/XP/boss meter thickness. Gameplay rules and saves are unchanged.
+- Parsed all 479 CSS selectors and declarations, and verified a separate valid
+  `:root` in the native, offline and all three portal outputs (tinycss2/cssselect2).
+- Calculated selected solid-color text/background contrast pairs: main text
+  15.04:1; upgrade description 7.50:1; locked level 5.69:1; unavailable skill
+  5.91:1; skill prerequisite 6.61:1; HUD label 9.65:1. These are sampled color
+  checks, not a complete rendered accessibility audit.
+- Reran native controller integration and all three exported controller runs
+  listed below, plus package validation and JavaScript syntax checks. All passed.
+  These use DOM/Canvas/SDK doubles; the supported browser tool was unavailable,
+  so the updated appearance has not been visually checked in a real browser.
+- Rebuilt `PLAY-OFFLINE.html` and all three games in the downloadable publishing kit.
+
 ## Completed
 
 - 24 core simulation tests: fixed-step movement, dash, collision, immunity,
