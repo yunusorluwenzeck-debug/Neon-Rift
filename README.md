@@ -1,6 +1,6 @@
 # NEON RIFT · New Horizons
 
-A complete Canvas 2D space survival game. Twelve sequential sectors, eighteen
+A complete Canvas 2D space survival game. Twelve sequential sectors, twenty-four
 permanent skills, three bosses per sector and ten temporary upgrades in four
 rarities. Move with WASD/arrows, dash with Space, pause with P/Escape. Touch uses
 a relative joystick and a separate dash button. Weapons fire automatically.
@@ -16,6 +16,18 @@ a relative joystick and a separate dash button. Weapons fire automatically.
 Portal integration is prepared for submission and QA. No portal account,
 application, commercial agreement or payout setup has been created. Acceptance
 and revenue are not guaranteed. The existing hosted game stays private.
+
+## Workshop update
+
+- Open Skill tree, enter `Yunus10000`, then Redeem / Lös in: +10,000 rift cores.
+  One redemption per save. The wallet and redemption history are saved together;
+  failed writes leave the code retryable. Export/import retains its used status.
+- Six more permanent skills: Broadside Batteries, Drone Turbines, Nanoweave,
+  Field Dampers, Energy Tractor and Shock Amplifier. All affect real simulation.
+- Kills and bosses now earn cores even after a defeat. Purchases no longer require
+  a first victory. First-clear and replay bonuses are more generous.
+- Old saves load with the six new skills at zero and no previously redeemed codes.
+  Stored flights preserve their original equipment and healing countdown.
 
 ## What changed in New Horizons
 
@@ -62,8 +74,9 @@ Keep the terminal open; Ctrl+C stops it. The module version needs HTTP.
 ## Save data
 
 Sectors unlock only after beating the previous sector's three bosses. First
-clears award 5–16 rift cores; replays award 2. Skill refunds return all spent
-cores. Skill purchases apply to new runs; active saved runs keep their loadout.
+clears add an 11–22 core victory bonus; replay victories add 8. Every run also
+earns 1 core per 20 kills (up to 12) and 3 per defeated boss, even on defeat.
+Skill refunds return all spent cores. Skill purchases apply to new runs; active saved runs keep their loadout.
 
 Progress, settings, records and active flight checkpoints save automatically.
 Export/import JSON in the hangar to move saves between sites or devices.
@@ -97,6 +110,7 @@ Tested with Node.js 24:
     node tests/progression.test.mjs
     node tests/flow.test.mjs
     node tests/horizons.test.mjs
+    node tests/workshop.test.mjs
     node tests/portal.test.mjs
     node tests/runtime.test.mjs
     node tests/portal-runtime.test.mjs generic
@@ -105,7 +119,7 @@ Tested with Node.js 24:
     node tests/package.test.mjs
     node tests/benchmark.mjs
 
-80 focused logic/SDK tests passed, plus the native controller, three exported
+95 focused logic/SDK tests passed, plus the native controller, three exported
 controllers and package checks. DOM, Canvas and SDK tests use doubles, not a real
 browser. See `TEST-REPORT.md` for coverage and limitations. Real browser/device
 playtesting, sound mix, rendered FPS, real ads and portal QA remain unverified.

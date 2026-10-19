@@ -14,5 +14,5 @@ for p in sorted((root/'portal/covers').glob('*')):files['covers/'+p.name]=p
 files['manifest.json']=root/'portal-builds/manifest.json'
 with zipfile.ZipFile(out/'NEON-RIFT-publishing-kit.zip','w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
  for name,p in sorted(files.items()):
-  info=zipfile.ZipInfo(name,(2026,10,18,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644<<16;z.writestr(info,p.read_bytes())
+  info=zipfile.ZipInfo(name,(2026,10,19,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644<<16;z.writestr(info,p.read_bytes())
 print('Built dist/downloads/NEON-RIFT-publishing-kit.zip', (out/'NEON-RIFT-publishing-kit.zip').stat().st_size,'bytes')

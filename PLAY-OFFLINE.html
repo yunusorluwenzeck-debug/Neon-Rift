@@ -44,6 +44,22 @@ header{position:relative;z-index:6;height:88px;padding:env(safe-area-inset-top) 
 @media(max-width:779px){.loadout-summary{font-size:11px;padding:13px}.skill-branch{padding-left:12px}.route{max-width:100%}.route-node{min-height:32px}}
 
 body.ad-break{pointer-events:none}body.ad-break:after{content:'…';position:fixed;inset:0;z-index:99;background:#152a40ef;display:grid;place-items:center;font-size:36px;color:#9ae8d0}.portal-loading #menu,.portal-loading header{pointer-events:none;opacity:.3}#portal-loading{position:fixed;z-index:100;inset:0;display:grid;place-items:center;background:#152a40fa;color:#a6e6d4;font-size:18px}
+
+/* Code redemption is part of the persistent workshop, with readable touch targets. */
+.redeem-panel{max-width:1160px;margin:0 auto 28px;padding:22px;border:1px solid #8abdc580;border-radius:8px;background:linear-gradient(120deg,#284c55,#22394f);display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+.redeem-panel h3{font-size:23px;font-weight:500;margin:10px 0}
+.redeem-panel p{font-size:12px;line-height:1.7;color:#d1e4ed;margin:9px 0 0}
+.redeem-fields{min-width:0}
+.redeem-fields label{display:block;color:#e6f2f7;font-size:12px;margin-bottom:8px}
+.redeem-controls{display:flex;gap:10px}
+.redeem-controls input{min-width:0;flex:1;width:100%;padding:12px 14px;border:1px solid #93b7cc;border-radius:5px;background:#132a40;color:#f1f7fc;font:16px 'Space Grotesk',sans-serif}
+.redeem-controls input::placeholder{color:#abc6d7}
+.redeem-controls .primary{min-width:100px;min-height:48px;padding:12px 16px}
+#redeem-message{min-height:40px;font-size:11px}
+#redeem-message[data-state=success]{color:#b6ffe0}
+#redeem-message[data-state=error]{color:#ffd1b4}
+.debrief .reward-strip>small{margin:8px 0 0;letter-spacing:.3px;line-height:1.6;color:#c4dedf;font-size:10px}
+@media(max-width:779px){.redeem-panel{grid-template-columns:1fr;gap:17px;padding:18px}.redeem-panel h3{font-size:21px}.redeem-controls{gap:8px}.redeem-controls .primary{min-width:88px;padding:12px}.redeem-panel p{font-size:11px}}
 </style>
 </head>
 <body>
@@ -84,11 +100,15 @@ body.ad-break{pointer-events:none}body.ad-break:after{content:'…';position:fix
     <button id="dash"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="m14 1-11 15h8L9 27l12-16h-8Z" fill="currentColor"/></svg> <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div>
   </section>
   <section id="hangar" class="hangar" aria-label="Hangar och progression" hidden>
-    <div class="hangar-heading"><div><div class="eyebrow">INTERCEPTOR / UTVECKLING</div><h2>Gör det till ditt.</h2><p id="hangar-stats"></p></div><div class="wallet"><span>◈</span><strong id="hangar-wallet">0 RIFTKÄRNOR</strong><small>Vinn banor. Förstärk skeppet.</small></div></div>
+    <div class="hangar-heading"><div><div class="eyebrow">INTERCEPTOR / UTVECKLING</div><h2>Gör det till ditt.</h2><p id="hangar-stats"></p></div><div class="wallet"><span>◈</span><strong id="hangar-wallet">0 RIFTKÄRNOR</strong><small>Spela. Samla kärnor. Förstärk skeppet.</small></div></div>
     <div class="hangar-nav"><div role="tablist" aria-label="Hangar"><button id="tab-map" role="tab" aria-controls="sector-grid" aria-selected="true">01 / Bankarta</button><button id="tab-skills" role="tab" aria-controls="skill-tree" aria-selected="false">02 / Skill tree</button></div><button class="text-button" id="close-hangar">Till menyn ↗</button></div>
     <p id="hangar-note" class="hangar-note"></p>
     <div id="sector-grid" class="sector-grid" role="tabpanel" aria-labelledby="tab-map"></div>
     <div id="loadout-summary" class="loadout-summary" hidden></div>
+    <form id="redeem-form" class="redeem-panel" hidden>
+      <div><div class="eyebrow">BONUS TILL DITT SKEPP</div><h3>Har du en kod?</h3><p>Lös in bonuskärnor och bygg vidare. Varje kod kan användas en gång per sparfil.</p></div>
+      <div class="redeem-fields"><label for="redeem-code">Din kod</label><div class="redeem-controls"><input id="redeem-code" type="text" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Skriv koden" aria-describedby="redeem-message"><button class="primary" type="submit">Lös in ↗</button></div><p id="redeem-message" role="status" aria-live="polite">Kärnorna kan användas direkt, även före första segern.</p></div>
+    </form>
     <div id="skill-tree" class="skill-tree" role="tabpanel" aria-labelledby="tab-skills" hidden></div>
     <button id="refund" class="text-button refund" hidden>Återställ trädet · få tillbaka alla kärnor</button>
     <div class="save-tools"><div><b>Din resa, sparad.</b><p>Banor, skill tree, statistik, inställningar och pågående flygning sparas automatiskt på den här enheten. Exportera för en säkerhetskopia eller för att flytta till en annan enhet.</p></div><div class="save-buttons"><button id="export-save">Exportera sparfil ↓</button><button id="import-save">Importera sparfil ↑</button></div></div>
@@ -121,7 +141,7 @@ const SECTORS = [
 ].map(([name,description],i)=>({id:i+1,name,description,
   hp:i<6?1+i*.28:2.65+(i-6)*.24,damage:i<6?1+i*.12:1.65+(i-6)*.06,
   speed:1+Math.min(i,8)*.04,spawn:1+Math.min(i,8)*.13,attack:1+Math.min(i,8)*.05,
-  threat:i<6?Math.floor(i/2):4,bossPhase:i>=3?1:0,firstReward:5+i,
+  threat:i<6?Math.floor(i/2):4,bossPhase:i>=3?1:0,firstReward:11+i,
   chapter:i<6?'YTTRE RIFTEN':'BORTOM HORISONTEN',
   formation:i<6?'classic':['crossfire','charge','swarm','siege','hunt','convergence'][i-6],
   opening:i<6?0:(i-5)%3
@@ -133,18 +153,24 @@ const SKILLS = [
   {id:'lancer',name:'Väktarbrytare',branch:'VAPEN',icon:'⋔',max:2,cost:3,requires:'coil',requiredRank:2,desc:'+12 % skada mot bossar med alla vapen per nivå.'},
   {id:'relay',name:'Blixtrelä',branch:'VAPEN',icon:'⌁',max:2,cost:3,requires:'resonance',requiredRank:1,desc:'+35 m räckvidd per blixtsprång och nivå. Kräver Kedjeblixt i flygningen.'},
   {id:'overdrive',name:'Åskhjärta',branch:'VAPEN',icon:'ϟ',max:1,cost:5,requires:'resonance',requiredRank:2,capstone:true,desc:'Kedjeblixt utlöses varannan träff i stället för var tredje. Kräver Kedjeblixt i flygningen.'},
+  {id:'broadside',name:'Sidobatterier',branch:'VAPEN',icon:'⋔',max:2,cost:4,requires:'coil',requiredRank:1,desc:'Sidoskotten får +15 procentenheter av huvudskottets skada per nivå. Kräver Vingkanoner i flygningen.'},
+  {id:'gyro',name:'Drönarturbiner',branch:'VAPEN',icon:'◎',max:2,cost:4,requires:'resonance',requiredRank:1,desc:'+20 % omloppshastighet för drönare per nivå. Kräver Omloppsdrönare i flygningen.'},
   {id:'hull',name:'Förstärkt skrov',branch:'FÖRSVAR',icon:'⊕',max:3,cost:1,desc:'+15 maxsköld från flygningens start per nivå.'},
   {id:'regen',name:'Reparationsväv',branch:'FÖRSVAR',icon:'⊛',max:3,cost:2,requires:'hull',requiredRank:2,desc:'+4 sköld vid varje signalpaus per nivå.'},
   {id:'bastion',name:'Bastion',branch:'FÖRSVAR',icon:'◈',max:2,cost:3,requires:'regen',requiredRank:2,desc:'5 % mindre inkommande skada per nivå.'},
   {id:'recovery',name:'Fältverkstad',branch:'FÖRSVAR',icon:'⊕',max:2,cost:3,requires:'regen',requiredRank:1,desc:'+8 extra sköld efter Sentinel och Hive Mother per nivå.'},
   {id:'aegis',name:'Fasskrov',branch:'FÖRSVAR',icon:'◇',max:2,cost:3,requires:'bastion',requiredRank:1,desc:'+0,15 s osårbarhet efter en träff per nivå. Grundvärde: 0,85 s.'},
   {id:'lifeline',name:'Sista gnistan',branch:'FÖRSVAR',icon:'✧',max:1,cost:5,requires:'bastion',requiredRank:2,capstone:true,desc:'En gång per flygning: överlev en dödlig träff med 30 % sköld, 2 s skydd och rensa skott inom 120 m.'},
+  {id:'nanoweave',name:'Nanoläkning',branch:'FÖRSVAR',icon:'✚',max:3,cost:3,requires:'regen',requiredRank:1,desc:'Efter 5 s utan skada: återställ 0,4 sköld per sekund och nivå. Stannar vid full sköld.'},
+  {id:'hazardguard',name:'Fältdämpare',branch:'FÖRSVAR',icon:'⬡',max:2,cost:4,requires:'bastion',requiredRank:1,desc:'10 % mindre skada från minfält och klyvstrålar per nivå. Kombineras med Bastion.'},
   {id:'thrusters',name:'Jondrift',branch:'RÖRLIGHET',icon:'↗',max:3,cost:1,desc:'+4 % flyghastighet per nivå.'},
   {id:'capacitor',name:'Riftkondensator',branch:'RÖRLIGHET',icon:'◎',max:3,cost:2,requires:'thrusters',requiredRank:2,desc:'6 % kortare dashladdning per nivå.'},
   {id:'salvager',name:'Bärgningssensor',branch:'RÖRLIGHET',icon:'⌖',max:2,cost:3,requires:'capacitor',requiredRank:2,desc:'+25 m radie för att samla energi per nivå.'},
   {id:'slipstream',name:'Solsegel',branch:'RÖRLIGHET',icon:'»',max:2,cost:3,requires:'capacitor',requiredRank:1,desc:'+10 % hastighet under dash per nivå. Vanlig flyghastighet påverkas inte.'},
   {id:'dashguard',name:'Fasspår',branch:'RÖRLIGHET',icon:'◎',max:2,cost:3,requires:'salvager',requiredRank:1,desc:'+0,08 s osårbarhet vid dash per nivå. Grundvärde: 0,35 s.'},
-  {id:'vacuum',name:'Stjärnsamlare',branch:'RÖRLIGHET',icon:'⌖',max:1,cost:5,requires:'salvager',requiredRank:2,capstone:true,desc:'Dash samlar direkt all energi inom 200 m från startpunkten.'}
+  {id:'vacuum',name:'Stjärnsamlare',branch:'RÖRLIGHET',icon:'⌖',max:1,cost:5,requires:'salvager',requiredRank:2,capstone:true,desc:'Dash samlar direkt all energi inom 200 m från startpunkten.'},
+  {id:'tractor',name:'Energitraktor',branch:'RÖRLIGHET',icon:'⌖',max:2,cost:3,requires:'salvager',requiredRank:1,desc:'Energi inom samlingsradien flyger mot skeppet 25 % snabbare per nivå.'},
+  {id:'shockdrive',name:'Stötförstärkare',branch:'RÖRLIGHET',icon:'↗',max:2,cost:4,requires:'slipstream',requiredRank:1,desc:'+20 % skada med Riftmotor och Efterstöt per nivå. Kräver respektive system i flygningen.'}
 ];
 // The nine original keys remain required; added skills default to zero in old saves.
 const LEGACY_SKILL_IDS=['reactor','coil','resonance','hull','regen','bastion','thrusters','capacitor','salvager'];
@@ -163,47 +189,65 @@ function cleanSkills(input={}) {
 function bonuses(skills={}) {
   const r=cleanSkills(skills);
   return {damage:1+r.reactor*.06,fire:.95**r.coil,resonance:1+r.resonance*.12,shield:r.hull*15,repair:r.regen*4,armor:1-r.bastion*.05,speed:1+r.thrusters*.04,dash:1-r.capacitor*.06,magnet:r.salvager*25,
-    bossDamage:1+r.lancer*.12,chainRange:r.relay*35,chainEvery:r.overdrive?2:3,bossHeal:30+r.recovery*8,hitGrace:.85+r.aegis*.15,lifeline:!!r.lifeline,dashSpeed:1+r.slipstream*.1,dashGrace:.35+r.dashguard*.08,vacuum:!!r.vacuum};
+    bossDamage:1+r.lancer*.12,chainRange:r.relay*35,chainEvery:r.overdrive?2:3,bossHeal:30+r.recovery*8,hitGrace:.85+r.aegis*.15,lifeline:!!r.lifeline,dashSpeed:1+r.slipstream*.1,dashGrace:.35+r.dashguard*.08,vacuum:!!r.vacuum,
+    sideBonus:r.broadside*.15,droneSpeed:1+r.gyro*.2,passiveHeal:r.nanoweave*.4,hazardArmor:1-r.hazardguard*.1,pickupSpeed:1+r.tractor*.25,dashPower:1+r.shockdrive*.2};
 }
 function newProfile() {
-  return {version:SAVE_VERSION,cleared:0,wallet:0,skills:cleanSkills(),selected:1,best:0,settings:{effects:true,particles:true,shake:true,volume:.35},records:{},stats:{runs:0,wins:0,kills:0,bosses:0,seconds:0},settled:[],activeRun:null,lastResult:null};
+  return {version:SAVE_VERSION,cleared:0,wallet:0,skills:cleanSkills(),selected:1,best:0,settings:{effects:true,particles:true,shake:true,volume:.35},records:{},stats:{runs:0,wins:0,kills:0,bosses:0,seconds:0},settled:[],redeemedCodes:[],activeRun:null,lastResult:null};
 }
 function canPlay(profile,id) {return whole(id,1,SECTORS.length)&&id<=Math.min(SECTORS.length,profile.cleared+1);}
 function skillCost(profile,id) {const s=SKILLS.find(s=>s.id===id);return s?s.cost+profile.skills[id]:Infinity;}
 function canBuy(profile,id) {
   const s=SKILLS.find(s=>s.id===id);
-  return !!s&&profile.cleared>0&&profile.skills[id]<s.max&&(!s.requires||profile.skills[s.requires]>=s.requiredRank)&&profile.wallet>=skillCost(profile,id);
+  return !!s&&profile.skills[id]<s.max&&(!s.requires||profile.skills[s.requires]>=s.requiredRank)&&profile.wallet>=skillCost(profile,id);
 }
 function buySkill(profile,id) {if(!canBuy(profile,id))return false;profile.wallet-=skillCost(profile,id);profile.skills[id]++;return true;}
 function refundSkills(profile) {
   let total=0;for(const s of SKILLS){const n=profile.skills[s.id];total+=n*s.cost+n*(n-1)/2;}
   profile.wallet+=total;profile.skills=cleanSkills();return total;
 }
+const GIFT_CODES=Object.freeze({YUNUS10000:10000});
+function redeemCode(profile,input) {
+  const code=typeof input==='string'?input.trim().toUpperCase():'';
+  if(!Object.hasOwn(GIFT_CODES,code))return {ok:false,reason:'invalid'};
+  if(profile.redeemedCodes.includes(code))return {ok:false,reason:'used'};
+  const amount=GIFT_CODES[code];
+  if(profile.wallet>1e7-amount)return {ok:false,reason:'limit'};
+  profile.wallet+=amount;profile.redeemedCodes.push(code);
+  return {ok:true,amount};
+}
+function runRewards(result,cleared=0) {
+  const combat=Math.min(12,Math.floor(result.kills/20)),bosses=result.bosses*3;
+  const clear=result.won?(result.sector>cleared?SECTORS[result.sector-1].firstReward:8):0;
+  return {combat,bosses,clear,total:combat+bosses+clear};
+}
 function settleRun(profile,result) {
   if(!result||typeof result.runId!=='string'||!result.runId||profile.settled.includes(result.runId)||!canPlay(profile,result.sector)||!finite(result.score)||!finite(result.time)||!finite(result.kills)||!whole(result.bosses,0,3)||typeof result.won!=='boolean'||(result.won&&result.bosses!==3))return null;
   if(result.peakCombo!==undefined&&!whole(result.peakCombo,0,1e9))return null;
   const firstClear=result.won&&result.sector>profile.cleared;
-  const reward=result.won?(firstClear?SECTORS[result.sector-1].firstReward:2):0;
+  const rewards=runRewards(result,profile.cleared),reward=rewards.total;
   profile.wallet+=reward;if(firstClear)profile.cleared=result.sector;
   profile.selected=Math.min(profile.cleared+1,SECTORS.length);
   profile.best=Math.max(profile.best,result.score);
   profile.stats.runs++;profile.stats.wins+=+result.won;profile.stats.kills+=result.kills;profile.stats.bosses+=result.bosses;profile.stats.seconds+=result.time;
   if(result.won){const prev=profile.records[result.sector];profile.records[result.sector]={wins:(prev?.wins||0)+1,best:Math.max(prev?.best||0,result.score),time:Math.min(prev?.time??Infinity,result.time),combo:Math.max(prev?.combo||0,result.peakCombo||0)};}
   profile.settled.push(result.runId);profile.settled=profile.settled.slice(-2000);
-  profile.activeRun=null;profile.lastResult={...result,reward,firstClear};return profile.lastResult;
+  profile.activeRun=null;profile.lastResult={...result,reward,rewards,firstClear};return profile.lastResult;
 }
 // Validate imported content before allowing it to replace a working save.
 function validateProfile(raw) {
   if(!raw||raw.version!==SAVE_VERSION||!whole(raw.cleared,0,SECTORS.length)||!whole(raw.wallet,0,1e7)||!finite(raw.best)||!raw.skills||!raw.settings||!raw.stats||!Array.isArray(raw.settled)||raw.settled.length>2000)return null;
   if(!validSkills(raw.skills))return null;const skills=cleanSkills(raw.skills);
+  const redeemedCodes=raw.redeemedCodes===undefined?[]:raw.redeemedCodes;
+  if(!Array.isArray(redeemedCodes)||redeemedCodes.length>100||new Set(redeemedCodes).size!==redeemedCodes.length||redeemedCodes.some(code=>typeof code!=='string'||!/^[A-Z0-9_-]{1,40}$/.test(code)))return null;
   if(!whole(raw.selected,1,Math.min(SECTORS.length,raw.cleared+1)))return null;
   for(const key of ['runs','wins','kills','bosses','seconds'])if(!finite(raw.stats[key]))return null;
   for(const key of ['effects','particles','shake'])if(typeof raw.settings[key]!=='boolean')return null;
   if(!finite(raw.settings.volume,0,1)||raw.settled.some(id=>typeof id!=='string'||!id||id.length>100))return null;
-  const p=newProfile();Object.assign(p,{cleared:raw.cleared,wallet:raw.wallet,skills,selected:raw.selected,best:raw.best,settings:{...raw.settings},stats:{...raw.stats},settled:[...raw.settled]});
+  const p=newProfile();Object.assign(p,{cleared:raw.cleared,wallet:raw.wallet,skills,selected:raw.selected,best:raw.best,settings:{...raw.settings},stats:{...raw.stats},settled:[...raw.settled],redeemedCodes:[...redeemedCodes]});
   for(let i=1;i<=raw.cleared;i++){const r=raw.records?.[i];if(!r||!whole(r.wins,1,1e9)||!finite(r.best)||!finite(r.time))return null;if(r.combo!==undefined&&!whole(r.combo,0,1e9))return null;p.records[i]={wins:r.wins,best:r.best,time:r.time,combo:r.combo||0};}
   if(raw.activeRun!=null){if(!raw.activeRun||raw.activeRun.version!==1||!canPlay(p,raw.activeRun.sector)||typeof raw.activeRun.runId!=='string'||!raw.activeRun.runId||p.settled.includes(raw.activeRun.runId))return null;p.activeRun=raw.activeRun;}
-  if(raw.lastResult!=null){const r=raw.lastResult;if(!r||typeof r.runId!=='string'||!p.settled.includes(r.runId)||!whole(r.sector,1,SECTORS.length)||typeof r.won!=='boolean'||!finite(r.score)||!finite(r.time)||!finite(r.reward,0,20))return null;p.lastResult=r;}
+  if(raw.lastResult!=null){const r=raw.lastResult;if(!r||typeof r.runId!=='string'||!p.settled.includes(r.runId)||!whole(r.sector,1,SECTORS.length)||typeof r.won!=='boolean'||!finite(r.score)||!finite(r.time)||!whole(r.reward,0,64))return null;if(r.rewards&&(!['combat','bosses','clear','total'].every(k=>whole(r.rewards[k],0,64))||r.rewards.combat+r.rewards.bosses+r.rewards.clear!==r.reward||r.rewards.total!==r.reward))return null;p.lastResult=r;}
   return p;
 }
 class SaveStore {
@@ -302,7 +346,7 @@ class Game {
     this.permanent=cleanSkills(skills);this.runId=runId;
     this.potency=Object.fromEntries(UPGRADES.map(u=>[u.id,0]));
     this.choiceRarities={};this.upgradeHistory=[];
-    this.combo={streak:0,peak:0,left:0,bonus:0};this.nextEncounterAt=BOSSES[0].at;this.lifelineUsed=false;
+    this.combo={streak:0,peak:0,left:0,bonus:0};this.nextEncounterAt=BOSSES[0].at;this.lifelineUsed=false;this.quietFor=0;
     this.state = 'play'; this.time = 0; this.score = 0; this.kills = 0; this.level = 1; this.xp = 0; this.need = 6;
     this.id = 1; this.enemies = []; this.bullets = []; this.shots = []; this.gems = []; this.hazards = []; this.events = [];
     this.ranks = Object.fromEntries(UPGRADES.map(u => [u.id, 0])); this.choices = []; this.spawnTimer = 1.8; this.fireTimer = 0;
@@ -318,20 +362,21 @@ class Game {
     return {
       damage:(24+e('power')*8)*b.damage,
       fire:Math.max(.085,.44*.83**e('rapid')*b.fire),
-      side:.55+.12*(e('split')-ranks.split),
+      side:.55+.12*(e('split')-ranks.split)+b.sideBonus,
       chainDamage:.65+.12*(e('chain')-ranks.chain),
       chainRange:155+15*(e('chain')-ranks.chain)+b.chainRange,
       droneDamage:(26+e('orbit')*10)*(1+.2*(e('drone')-ranks.drone))*b.damage*b.resonance,
       orbit:65+e('orbit')*22,
       dashCooldown:Math.max(.65,(3-e('dash')*.45)*b.dash),
-      dashDamage:(25+e('dash')*30)*b.damage,
-      novaDamage:(10+e('nova')*35)*b.damage,
+      dashDamage:(25+e('dash')*30)*b.damage*b.dashPower,
+      novaDamage:(10+e('nova')*35)*b.damage*b.dashPower,
       novaRadius:70+e('nova')*30,
       speed:235*(1+e('magnet')*.05)*b.speed,
       magnet:100+e('magnet')*55+b.magnet,
       resonance:b.resonance, armor:b.armor, repair:8+b.repair,
       bossDamage:b.bossDamage,chainEvery:b.chainEvery,bossHeal:b.bossHeal,hitGrace:b.hitGrace,
-      lifeline:b.lifeline,dashSpeed:b.dashSpeed,dashGrace:b.dashGrace,vacuum:b.vacuum
+      lifeline:b.lifeline,dashSpeed:b.dashSpeed,dashGrace:b.dashGrace,vacuum:b.vacuum,
+      droneSpeed:b.droneSpeed,passiveHeal:b.passiveHeal,hazardArmor:b.hazardArmor,pickupSpeed:b.pickupSpeed
     };
   }
   describeUpgrade(id,rarity=this.choiceRarities[id]||'common') {
@@ -355,14 +400,14 @@ class Game {
   snapshot() {
     const data={version:1};
     for(const key of RUN_KEYS)data[key]=this[key];
-    data.bossId=this.boss?.id??null;data.combo=this.combo;data.nextEncounterAt=this.nextEncounterAt;data.lifelineUsed=this.lifelineUsed;
+    data.bossId=this.boss?.id??null;data.combo=this.combo;data.nextEncounterAt=this.nextEncounterAt;data.lifelineUsed=this.lifelineUsed;data.quietFor=this.quietFor;
     return JSON.parse(JSON.stringify(data));
   }
   restore(data) {
     if(!validSnapshot(data))return false;
     const width=this.w,height=this.h;
     for(const key of RUN_KEYS)this[key]=JSON.parse(JSON.stringify(data[key]));
-    this.permanent=cleanSkills(data.permanent);this.lifelineUsed=data.lifelineUsed??false;
+    this.permanent=cleanSkills(data.permanent);this.lifelineUsed=data.lifelineUsed??false;this.quietFor=data.quietFor??0;
     this.combo=JSON.parse(JSON.stringify(data.combo||{streak:0,peak:0,left:0,bonus:0}));
     this.nextEncounterAt=data.nextEncounterAt??BOSSES[this.bossIndex]?.at??BOSS_TIME;
     if(this.upgradeReason==='boss'&&!this.bossSpawned&&this.intermissionUntil>this.time)this.intermissionUntil=Math.min(this.intermissionUntil,this.time+BOSS_RECOVERY);
@@ -391,10 +436,10 @@ class Game {
     if(stats.vacuum){for(const gem of this.gems)if(!gem.dead&&length(gem.x-p.x,gem.y-p.y)<=200){this.xp+=gem.value;this.score+=gem.value*5;gem.dead=true;}this.gems=this.gems.filter(g=>!g.dead);this.emit('nova',{x:p.x,y:p.y,radius:200});}
     this.dashes++; this.emit('dash', { x: p.x, y: p.y }); return true;
   }
-  damage(amount, source, x, y) {
+  damage(amount, source, x, y, hazard=false) {
     if (this.state !== 'play' || this.player.inv > 0) return false;
-    amount=Math.round(amount*this.difficulty().damage*this.combatStats().armor*10)/10;
-    const p = this.player,stats=this.combatStats(); p.hp = Math.max(0, p.hp - amount); p.inv = stats.hitGrace; this.damageTaken += amount; this.lastDamage = source;this.combo.streak=0;this.combo.left=0;
+    const stats=this.combatStats();amount=Math.round(amount*this.difficulty().damage*stats.armor*(hazard?stats.hazardArmor:1)*10)/10;
+    const p = this.player; p.hp = Math.max(0, p.hp - amount); p.inv = stats.hitGrace; this.damageTaken += amount; this.lastDamage = source;this.combo.streak=0;this.combo.left=0;this.quietFor=0;
     this.emit('damage', { x: p.x, y: p.y, fromX: x, fromY: y, amount, source });
     if(!p.hp&&stats.lifeline&&!this.lifelineUsed){this.lifelineUsed=true;p.hp=Math.ceil(p.max*.3);p.inv=2;this.shots=this.shots.filter(s=>length(s.x-p.x,s.y-p.y)>120);this.emit('nova',{x:p.x,y:p.y,radius:120});this.emit('banner',{title:'SISTA GNISTAN / RÄDDAD',text:'30 % sköld återställd. Nödreaktorn är förbrukad för den här flygningen.'});}
     if (!p.hp) this.finish(false); return true;
@@ -512,7 +557,7 @@ class Game {
   }
   dronePositions() {
     return Array.from({ length: this.ranks.drone }, (_, i) => {
-      const a = this.time * 2 + i * Math.PI * 2 / this.ranks.drone, r = this.combatStats().orbit;
+      const a = this.time * 2 * this.combatStats().droneSpeed + i * Math.PI * 2 / this.ranks.drone, r = this.combatStats().orbit;
       return { x: this.player.x + Math.cos(a) * r, y: this.player.y + Math.sin(a) * r, angle: a };
     });
   }
@@ -610,6 +655,9 @@ class Game {
   update(dt, input = { x: 0, y: 0 }) {
     if (this.state !== 'play') return;
     this.time += dt; const p = this.player,stats=this.combatStats();
+    const healingTime=Math.max(0,dt-Math.max(0,5-this.quietFor));
+    this.quietFor=Math.min(5,this.quietFor+dt);
+    if(stats.passiveHeal&&healingTime>0)p.hp=Math.min(p.max,p.hp+healingTime*stats.passiveHeal);
     this.combo.left=Math.max(0,this.combo.left-dt);if(this.combo.left===0)this.combo.streak=0;
     p.inv = Math.max(0, p.inv - dt); this.resumeGrace = Math.max(0, this.resumeGrace - dt); p.dashCooldown = Math.max(0, p.dashCooldown - dt);
     let mx = input.x || 0, my = input.y || 0, magnitude = length(mx, my);
@@ -718,13 +766,13 @@ class Game {
       else {
         h.live -= dt;
         const hit = h.kind === 'mine' ? length(p.x - h.x, p.y - h.y) < h.radius + p.r : segmentDistance(p.x, p.y, h.x, h.y, h.x + Math.cos(h.angle) * 2400, h.y + Math.sin(h.angle) * 2400) < h.radius + p.r;
-        if (hit) this.damage(h.kind === 'mine' ? 18 : 24, h.kind === 'mine' ? 'MINFÄLT' : 'KLYVSTRÅLE', h.x, h.y);
+        if (hit) this.damage(h.kind === 'mine' ? 18 : 24, h.kind === 'mine' ? 'MINFÄLT' : 'KLYVSTRÅLE', h.x, h.y, true);
       }
     }
     if (this.state !== 'play') return;
     for (const g of this.gems) {
       const dx = p.x - g.x, dy = p.y - g.y, d = length(dx, dy), radius = this.resting ? Math.max(500,stats.magnet) : stats.magnet;
-      if (d < radius) { const move = Math.min(d, 420 * dt); g.x += dx / (d || 1) * move; g.y += dy / (d || 1) * move; }
+      if (d < radius) { const move = Math.min(d, 420 * stats.pickupSpeed * dt); g.x += dx / (d || 1) * move; g.y += dy / (d || 1) * move; }
       if (length(g.x - p.x, g.y - p.y) < 18) { this.xp += g.value; this.score += g.value * 5; g.dead = true; this.emit('pickup'); }
     }
     this.enemies = this.enemies.filter(e => e.hp > 0); this.bullets = this.bullets.filter(b => b.life > 0 && b.x > -30 && b.x < this.w + 30 && b.y > -30 && b.y < this.h + 30);
@@ -756,6 +804,7 @@ function validSnapshot(d) {
     if(d.combo!==undefined&&(!d.combo||!int(d.combo.streak,0,1e9)||!int(d.combo.peak,d.combo.streak,1e9)||!num(d.combo.left,0,COMBO_WINDOW)||!num(d.combo.bonus)))return false;
     if(!validSkills(d.permanent))return false;
     if(d.lifelineUsed!==undefined&&typeof d.lifelineUsed!=='boolean')return false;
+    if(d.quietFor!==undefined&&!num(d.quietFor,0,5))return false;
     for(const k of ['time','score','kills','xp','need','hitCount','dashes','damageTaken','resumeGrace','intermissionUntil','lastUpgradeAt'])if(!num(d[k]))return false;
     if(!int(d.level,1,200)||!int(d.id,1,1e9)||!int(d.bossIndex,0,3)||!int(d.bossesDefeated,0,3)||!num(d.spawnTimer,-1e6)||!num(d.fireTimer,-1e6))return false;
     if(typeof d.bossSpawned!=='boolean'||typeof d.resting!=='boolean'||!int(d.stage,-1,5)||!int(d.lastRest,-1,100000))return false;
@@ -825,7 +874,7 @@ function refreshMenu(){
   $('start').textContent=`Spela bana ${profile.selected} ↗`;
   $('continue').hidden=!profile.activeRun;
   if(profile.activeRun)$('continue').textContent=`Fortsätt bana ${profile.activeRun.sector} · ${fmt(profile.activeRun.time)}`;
-  const sector=SECTORS[profile.selected-1];$('mission-name').textContent=sector.name;$('mission-caption').textContent=`BANA ${String(sector.id).padStart(2,'0')} / ${SECTORS.length} · ${sector.firstReward} KÄRNOR VID FÖRSTA SEGERN`;
+  const sector=SECTORS[profile.selected-1];$('mission-name').textContent=sector.name;$('mission-caption').textContent=`BANA ${String(sector.id).padStart(2,'0')} / ${SECTORS.length} · ${sector.firstReward} KÄRNOR I FÖRSTA SEGERBONUS`;
   $('route').replaceChildren();for(const level of SECTORS){const node=document.createElement('button');node.className='route-node'+(level.id<=profile.cleared?' cleared':level.id===profile.selected?' selected':'');node.textContent=String(level.id).padStart(2,'0');node.disabled=!canPlay(profile,level.id);node.setAttribute('aria-label',`Bana ${level.id}: ${level.name}${node.disabled?', låst':''}`);node.onclick=()=>{if(canPlay(profile,level.id)){profile.selected=level.id;refreshMenu();persist(false);}};$('route').append(node);}
 
 }
@@ -900,8 +949,8 @@ function showResult(e){
   modal(e.won?`BANA ${game.sector} KLAR · ${game.score>oldBest?'NYTT BANREKORD':'UPPDRAG SLUTFÖRT'}`:'SIGNALEN FÖRLORAD',e.won?(game.sector<SECTORS.length?'Nästa horisont.':'Riften är din.'):'Du är inte klar än.',e.won?(game.sector<SECTORS.length?`${SECTORS[next-1].name} är upplåst. Nästa flygning börjar direkt när du är redo.`:'Alla tolv banor är säkrade. Finslipa skeppet eller slå ditt banrekord.'):`Sista träffen: ${game.lastDamage}. Dina permanenta förbättringar finns kvar.`,e.won?(game.sector<SECTORS.length?`Starta bana ${next} ↗`:'Spela igen ↗'):'Försök igen ↗',()=>start(e.won?next:game.sector));
   $('overlay').classList.add('is-result');$('debrief').hidden=false;
   for(const [label,value]of [['POÄNG',game.score.toLocaleString('sv')],['FLYGTID',fmt(game.time)],['BÄSTA KOMBO',`${game.combo.peak} i rad`],['BOSSAR',`${game.bossesDefeated} / 3`]]){const cell=document.createElement('div'),small=document.createElement('small'),strong=document.createElement('strong');small.textContent=label;strong.textContent=value;cell.append(small,strong);$('debrief').append(cell);}
-  const reward=document.createElement('div');reward.className='reward-strip';reward.textContent=e.won?`◈ +${result?.reward||0} riftkärnor · ${profile.wallet} att använda i skill tree`:`Kombo gav +${game.combo.bonus.toLocaleString('sv')} bonuspoäng`; $('debrief').append(reward);
-  $('restart').hidden=true;$('nextsector').hidden=!e.won;$('nextsector').textContent='Förbättra skeppet · Skill tree ↗';$('nextsector').onclick=()=>openHangar('skills');
+  const reward=document.createElement('div');reward.className='reward-strip';reward.textContent=`◈ +${result?.reward||0} riftkärnor · ${profile.wallet} att använda i skill tree`;if(result?.rewards){const detail=document.createElement('small');detail.textContent=`Fiender +${result.rewards.combat} · Bossar +${result.rewards.bosses} · Seger +${result.rewards.clear}`;reward.append(detail);} $('debrief').append(reward);
+  $('restart').hidden=true;$('nextsector').hidden=false;$('nextsector').textContent='Förbättra skeppet · Skill tree ↗';$('nextsector').onclick=()=>openHangar('skills');
 }
 function burst(x,y,color,n){const cap=settings.particles?220:45;n=settings.particles?n:Math.ceil(n/4);for(let i=0;i<n&&particles.length<cap;i++){const a=Math.random()*Math.PI*2,s=30+Math.random()*150;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.2+Math.random()*.3,color});}}
 function events(){for(const e of game.drainEvents()){
@@ -946,13 +995,13 @@ function renderHangar(){
   $('hangar-wallet').textContent=`${profile.wallet} RIFTKÄRNOR`;
   $('hangar-stats').textContent=`${profile.cleared}/${SECTORS.length} banor · ${profile.stats.wins} segrar · ${profile.stats.kills} fiender`;
   $('tab-map').setAttribute('aria-selected',hangarTab==='map');$('tab-skills').setAttribute('aria-selected',hangarTab==='skills');
-  $('sector-grid').hidden=hangarTab!=='map';$('skill-tree').hidden=hangarTab!=='skills';$('refund').hidden=hangarTab!=='skills';
-  $('hangar-note').textContent=hangarTab==='map'?'Klara alla tre bossar på en bana för att låsa upp nästa. En första seger ger 5–16 riftkärnor. Omspel ger 2.':profile.cleared?'Dina förbättringar följer med till varje ny flygning. Sparade flygningar behåller sin tidigare utrustning.':'Klara första banan för att få riftkärnor. Trädet sparas mellan flygningar.';
+  $('sector-grid').hidden=hangarTab!=='map';$('skill-tree').hidden=hangarTab!=='skills';$('refund').hidden=hangarTab!=='skills';$('redeem-form').hidden=hangarTab!=='skills';
+  $('hangar-note').textContent=hangarTab==='map'?'Klara tre bossar för nästa bana. Du får 1 kärna per 20 fiender (max 12) och 3 per boss, även vid förlust. Seger ger dessutom 11–22 kärnor första gången eller 8 vid omspel.':'24 färdigheter. Köp så snart du har kärnor. Förbättringar gäller nya flygningar; sparade flygningar behåller sin tidigare utrustning.';
   $('sector-grid').replaceChildren();
   for(const s of SECTORS){const available=canPlay(profile,s.id),done=s.id<=profile.cleared,card=document.createElement('article');card.style.setProperty('--sector',SECTOR_LOOKS[s.id-1].accent);card.className=`sector-card ${done?'completed':available?'available':'locked'}`;
     const tag=document.createElement('small');tag.textContent=`${s.chapter} · BANA ${String(s.id).padStart(2,'0')} · ${done?'KLAR':available?'UPPLÅST':'LÅST'}`;
     const h=document.createElement('h3');h.textContent=s.name;const p=document.createElement('p');p.textContent=s.description;
-    const stats=document.createElement('span');stats.className='sector-stats';stats.textContent=`Fiendeliv ×${s.hp.toFixed(2)} · skada ×${s.damage.toFixed(2)} · ${s.firstReward} kärnor första gången`;
+    const stats=document.createElement('span');stats.className='sector-stats';stats.textContent=`Fiendeliv ×${s.hp.toFixed(2)} · skada ×${s.damage.toFixed(2)} · ${s.firstReward} kärnor i första segerbonus`;
     const button=document.createElement('button');button.className='primary';button.disabled=!available;button.textContent=available?`${done?'Spela igen':'Spela bana '+s.id} ↗`:`Klara bana ${s.id-1} först`;button.onclick=()=>{if(canPlay(profile,s.id))start(s.id);};
     const orbit=document.createElement('div');orbit.className='sector-art';orbit.setAttribute('aria-hidden','true');orbit.innerHTML=`<span class="planet"></span><span class="orbit-line"></span><b>${String(s.id).padStart(2,'0')}</b>`;card.append(orbit,tag,h,p,stats);if(done){const record=document.createElement('span');record.className='sector-record';const r=profile.records[s.id];record.textContent=`Rekord ${r.best.toLocaleString('sv')} · bästa tid ${fmt(r.time)} · kombo ${r.combo||0}`;card.append(record);}card.append(button);$('sector-grid').append(card);
   }
@@ -971,6 +1020,18 @@ function renderHangar(){
 $('open-hangar').onclick=()=>openHangar('map');$('open-tree').onclick=()=>openHangar('skills');$('close-hangar').onclick=home;
 $('tab-map').onclick=()=>{hangarTab='map';renderHangar();};$('tab-skills').onclick=()=>{hangarTab='skills';renderHangar();};
 $('refund').onclick=()=>{refundSkills(profile);persist(false);renderHangar();};
+$('redeem-form').onsubmit=e=>{
+  e.preventDefault();if(game.state!=='menu'||$('hangar').hidden)return;
+  const next=validateProfile(profile),message=$('redeem-message');
+  if(!next)return;
+  const outcome=redeemCode(next,$('redeem-code').value);
+  if(!outcome.ok){message.textContent=outcome.reason==='used'?'Den här koden har redan använts i din sparfil.':outcome.reason==='limit'?'Använd några kärnor innan du löser in koden.':'Koden känns inte igen. Kontrollera stavningen och försök igen.';message.setAttribute('data-state','error');return;}
+  // Commit the currency and redemption together; a storage error remains retryable.
+  if(!saveStore.save(next)){message.textContent=saveStore.error;message.setAttribute('data-state','error');status(saveStore.error,true);return;}
+  profile=next;settings=profile.settings;refreshMenu();renderHangar();$('redeem-code').value='';
+  message.textContent=`Koden är inlöst! +${outcome.amount.toLocaleString('sv')} riftkärnor. Allt är sparat.`;message.setAttribute('data-state','success');status('Sparat på den här enheten');unlock();sound('choice');
+};
+
 $('export-save').onclick=()=>{
   persist();const blob=new Blob([JSON.stringify(profile,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='NEON-RIFT-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };

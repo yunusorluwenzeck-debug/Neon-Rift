@@ -36,3 +36,19 @@ header{position:relative;z-index:6;height:88px;padding:env(safe-area-inset-top) 
 @media(max-width:779px){.loadout-summary{font-size:11px;padding:13px}.skill-branch{padding-left:12px}.route{max-width:100%}.route-node{min-height:32px}}
 
 body.ad-break{pointer-events:none}body.ad-break:after{content:'…';position:fixed;inset:0;z-index:99;background:#152a40ef;display:grid;place-items:center;font-size:36px;color:#9ae8d0}.portal-loading #menu,.portal-loading header{pointer-events:none;opacity:.3}#portal-loading{position:fixed;z-index:100;inset:0;display:grid;place-items:center;background:#152a40fa;color:#a6e6d4;font-size:18px}
+
+/* Code redemption is part of the persistent workshop, with readable touch targets. */
+.redeem-panel{max-width:1160px;margin:0 auto 28px;padding:22px;border:1px solid #8abdc580;border-radius:8px;background:linear-gradient(120deg,#284c55,#22394f);display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+.redeem-panel h3{font-size:23px;font-weight:500;margin:10px 0}
+.redeem-panel p{font-size:12px;line-height:1.7;color:#d1e4ed;margin:9px 0 0}
+.redeem-fields{min-width:0}
+.redeem-fields label{display:block;color:#e6f2f7;font-size:12px;margin-bottom:8px}
+.redeem-controls{display:flex;gap:10px}
+.redeem-controls input{min-width:0;flex:1;width:100%;padding:12px 14px;border:1px solid #93b7cc;border-radius:5px;background:#132a40;color:#f1f7fc;font:16px 'Space Grotesk',sans-serif}
+.redeem-controls input::placeholder{color:#abc6d7}
+.redeem-controls .primary{min-width:100px;min-height:48px;padding:12px 16px}
+#redeem-message{min-height:40px;font-size:11px}
+#redeem-message[data-state=success]{color:#b6ffe0}
+#redeem-message[data-state=error]{color:#ffd1b4}
+.debrief .reward-strip>small{margin:8px 0 0;letter-spacing:.3px;line-height:1.6;color:#c4dedf;font-size:10px}
+@media(max-width:779px){.redeem-panel{grid-template-columns:1fr;gap:17px;padding:18px}.redeem-panel h3{font-size:21px}.redeem-controls{gap:8px}.redeem-controls .primary{min-width:88px;padding:12px}.redeem-panel p{font-size:11px}}

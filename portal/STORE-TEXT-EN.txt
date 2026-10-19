@@ -11,7 +11,7 @@ Unlock twelve sectors in order. Each sector ends with three guardians: Sentinel,
 
 During each flight, choose from three upgrades. Common, Rare, Epic and Legendary cards change the power of your weapons. Combine rapid fire, chain lightning, orbital drones or a damaging dash to find your own build.
 
-Between flights, spend earned rift cores on eighteen permanent skills. Choose specialist systems such as Storm Heart, Last Spark or Star Collector. Reset your skill tree for a full refund whenever you want to try a new build.
+Between flights, spend earned rift cores on twenty-four permanent skills. Choose specialist systems such as Storm Heart, Last Spark or Star Collector. Earn cores from kills and bosses even when a flight ends in defeat. Reset your skill tree for a full refund whenever you want to try a new build.
 
 Progress saves automatically. An active flight can be resumed, and save files can be exported and imported. Sound effects, particles and camera shake are adjustable.
 

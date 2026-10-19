@@ -15,7 +15,6 @@ for(const target of ['generic','crazygames','poki']){
   for(const source of ['progression.mjs','core.mjs','game.js','style.css','index.html']){
     let content=english(await read('dist/'+source));
     if(source.endsWith('.mjs')||source==='game.js')content=content.replace(/\.mjs(?:\?v=[\w-]+)?/g,'.js');
-    if(source==='style.css')content=content.replace(/@import url\([^;]+;/g,'');
     if(source==='index.html'){
       content=content.replace('<html lang="en">',`<html lang="en" data-portal="${target}">`).replace('<body>','<body class="portal-loading"><div id="portal-loading" role="status">Calibrating flight systems…</div>');
       content=content.replace(/src="game.js[^\"]*"/,'src="boot.js"');
@@ -32,9 +31,9 @@ root=pathlib.Path(sys.argv[1])
 with zipfile.ZipFile(sys.argv[2],'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
  for p in sorted(root.rglob('*')):
   if p.is_file():
-   info=zipfile.ZipInfo(p.relative_to(root).as_posix(),(2026,10,18,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644<<16;z.writestr(info,p.read_bytes())
+   info=zipfile.ZipInfo(p.relative_to(root).as_posix(),(2026,10,19,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644<<16;z.writestr(info,p.read_bytes())
 `,dest,archive],{encoding:'utf8'});if(zip.status)throw Error(zip.stderr);
   const bytes=(await readFile(archive)).length;records.push({target,archive:path.basename(archive),bytes});
 }
-await writeFile(path.join(out,'manifest.json'),JSON.stringify({version:'horizons-1',language:'en',entry:'index.html',builds:records},null,2));
+await writeFile(path.join(out,'manifest.json'),JSON.stringify({version:'workshop-1',language:'en',entry:'index.html',builds:records},null,2));
 console.log(JSON.stringify(records));

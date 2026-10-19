@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#102136">
   <meta name="description" content="Bygg ditt skepp, besegra tre bossar och öppna vägen genom tolv allt svårare banor. NEON RIFT sparar din resa.">
   <title>NEON RIFT · Beyond the horizon</title>
-  <link rel="stylesheet" href="style.css?v=visibility-1">
+  <link rel="stylesheet" href="style.css?v=workshop-1">
 </head>
 <body>
   <canvas id="space" aria-label="Spelplan"></canvas>
@@ -46,11 +46,15 @@
     <button id="dash"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="m14 1-11 15h8L9 27l12-16h-8Z" fill="currentColor"/></svg> <span>Dash</span></button><div id="banner" aria-live="polite"></div><div id="build"></div><div id="hint">Samla cyan energi för att uppgradera ditt skepp.</div>
   </section>
   <section id="hangar" class="hangar" aria-label="Hangar och progression" hidden>
-    <div class="hangar-heading"><div><div class="eyebrow">INTERCEPTOR / UTVECKLING</div><h2>Gör det till ditt.</h2><p id="hangar-stats"></p></div><div class="wallet"><span>◈</span><strong id="hangar-wallet">0 RIFTKÄRNOR</strong><small>Vinn banor. Förstärk skeppet.</small></div></div>
+    <div class="hangar-heading"><div><div class="eyebrow">INTERCEPTOR / UTVECKLING</div><h2>Gör det till ditt.</h2><p id="hangar-stats"></p></div><div class="wallet"><span>◈</span><strong id="hangar-wallet">0 RIFTKÄRNOR</strong><small>Spela. Samla kärnor. Förstärk skeppet.</small></div></div>
     <div class="hangar-nav"><div role="tablist" aria-label="Hangar"><button id="tab-map" role="tab" aria-controls="sector-grid" aria-selected="true">01 / Bankarta</button><button id="tab-skills" role="tab" aria-controls="skill-tree" aria-selected="false">02 / Skill tree</button></div><button class="text-button" id="close-hangar">Till menyn ↗</button></div>
     <p id="hangar-note" class="hangar-note"></p>
     <div id="sector-grid" class="sector-grid" role="tabpanel" aria-labelledby="tab-map"></div>
     <div id="loadout-summary" class="loadout-summary" hidden></div>
+    <form id="redeem-form" class="redeem-panel" hidden>
+      <div><div class="eyebrow">BONUS TILL DITT SKEPP</div><h3>Har du en kod?</h3><p>Lös in bonuskärnor och bygg vidare. Varje kod kan användas en gång per sparfil.</p></div>
+      <div class="redeem-fields"><label for="redeem-code">Din kod</label><div class="redeem-controls"><input id="redeem-code" type="text" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Skriv koden" aria-describedby="redeem-message"><button class="primary" type="submit">Lös in ↗</button></div><p id="redeem-message" role="status" aria-live="polite">Kärnorna kan användas direkt, även före första segern.</p></div>
+    </form>
     <div id="skill-tree" class="skill-tree" role="tabpanel" aria-labelledby="tab-skills" hidden></div>
     <button id="refund" class="text-button refund" hidden>Återställ trädet · få tillbaka alla kärnor</button>
     <div class="save-tools"><div><b>Din resa, sparad.</b><p>Banor, skill tree, statistik, inställningar och pågående flygning sparas automatiskt på den här enheten. Exportera för en säkerhetskopia eller för att flytta till en annan enhet.</p></div><div class="save-buttons"><button id="export-save">Exportera sparfil ↓</button><button id="import-save">Importera sparfil ↑</button></div></div>
@@ -64,6 +68,6 @@
       <button class="primary" id="resume">Fortsätt ↗</button><button class="secondary next-sector" id="nextsector" hidden>Spela nästa bana ↗</button><button class="secondary" id="restart">Börja om</button><button class="secondary" id="home">Till huvudmenyn</button>
     </section>
   </div>
-  <script type="module" src="game.js?v=visibility-1"></script>
+  <script type="module" src="game.js?v=workshop-1"></script>
 </body>
 </html>

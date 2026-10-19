@@ -29,7 +29,7 @@ const {SAVE_KEY,SECTORS,SKILLS}=await import(new URL('progression.js',build));
 const reset=Game.prototype.reset;Game.prototype.reset=function(options){reset.call(this,options);current=this;this.random=()=>.42;this.player.inv=1000};
 await import(new URL('game.js',build));frame(0);
 assert.match(elements.start.textContent,/Play sector 1/);assert.match(elements['mission-caption'].textContent,/1.*12/);assert.equal(elements.route.children.length,12);assert.equal(elements.fullscreen.hidden,target!=='generic');
-elements['open-tree'].onclick();assert.equal(elements['skill-tree'].children.length,3);assert.equal(elements['skill-tree'].children.flatMap(l=>l.children.slice(1)).length,18);assert.match(elements['loadout-summary'].textContent,/YOUR NEXT FLIGHT/);elements['close-hangar'].onclick();
+elements['open-tree'].onclick();assert.equal(elements['skill-tree'].children.length,3);assert.equal(elements['skill-tree'].children.flatMap(l=>l.children.slice(1)).length,24);assert.match(elements['loadout-summary'].textContent,/YOUR NEXT FLIGHT/);elements['close-hangar'].onclick();
 elements.start.onclick();if(target==='crazygames'){assert.equal(current.state,'play');assert.equal(current.ranks.rapid,1)}else{assert.equal(current.state,'upgrade');assert.match(elements.modalTag.textContent,/CHOOSE A STARTING SYSTEM/);elements.choices.firstChild.onclick()}
 let wall=0;for(let i=0;i<120;i++)frame(wall+=1000/60);assert.ok(current.time>1.9);assert.ok(validSnapshot(current.snapshot()));
 const x=current.player.x;dispatch('keydown',{target:new Element(),code:'KeyD',repeat:false,preventDefault:noop});for(let i=0;i<10;i++)frame(wall+=16);dispatch('keyup',{code:'KeyD'});assert.ok(current.player.x>x);
@@ -37,7 +37,7 @@ dispatch('keydown',{target:new Element(),code:'Space',repeat:false,preventDefaul
 elements.pause.onclick();frame(wall+=16);assert.equal(current.state,'paused');const time=current.time;frame(wall+=100);assert.equal(current.time,time);elements.resume.onclick();
 // Accelerate encounters with test-only observer access; normal production has no skip buttons.
 for(let i=0;i<3;i++){current.beginBoss();current.boss.age=4;current.boss.x=current.w/2;current.boss.y=current.h/4;current.bullets.push({x:current.boss.x,y:current.boss.y,vx:0,vy:0,life:1,damage:1e9});frame(wall+=16);if(i<2){assert.equal(current.state,'upgrade');elements.choices.firstChild.onclick()}}
-assert.equal(current.state,'won');assert.match(elements.resume.textContent,/Start sector 2/);const persisted=JSON.parse(saved.get(SAVE_KEY));assert.equal(persisted.cleared,1);assert.equal(persisted.wallet,5);
+assert.equal(current.state,'won');assert.match(elements.resume.textContent,/Start sector 2/);const persisted=JSON.parse(saved.get(SAVE_KEY));assert.equal(persisted.cleared,1);assert.equal(persisted.wallet,20+Math.min(12,Math.floor(current.kills/20)));
 const next=elements.resume.onclick();
 if(target!=='generic'){
  assert.equal(adCalls,1);assert.equal(NEON_PORTAL.busy,true);assert.equal(current.state,'won');assert.ok(suspends>0);let prevented=false;dispatch('keydown',{target:new Element(),code:'Space',repeat:false,preventDefault:()=>prevented=true});assert.equal(prevented,true);
@@ -47,5 +47,6 @@ assert.equal(current.sector,2);assert.equal(current.state,'upgrade');elements.ch
 innerWidth=640;innerHeight=360;dispatch('resize');frame(wall+=16);assert.ok(current.player.x>=16&&current.player.x<=current.w-16);
 innerWidth=390;innerHeight=844;dispatch('resize');frame(wall+=16);assert.ok(validSnapshot(current.snapshot()));
 current.player.inv=0;current.shots.push({x:current.player.x,y:current.player.y,vx:0,vy:0,life:1,damage:1e6});frame(wall+=16);assert.equal(current.state,'over');assert.match(elements.modalTitle.textContent,/not done yet/);
-assert.equal(SECTORS.length,12);assert.equal(SKILLS.length,18);
-console.log(`PASS ${target} export: English controller, 12 sectors, 18 skills, start, movement, dash, pause, three boss wins, next sector, ad gate, failed flight and viewport resizing. Mock DOM/canvas/SDK only.`);
+elements.home.onclick();elements['open-tree'].onclick();const beforeCores=JSON.parse(saved.get(SAVE_KEY)).wallet;elements['redeem-code'].value='Yunus10000';elements['redeem-form'].onsubmit({preventDefault:noop});assert.equal(JSON.parse(saved.get(SAVE_KEY)).wallet,beforeCores+10000);assert.match(elements['redeem-message'].textContent,/Code redeemed/);elements['redeem-code'].value='yunus10000';elements['redeem-form'].onsubmit({preventDefault:noop});assert.equal(JSON.parse(saved.get(SAVE_KEY)).wallet,beforeCores+10000);assert.match(elements['redeem-message'].textContent,/already been used/);
+assert.equal(SECTORS.length,12);assert.equal(SKILLS.length,24);
+console.log(`PASS ${target} export: English controller, 12 sectors, 24 skills, start, movement, dash, pause, three boss wins, next sector, ad gate, failed flight and viewport resizing. Mock DOM/canvas/SDK only.`);

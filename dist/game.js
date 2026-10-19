@@ -1,5 +1,5 @@
-import {Game,STEP,UPGRADES,BOSSES,RARITIES,COMBO_WINDOW,comboMultiplier,clamp,validSnapshot} from './core.mjs?v=horizons-1';
-import {SECTORS,SKILLS,bonuses,SAVE_KEY,SaveStore,validateProfile,canPlay,canBuy,skillCost,buySkill,refundSkills,settleRun} from './progression.mjs?v=horizons-1';
+import {Game,STEP,UPGRADES,BOSSES,RARITIES,COMBO_WINDOW,comboMultiplier,clamp,validSnapshot} from './core.mjs?v=workshop-1';
+import {SECTORS,SKILLS,bonuses,SAVE_KEY,SaveStore,validateProfile,canPlay,canBuy,skillCost,buySkill,refundSkills,settleRun,redeemCode} from './progression.mjs?v=workshop-1';
 const $=id=>document.getElementById(id),canvas=$('space'),ctx=canvas.getContext('2d');
 const portal=globalThis.NEON_PORTAL;let adGate=false;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -48,7 +48,7 @@ function refreshMenu(){
   $('start').textContent=`Spela bana ${profile.selected} ↗`;
   $('continue').hidden=!profile.activeRun;
   if(profile.activeRun)$('continue').textContent=`Fortsätt bana ${profile.activeRun.sector} · ${fmt(profile.activeRun.time)}`;
-  const sector=SECTORS[profile.selected-1];$('mission-name').textContent=sector.name;$('mission-caption').textContent=`BANA ${String(sector.id).padStart(2,'0')} / ${SECTORS.length} · ${sector.firstReward} KÄRNOR VID FÖRSTA SEGERN`;
+  const sector=SECTORS[profile.selected-1];$('mission-name').textContent=sector.name;$('mission-caption').textContent=`BANA ${String(sector.id).padStart(2,'0')} / ${SECTORS.length} · ${sector.firstReward} KÄRNOR I FÖRSTA SEGERBONUS`;
   $('route').replaceChildren();for(const level of SECTORS){const node=document.createElement('button');node.className='route-node'+(level.id<=profile.cleared?' cleared':level.id===profile.selected?' selected':'');node.textContent=String(level.id).padStart(2,'0');node.disabled=!canPlay(profile,level.id);node.setAttribute('aria-label',`Bana ${level.id}: ${level.name}${node.disabled?', låst':''}`);node.onclick=()=>{if(canPlay(profile,level.id)){profile.selected=level.id;refreshMenu();persist(false);}};$('route').append(node);}
 
 }
@@ -123,8 +123,8 @@ function showResult(e){
   modal(e.won?`BANA ${game.sector} KLAR · ${game.score>oldBest?'NYTT BANREKORD':'UPPDRAG SLUTFÖRT'}`:'SIGNALEN FÖRLORAD',e.won?(game.sector<SECTORS.length?'Nästa horisont.':'Riften är din.'):'Du är inte klar än.',e.won?(game.sector<SECTORS.length?`${SECTORS[next-1].name} är upplåst. Nästa flygning börjar direkt när du är redo.`:'Alla tolv banor är säkrade. Finslipa skeppet eller slå ditt banrekord.'):`Sista träffen: ${game.lastDamage}. Dina permanenta förbättringar finns kvar.`,e.won?(game.sector<SECTORS.length?`Starta bana ${next} ↗`:'Spela igen ↗'):'Försök igen ↗',()=>start(e.won?next:game.sector));
   $('overlay').classList.add('is-result');$('debrief').hidden=false;
   for(const [label,value]of [['POÄNG',game.score.toLocaleString('sv')],['FLYGTID',fmt(game.time)],['BÄSTA KOMBO',`${game.combo.peak} i rad`],['BOSSAR',`${game.bossesDefeated} / 3`]]){const cell=document.createElement('div'),small=document.createElement('small'),strong=document.createElement('strong');small.textContent=label;strong.textContent=value;cell.append(small,strong);$('debrief').append(cell);}
-  const reward=document.createElement('div');reward.className='reward-strip';reward.textContent=e.won?`◈ +${result?.reward||0} riftkärnor · ${profile.wallet} att använda i skill tree`:`Kombo gav +${game.combo.bonus.toLocaleString('sv')} bonuspoäng`; $('debrief').append(reward);
-  $('restart').hidden=true;$('nextsector').hidden=!e.won;$('nextsector').textContent='Förbättra skeppet · Skill tree ↗';$('nextsector').onclick=()=>openHangar('skills');
+  const reward=document.createElement('div');reward.className='reward-strip';reward.textContent=`◈ +${result?.reward||0} riftkärnor · ${profile.wallet} att använda i skill tree`;if(result?.rewards){const detail=document.createElement('small');detail.textContent=`Fiender +${result.rewards.combat} · Bossar +${result.rewards.bosses} · Seger +${result.rewards.clear}`;reward.append(detail);} $('debrief').append(reward);
+  $('restart').hidden=true;$('nextsector').hidden=false;$('nextsector').textContent='Förbättra skeppet · Skill tree ↗';$('nextsector').onclick=()=>openHangar('skills');
 }
 function burst(x,y,color,n){const cap=settings.particles?220:45;n=settings.particles?n:Math.ceil(n/4);for(let i=0;i<n&&particles.length<cap;i++){const a=Math.random()*Math.PI*2,s=30+Math.random()*150;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.2+Math.random()*.3,color});}}
 function events(){for(const e of game.drainEvents()){
@@ -169,13 +169,13 @@ function renderHangar(){
   $('hangar-wallet').textContent=`${profile.wallet} RIFTKÄRNOR`;
   $('hangar-stats').textContent=`${profile.cleared}/${SECTORS.length} banor · ${profile.stats.wins} segrar · ${profile.stats.kills} fiender`;
   $('tab-map').setAttribute('aria-selected',hangarTab==='map');$('tab-skills').setAttribute('aria-selected',hangarTab==='skills');
-  $('sector-grid').hidden=hangarTab!=='map';$('skill-tree').hidden=hangarTab!=='skills';$('refund').hidden=hangarTab!=='skills';
-  $('hangar-note').textContent=hangarTab==='map'?'Klara alla tre bossar på en bana för att låsa upp nästa. En första seger ger 5–16 riftkärnor. Omspel ger 2.':profile.cleared?'Dina förbättringar följer med till varje ny flygning. Sparade flygningar behåller sin tidigare utrustning.':'Klara första banan för att få riftkärnor. Trädet sparas mellan flygningar.';
+  $('sector-grid').hidden=hangarTab!=='map';$('skill-tree').hidden=hangarTab!=='skills';$('refund').hidden=hangarTab!=='skills';$('redeem-form').hidden=hangarTab!=='skills';
+  $('hangar-note').textContent=hangarTab==='map'?'Klara tre bossar för nästa bana. Du får 1 kärna per 20 fiender (max 12) och 3 per boss, även vid förlust. Seger ger dessutom 11–22 kärnor första gången eller 8 vid omspel.':'24 färdigheter. Köp så snart du har kärnor. Förbättringar gäller nya flygningar; sparade flygningar behåller sin tidigare utrustning.';
   $('sector-grid').replaceChildren();
   for(const s of SECTORS){const available=canPlay(profile,s.id),done=s.id<=profile.cleared,card=document.createElement('article');card.style.setProperty('--sector',SECTOR_LOOKS[s.id-1].accent);card.className=`sector-card ${done?'completed':available?'available':'locked'}`;
     const tag=document.createElement('small');tag.textContent=`${s.chapter} · BANA ${String(s.id).padStart(2,'0')} · ${done?'KLAR':available?'UPPLÅST':'LÅST'}`;
     const h=document.createElement('h3');h.textContent=s.name;const p=document.createElement('p');p.textContent=s.description;
-    const stats=document.createElement('span');stats.className='sector-stats';stats.textContent=`Fiendeliv ×${s.hp.toFixed(2)} · skada ×${s.damage.toFixed(2)} · ${s.firstReward} kärnor första gången`;
+    const stats=document.createElement('span');stats.className='sector-stats';stats.textContent=`Fiendeliv ×${s.hp.toFixed(2)} · skada ×${s.damage.toFixed(2)} · ${s.firstReward} kärnor i första segerbonus`;
     const button=document.createElement('button');button.className='primary';button.disabled=!available;button.textContent=available?`${done?'Spela igen':'Spela bana '+s.id} ↗`:`Klara bana ${s.id-1} först`;button.onclick=()=>{if(canPlay(profile,s.id))start(s.id);};
     const orbit=document.createElement('div');orbit.className='sector-art';orbit.setAttribute('aria-hidden','true');orbit.innerHTML=`<span class="planet"></span><span class="orbit-line"></span><b>${String(s.id).padStart(2,'0')}</b>`;card.append(orbit,tag,h,p,stats);if(done){const record=document.createElement('span');record.className='sector-record';const r=profile.records[s.id];record.textContent=`Rekord ${r.best.toLocaleString('sv')} · bästa tid ${fmt(r.time)} · kombo ${r.combo||0}`;card.append(record);}card.append(button);$('sector-grid').append(card);
   }
@@ -194,6 +194,18 @@ function renderHangar(){
 $('open-hangar').onclick=()=>openHangar('map');$('open-tree').onclick=()=>openHangar('skills');$('close-hangar').onclick=home;
 $('tab-map').onclick=()=>{hangarTab='map';renderHangar();};$('tab-skills').onclick=()=>{hangarTab='skills';renderHangar();};
 $('refund').onclick=()=>{refundSkills(profile);persist(false);renderHangar();};
+$('redeem-form').onsubmit=e=>{
+  e.preventDefault();if(game.state!=='menu'||$('hangar').hidden)return;
+  const next=validateProfile(profile),message=$('redeem-message');
+  if(!next)return;
+  const outcome=redeemCode(next,$('redeem-code').value);
+  if(!outcome.ok){message.textContent=outcome.reason==='used'?'Den här koden har redan använts i din sparfil.':outcome.reason==='limit'?'Använd några kärnor innan du löser in koden.':'Koden känns inte igen. Kontrollera stavningen och försök igen.';message.setAttribute('data-state','error');return;}
+  // Commit the currency and redemption together; a storage error remains retryable.
+  if(!saveStore.save(next)){message.textContent=saveStore.error;message.setAttribute('data-state','error');status(saveStore.error,true);return;}
+  profile=next;settings=profile.settings;refreshMenu();renderHangar();$('redeem-code').value='';
+  message.textContent=`Koden är inlöst! +${outcome.amount.toLocaleString('sv')} riftkärnor. Allt är sparat.`;message.setAttribute('data-state','success');status('Sparat på den här enheten');unlock();sound('choice');
+};
+
 $('export-save').onclick=()=>{
   persist();const blob=new Blob([JSON.stringify(profile,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='NEON-RIFT-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };

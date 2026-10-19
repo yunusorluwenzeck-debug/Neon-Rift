@@ -1,8 +1,23 @@
 # NEON RIFT: publicera på spelportaler
 
 Det här paketet innehåller tre engelska HTML5-versioner med samma spelmekanik:
-12 banor, 18 permanenta färdigheter, 3 bossar per bana, 10 flyguppgraderingar i
+12 banor, 24 permanenta färdigheter, 3 bossar per bana, 10 flyguppgraderingar i
 fyra rariteter, tangentbord, touch, paus och sparning.
+
+## Nytt: kod och skill tree
+
+I spelet: öppna **Skill tree**, skriv **Yunus10000** under **Har du en kod?** och
+tryck **Lös in**. Du får 10 000 riftkärnor. Koden fungerar en gång per sparfil och
+inlösen följer med vid export/import. Kärnor och uppgraderingar sparas lokalt,
+eller via CrazyGames Data Module när den är aktiv. Koden är också med i
+portalversionerna; den är en spelbonus och inte ett skyddat administratörslösenord.
+
+Trädet har 24 färdigheter. De sex nya är Sidobatterier, Drönarturbiner, Nanoläkning,
+Fältdämpare, Energitraktor och Stötförstärkare. Förbättringar gäller nya flygningar.
+
+Du får 1 kärna per 20 besegrade fiender (max 12 per flygning) och 3 per boss,
+även vid förlust. En första seger ger dessutom 11–22 kärnor beroende på bana;
+omspel ger 8 extra. Du kan köpa färdigheter redan före första segern.
 
 ## Välj rätt ZIP
 
@@ -19,7 +34,8 @@ Endast den valda portalens SDK hämtas externt. SDK-fel stoppar inte spelets upp
 
 ## CrazyGames
 
-1. Öppna https://developer.crazygames.com/ och välj att lägga till ett HTML5-spel.
+1. Skapa eller logga in på ditt utvecklarkonto på https://developer.crazygames.com/
+   och välj **Submit a game** för ett HTML5-spel.
 2. Ladda upp `NEON-RIFT-crazygames.zip`. Ange NEON RIFT som namn och engelska som språk.
 3. Välj **Yes, using the Data Module from the CrazyGames SDK** under Progress Save.
    Paketet använder den sparningen när SDK:n är aktiv. Kontosynk måste kontrolleras
@@ -41,12 +57,15 @@ komma in direkt. Inga annonser finns på din privata Sites-version.
 
 ## Poki
 
-1. Öppna https://developers.poki.com/ och gå till Poki for Developers.
+1. Öppna https://developers.poki.com/ och välj **Sign In** till Poki for Developers
+   (https://app.poki.dev/). Skapa ett utvecklarkonto och läs deras villkor.
 2. Lägg till spelet och ladda upp `NEON-RIFT-poki.zip`.
 3. Använd beskrivningen i `STORE-TEXT-EN.txt` som underlag.
 4. Testa med Poki Inspector och deras playtest-flöde. Kontrollera särskilt touch,
    640×360, 836×470, surfplatta, omstart, ljud och att annonser släpper tillbaka spelet.
 5. Komplettera de statiska och animerade miniatyrbilder som de efterfrågar.
+6. När innehållsgranskningen är godkänd begär du ett playtest i portalen.
+   Följ deras teststeg och åtgärda feedback före slutlig publiceringsgranskning.
 
 Poki är en granskad plattform. Publicering och ersättning kräver att de väljer
 spelet och erbjuder ett avtal. Deras web exclusive-alternativ innebär exklusivitet
@@ -97,7 +116,7 @@ inte deras index.html. Den svenska `PLAY-OFFLINE.html` kan däremot öppnas dire
 
 ## Källor och rättigheter
 
-Portalregler kontrollerade 18 oktober 2026. Formulär och avtal kan ändras.
+Portalregler kontrollerade 19 oktober 2026. Formulär och avtal kan ändras.
 
 - CrazyGames lansering: https://docs.crazygames.com/
 - Tekniska krav: https://docs.crazygames.com/requirements/technical/

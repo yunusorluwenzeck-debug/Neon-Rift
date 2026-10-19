@@ -1,6 +1,26 @@
-# Verification · 18 October 2026
+# Verification · 19 October 2026
 
-## Visibility correction
+## Workshop and reward update · 19 October
+
+- All 95 focused logic/SDK tests passed: 24 core, 20 campaign/save/rarity,
+  17 pacing/combo, 11 expansion, 8 SDK adapter and 15 workshop tests.
+- The new workshop tests cover exact/duplicate/invalid code redemption, wallet
+  limits, purchases before a first victory, export/import persistence, old-save
+  migration, reward thresholds/caps, loss rewards and all six skills in actual
+  simulation paths. Healing stops while paused or choosing an upgrade and its
+  damage-free countdown survives reload.
+- Native controller integration also exercised the code form, invalid-code
+  feedback, storage-quota failure followed by retry, reload and duplicate
+  redemption. The three exported English controllers each redeemed the code,
+  verified persistence and rejected a second claim.
+- Existing native and portal controller checks passed for start, movement/dash,
+  boss wins, defeat, pause, progression, save/resume and viewport changes.
+- Package syntax, translations, relative resources, local fonts/licenses and
+  all three ZIPs passed. The native offline file and portal kits were rebuilt.
+- These checks use DOM/Canvas/SDK doubles. No visual browser playthrough or
+  real ads/cloud services were tested; the supported browser tool was unavailable.
+
+## Visibility correction · 18 October
 
 - Removed a malformed font-import fragment that was joined to the `:root`
   selector, preventing the shared text, neon and font tokens from being read.
@@ -27,7 +47,7 @@
   actual upgrade effects, exact choices on restore, import validation and recovery.
 - 17 pacing/combo tests: scoring, timer pause, short boss recovery, forward
   encounter scheduling, energy sweep and compatible older snapshots.
-- 11 expansion tests: new sector formations, 18-node prerequisites/refunds,
+- 11 expansion tests: new sector formations, 24-node prerequisites/refunds,
   original-save migration and actual behavior of all nine new skills.
 - 8 SDK adapter tests with doubles: initialization failure, event ordering,
   platform mute, Data Module access, ad completion/error, duplicate guards and
@@ -37,7 +57,7 @@
   all three bosses, victory, immediate next-sector flow, defeat/restart,
   save export/import and 390×844 / 844×390 resize handling.
 - Three English exported controller runs with DOM/Canvas/SDK doubles: all
-  menus, 12 sectors, 18 skills, keyboard movement/dash/pause, three boss wins,
+  menus, 12 sectors, 24 skills, keyboard movement/dash/pause, three boss wins,
   first-clear save, next sector, ad gate and defeat. Resizes to 640×360 and
   390×844 were exercised as controller calls, not visually inspected layouts.
 - Package checks: JavaScript syntax, English-text scan, relative dependencies,
@@ -48,7 +68,7 @@
 
 ## Simulation timing
 
-One run of tests/benchmark.mjs completed 39,200 simulation updates in 885 ms CPU,
+A historical run on 18 October of tests/benchmark.mjs completed 39,200 simulation updates in 885 ms CPU,
 ending in victory after 326.67 simulated seconds, with a peak of 9 enemies.
 This scenario uses an invulnerable prebuilt ship to reach encounters. It measures
 simulation throughput only. It is not browser FPS, mobile performance or a
