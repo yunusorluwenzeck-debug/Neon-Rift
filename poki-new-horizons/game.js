@@ -1,7 +1,6 @@
 const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage');
 const $=id=>document.getElementById(id);
 const ui={overlay:$('overlay'),start:$('start'),pause:$('pause'),energy:$('energy'),shield:$('shield'),time:$('time'),best:$('best'),toast:$('toast')};
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const storeKey='neon-rift-new-horizons-poki-v1';
 let best=0;try{best=Number(localStorage.getItem(storeKey))||0}catch{}ui.best.textContent=best;
 const sdk=window.PokiSDK;let sdkReady=false,phase='menu',last=0,elapsed=0,energy=0,shield=100,player={x:.5,y:.76,vx:0,vy:0},rocks=[],orbs=[],stars=[],keys=new Set(),pointer=null,toastTimer=0,adBusy=false;
@@ -45,4 +44,4 @@ function pointerPosition(e){const r=stage.getBoundingClientRect();return {x:clam
 stage.addEventListener('pointerdown',e=>{if(phase!=='playing')return;pointer=pointerPosition(e);stage.setPointerCapture(e.pointerId)});stage.addEventListener('pointermove',e=>{if(pointer)pointer=pointerPosition(e)});const release=()=>{pointer=null};stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);stage.addEventListener('lostpointercapture',release);
 function frame(now){const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;if(phase==='playing')update(dt);draw();requestAnimationFrame(frame)}
 new ResizeObserver(resize).observe(stage);window.addEventListener('resize',resize);resize();reset();requestAnimationFrame(frame);
-(async()=>{try{if(sdk&&typeof sdk.init==='function'){await sdk.init();sdkReady=true}}catch{}sdkCall('gameLoadingFinished')})();
+(async()=>{let timer;try{if(sdk&&typeof sdk.init==='function'){const initialized=await Promise.race([sdk.init().then(()=>true).catch(()=>false),new Promise(resolve=>{timer=setTimeout(()=>resolve(false),8000)})]);sdkReady=!!initialized}}catch{}finally{clearTimeout(timer);sdkCall('gameLoadingFinished')}})();
