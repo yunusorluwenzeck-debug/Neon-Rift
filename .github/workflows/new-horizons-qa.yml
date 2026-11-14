@@ -1,0 +1,57 @@
+name: New Horizons automated QA
+
+on:
+  pull_request:
+    paths:
+      - "poki-new-horizons/**"
+      - "tests/new-horizons-poki.test.mjs"
+      - "scripts/build-new-horizons-poki.mjs"
+      - ".github/workflows/new-horizons-qa.yml"
+  push:
+    branches:
+      - "poki/new-horizons-nonviolent"
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check poki-new-horizons/game.js
+          node --check scripts/build-new-horizons-poki.mjs
+          node --check tests/new-horizons-poki.test.mjs
+      - name: Run automated tests
+        run: node --test tests/new-horizons-poki.test.mjs
+      - name: Build Poki ZIP
+        run: node scripts/build-new-horizons-poki.mjs
+      - name: Verify ZIP contents
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          archive = Path("dist/downloads/NEON-RIFT-NEW-HORIZONS-poki.zip")
+          assert archive.is_file() and archive.stat().st_size > 0
+          with ZipFile(archive) as z:
+              names = set(z.namelist())
+              required = {"index.html", "style.css", "game.js", "icon.svg", "README.md"}
+              assert required.issubset(names), f"Missing files: {required - names}"
+              assert z.testzip() is None, "ZIP CRC verification failed"
+          print(f"ZIP verified: {archive.stat().st_size} bytes")
+          PY
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: neon-rift-new-horizons-poki
+          path: dist/downloads/NEON-RIFT-NEW-HORIZONS-poki.zip
+          if-no-files-found: error
