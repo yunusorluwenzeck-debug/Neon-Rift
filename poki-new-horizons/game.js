@@ -18,7 +18,7 @@ function draw(){const {w,h}=dimensions();if(!w||!h)return;ctx.clearRect(0,0,w,h)
  const neb=ctx.createRadialGradient(w*.72,h*.34,2,w*.72,h*.34,w*.42);neb.addColorStop(0,'#255d7044');neb.addColorStop(1,'#142b4000');ctx.fillStyle=neb;ctx.fillRect(0,0,w,h);
  for(const o of orbs){const x=o.x*w,y=o.y*h,pulse=1+Math.sin(o.p)*.18;ctx.shadowBlur=18;ctx.shadowColor='#83ffe0';ctx.fillStyle='#b5ffe9';ctx.beginPath();ctx.arc(x,y,o.r*w*pulse,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#8effdf99';ctx.beginPath();ctx.arc(x,y,o.r*w*2.1*pulse,0,Math.PI*2);ctx.stroke()}
  for(const r of rocks){const x=r.x*w,y=r.y*h,rad=r.r*w;ctx.save();ctx.translate(x,y);ctx.rotate(r.spin);ctx.fillStyle='#64788f';ctx.strokeStyle='#b5c8d5';ctx.lineWidth=1.5;ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,rr=rad*(.78+(i%3)*.1);const px=Math.cos(a)*rr,py=Math.sin(a)*rr;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore()}
- // The explorer is a small glowing vessel, with no projectile or attack animation.
+ // A compact glowing explorer vessel.
  const x=player.x*w,y=player.y*h;ctx.save();ctx.translate(x,y);ctx.shadowBlur=20;ctx.shadowColor='#7effe1';ctx.fillStyle='#b8ffeb';ctx.strokeStyle='#e6fff8';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-h*.035);ctx.quadraticCurveTo(w*.025,-h*.005,w*.018,h*.025);ctx.lineTo(0,h*.015);ctx.lineTo(-w*.018,h*.025);ctx.quadraticCurveTo(-w*.025,-h*.005,0,-h*.035);ctx.fill();ctx.stroke();ctx.fillStyle='#5bb6c7';ctx.beginPath();ctx.ellipse(0,h*.005,w*.006,h*.012,0,0,Math.PI*2);ctx.fill();ctx.restore();
  if(phase==='won'){ctx.fillStyle='#b7ffe8';ctx.font='700 14px system-ui';ctx.textAlign='center';ctx.fillText('GATEWAY REACHED',w/2,h*.18)}
 }
