@@ -10,8 +10,8 @@ test('New Horizons is an independent, non-combat game page',async()=>{
  const game=await read('poki-new-horizons/game.js');
  assert.match(html,/NEON RIFT: New Horizons/);
  assert.match(html,/poki-sdk\.js/);
- assert.match(game,/collect energy/i);
- assert.match(game,/drifting space rocks/i);
+ assert.match(game,/energy>=20/);
+ assert.match(game,/spawnRock/);\n assert.match(game,/spawnOrb/);
  assert.doesNotMatch(game,/weapon|projectile|shoot|enemy|boss|fireWeapon/i);
 });
 test('Poki SDK lifecycle and ad break are integrated safely',async()=>{
