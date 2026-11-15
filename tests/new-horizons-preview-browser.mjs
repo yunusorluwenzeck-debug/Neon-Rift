@@ -16,7 +16,8 @@ async function openDevice({ name, width, height, mobile = false }) {
     hasTouch: mobile
   });
   const page = await context.newPage();
-  page.on('pageerror', error => pageErrors.push(name + ': ' + error.message));\n  page.on('console', msg => { if (msg.type() === 'error') pageErrors.push(name + ' console: ' + msg.text()); });
+  page.setDefaultTimeout(10000);
+  page.on('pageerror', error => pageErrors.push(name + ': ' + error.message));
   await page.route('https://sdk.crazygames.com/**', route => route.abort());
   await page.addInitScript(() => {
     window.__cgEvents = [];
@@ -34,9 +35,35 @@ async function openDevice({ name, width, height, mobile = false }) {
   });
   const url = new URL(preview);
   url.searchParams.set('qa', '1');
-  const response = await page.goto(url.toString(), { waitUntil: 'domcontentloaded', timeout: 60000 });
-  assert.ok(response && response.ok(), name + ': preview returned HTTP ' + (response?.status() ?? 'no response'));
-  await page.waitForFunction(() => Boolean(window.__NEON_RIFT_QA__) && window.__cgEvents?.includes('loadingStop'), { timeout: 30000 });
+  let response = null;
+  let ready = false;
+  let lastBody = '';
+  let lastTitle = '';
+  for (let attempt = 0; attempt < 12 && !ready; attempt++) {
+    try {
+      response = await page.goto(url.toString(), { waitUntil: 'domcontentloaded', timeout: 20000 });
+      lastTitle = await page.title().catch(() => '');
+      lastBody = (await page.locator('body').innerText().catch(() => '')).slice(0, 700);
+      if (response?.ok()) {
+        try {
+          await page.waitForFunction(
+            () => Boolean(window.__NEON_RIFT_QA__) && window.__cgEvents?.includes('loadingStop'),
+            null,
+            { timeout: 5000 }
+          );
+          ready = true;
+        } catch {}
+      }
+    } catch (error) {
+      lastBody = error.message;
+    }
+    if (!ready && attempt < 11) await page.waitForTimeout(4000);
+  }
+  if (!ready) {
+    const scripts = await page.locator('script').evaluateAll(nodes => nodes.map(node => node.src || '[inline]')).catch(() => []);
+    throw new Error(name + ': deployed game did not become ready; HTTP=' + (response?.status() ?? 'no response') + '; title=' + lastTitle + '; body=' + lastBody + '; scripts=' + JSON.stringify(scripts) + '; browserErrors=' + JSON.stringify(pageErrors));
+  }
+  console.log(name + ' preview ready:', JSON.stringify({ status: response.status(), url: page.url(), title: lastTitle }));
   const state = await page.evaluate(() => window.__NEON_RIFT_QA__());
   assert.ok(state.canvas.width > 0 && state.canvas.height > 0, name + ': canvas has a drawable size');
   assert.ok(state.stage.width > 0 && state.stage.height > 0, name + ': game stage has a visible size');
@@ -45,7 +72,7 @@ async function openDevice({ name, width, height, mobile = false }) {
 
 try {
   const desktop = await openDevice({ name: 'desktop', width: 1280, height: 800 });
-  const { page: desktopPage } = desktop;
+  const desktopPage = desktop.page;
   assert.equal(await desktopPage.title(), 'NEON RIFT: New Horizons');
   await desktopPage.locator('#start').click();
   await desktopPage.waitForFunction(() => window.__NEON_RIFT_QA__().phase === 'playing');
