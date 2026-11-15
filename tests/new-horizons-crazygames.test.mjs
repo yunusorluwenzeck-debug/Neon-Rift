@@ -6,9 +6,9 @@ const read=path=>readFile(new URL('../'+path,import.meta.url),'utf8');
 
 test('CrazyGames edition loads the official HTML5 SDK v3',async()=>{
  const html=await read('crazygames-new-horizons/index.html');
- assert.match(html,/sdk\\.crazygames\\.com\\/crazygames-sdk-v3\\.js/);
- assert.doesNotMatch(html,/poki-sdk|game-cdn\\.poki/i);
- assert.match(html,/type="module" src="\\.\\/game\\.js"/);
+ assert.ok(html.includes('https://sdk.crazygames.com/crazygames-sdk-v3.js'));
+ assert.ok(!html.includes('poki-sdk') && !html.includes('game-cdn.poki'));
+ assert.ok(html.includes('type="module" src="./game.js"'));
 });
 
 test('SDK initializes before Game module lifecycle events',async()=>{
@@ -33,12 +33,12 @@ test('Keyboard and pointer controls remain wired for desktop and touch',async()=
  const css=await read('crazygames-new-horizons/style.css');
  for(const key of ['ArrowRight','ArrowLeft','ArrowDown','ArrowUp','KeyD','KeyA','KeyS','KeyW'])assert.ok(game.includes(key),key);
  for(const event of ['pointerdown','pointermove','pointerup','pointercancel'])assert.ok(game.includes(event),event);
- assert.match(css,/touch-action:none/);assert.match(css,/orientation:landscape/);assert.match(html,/viewport-fit=cover/);
+ assert.ok(css.includes('touch-action:none'));assert.ok(css.includes('orientation:landscape'));assert.ok(html.includes('viewport-fit=cover'));
 });
 
 test('The standalone exploration edition keeps its own save key and mechanics',async()=>{
  const game=await read('crazygames-new-horizons/game.js');
- assert.match(game,/neon-rift-new-horizons-crazygames-v1/);
- assert.match(game,/energy>=20/);assert.match(game,/spawnRock/);assert.match(game,/spawnOrb/);
- assert.doesNotMatch(game,/PokiSDK|commercialBreak|gameLoadingFinished/);
+ assert.ok(game.includes('neon-rift-new-horizons-crazygames-v1'));
+ assert.ok(game.includes('energy>=20'));assert.ok(game.includes('spawnRock'));assert.ok(game.includes('spawnOrb'));
+ assert.ok(!game.includes('PokiSDK')&&!game.includes('commercialBreak')&&!game.includes('gameLoadingFinished'));
 });
