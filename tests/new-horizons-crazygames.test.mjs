@@ -20,6 +20,20 @@ test('SDK initializes before Game module lifecycle events',async()=>{
  assert.deepEqual(calls,['init','loadingStop','start','stop']);
 });
 
+test('A game started before SDK initialization sends gameplayStart after init',async()=>{
+ const calls=[];
+ let finishInit;
+ const sdk={environment:'local',init(){calls.push('init');return new Promise(resolve=>{finishInit=resolve})},game:{gameplayStart(){calls.push('start')},gameplayStop(){calls.push('stop')}}};
+ const platform=new CrazyGamesPlatform(()=>sdk);
+ const initializing=platform.init();
+ platform.call('gameplayStart');
+ finishInit();
+ assert.equal(await initializing,true);
+ assert.deepEqual(calls,['init','start']);
+ platform.call('gameplayStop');
+ assert.deepEqual(calls,['init','start','stop']);
+});
+
 test('SDK failures and disabled environments fail safely',async()=>{
  const failed=new CrazyGamesPlatform(()=>({async init(){throw new Error('offline')}}));
  assert.equal(await failed.init(),false);assert.doesNotThrow(()=>failed.call('gameplayStart'));
