@@ -1,11 +1,11 @@
-import {mkdir,readFile} from 'node:fs/promises';
+import {cp,mkdir,readFile} from 'node:fs/promises';
 import {spawnSync} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const source=path.join(root,'crazygames-new-horizons');
-const out=path.join(root,'dist','downloads','NEON-RIFT-NEW-HORIZONS-crazygames.zip');
-await mkdir(path.dirname(out),{recursive:true});
+const staticOut=path.join(root,'dist','crazygames-new-horizons');\nconst out=path.join(root,'dist','downloads','NEON-RIFT-NEW-HORIZONS-crazygames.zip');
+await cp(source,staticOut,{recursive:true,force:true});\nawait mkdir(path.dirname(out),{recursive:true});
 const py=['import pathlib,sys,zipfile','root=pathlib.Path(sys.argv[1])','with zipfile.ZipFile(sys.argv[2],\'w\',zipfile.ZIP_DEFLATED,compresslevel=9) as z:',' for p in sorted(root.rglob(\'*\')):','  if p.is_file(): z.write(p,p.relative_to(root).as_posix())'].join('\n');
 const result=spawnSync('python3',['-c',py,source,out],{encoding:'utf8'});
 if(result.status!==0)throw new Error(result.stderr||'ZIP packaging failed');
