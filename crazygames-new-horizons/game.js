@@ -46,3 +46,4 @@ stage.addEventListener('pointerdown',e=>{if(phase!=='playing')return;pointer=poi
 function frame(now){const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;if(phase==='playing')update(dt);draw();requestAnimationFrame(frame)}
 new ResizeObserver(resize).observe(stage);window.addEventListener('resize',resize);resize();reset();requestAnimationFrame(frame);
 (async()=>{await platform.init();sdkCall('loadingStop')})();
+if(new URLSearchParams(location.search).has('qa'))window.__NEON_RIFT_QA__=()=>({phase,player:{x:player.x,y:player.y},pointerActive:Boolean(pointer),canvas:{width:canvas.width,height:canvas.height},stage:(()=>{const r=stage.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,top:r.top,right:r.right,bottom:r.bottom}})()});
