@@ -13,25 +13,26 @@ test('CrazyGames edition loads the official HTML5 SDK v3',async()=>{
 
 test('SDK initializes before Game module lifecycle events',async()=>{
  const calls=[];
- const sdk={environment:'local',async init(){calls.push('init')},game:{loadingStop(){calls.push('loadingStop')},gameplayStart(){calls.push('start')},gameplayStop(){calls.push('stop')}}};
+ const sdk={environment:'local',async init(){calls.push('init')},game:{loadingStart(){calls.push('loadingStart')},loadingStop(){calls.push('loadingStop')},gameplayStart(){calls.push('start')},gameplayStop(){calls.push('stop')}}};
  const platform=new CrazyGamesPlatform(()=>sdk);
  assert.equal(await platform.init(),true);
- platform.call('loadingStop');platform.gameplayStart();platform.gameplayStart();platform.gameplayStop();platform.gameplayStop();
- assert.deepEqual(calls,['init','loadingStop','start','stop']);
+ platform.finishLoading();platform.finishLoading();platform.gameplayStart();platform.gameplayStart();platform.gameplayStop();platform.gameplayStop();
+ assert.deepEqual(calls,['init','loadingStart','loadingStop','start','stop']);
 });
 
 test('A game started before SDK initialization sends gameplayStart after init',async()=>{
  const calls=[];
  let finishInit;
- const sdk={environment:'local',init(){calls.push('init');return new Promise(resolve=>{finishInit=resolve})},game:{gameplayStart(){calls.push('start')},gameplayStop(){calls.push('stop')}}};
+ const sdk={environment:'local',init(){calls.push('init');return new Promise(resolve=>{finishInit=resolve})},game:{loadingStart(){calls.push('loadingStart')},loadingStop(){calls.push('loadingStop')},gameplayStart(){calls.push('start')},gameplayStop(){calls.push('stop')}}};
  const platform=new CrazyGamesPlatform(()=>sdk);
  const initializing=platform.init();
  platform.call('gameplayStart');
+ platform.finishLoading();
  finishInit();
  assert.equal(await initializing,true);
- assert.deepEqual(calls,['init','start']);
+ assert.deepEqual(calls,['init','loadingStart','loadingStop','start']);
  platform.call('gameplayStop');
- assert.deepEqual(calls,['init','start','stop']);
+ assert.deepEqual(calls,['init','loadingStart','loadingStop','start','stop']);
 });
 
 test('SDK failures and disabled environments fail safely',async()=>{
@@ -54,5 +55,8 @@ test('The standalone exploration edition keeps its own save key and mechanics',a
  const game=await read('crazygames-new-horizons/game.js');
  assert.ok(game.includes('neon-rift-new-horizons-crazygames-v1'));
  assert.ok(game.includes('energy>=20'));assert.ok(game.includes('spawnRock'));assert.ok(game.includes('spawnOrb'));
+ assert.ok(game.includes('hitCooldown=.9'),'a collision cannot drain the shield every frame');
+ assert.ok(game.includes('reportGameCompletedPercentage',),'successful completion reports the platform milestone');
+ assert.ok(!game.includes("phase==='playing')ui.pause.click()"),'browser focus changes do not emit an artificial gameplayStop');
  assert.ok(!game.includes('PokiSDK')&&!game.includes('commercialBreak')&&!game.includes('gameLoadingFinished'));
 });
