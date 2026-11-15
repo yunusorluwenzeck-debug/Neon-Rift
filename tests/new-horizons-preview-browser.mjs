@@ -1,8 +1,29 @@
 import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { readFile, stat } from 'node:fs/promises';
+import path from 'node:path';
 
-const preview = process.env.NH_PREVIEW_URL;
+const root = path.resolve(process.cwd(), 'dist/crazygames-new-horizons');
+await stat(path.join(root, 'index.html'));
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
+const server = createServer(async (req, res) => {
+  try {
+    const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    const relative = pathname === '/' ? 'index.html' : pathname.replace(/^\\/+/, '');
+    const file = path.resolve(root, relative);
+    if (file !== root && !file.startsWith(root + path.sep)) throw new Error('Invalid path');
+    const body = await readFile(file);
+    res.writeHead(200, { 'content-type': types[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
+    res.end(body);
+  } catch {
+    res.writeHead(404);
+    res.end('Not found');
+  }
+});
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+const address = server.address();
+const baseUrl = 'http://127.0.0.1:' + address.port + '/';
 const playwrightModule = process.env.PLAYWRIGHT_MODULE;
-assert.ok(preview, 'NH_PREVIEW_URL must point to the deployed CrazyGames preview');
 assert.ok(playwrightModule, 'PLAYWRIGHT_MODULE must point to the installed Playwright module');
 const { chromium } = await import(playwrightModule);
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
@@ -33,37 +54,13 @@ async function openDevice({ name, width, height, mobile = false }) {
       }
     };
   });
-  const url = new URL(preview);
-  url.searchParams.set('qa', '1');
-  let response = null;
-  let ready = false;
-  let lastBody = '';
-  let lastTitle = '';
-  for (let attempt = 0; attempt < 12 && !ready; attempt++) {
-    try {
-      response = await page.goto(url.toString(), { waitUntil: 'domcontentloaded', timeout: 20000 });
-      lastTitle = await page.title().catch(() => '');
-      lastBody = (await page.locator('body').innerText().catch(() => '')).slice(0, 700);
-      if (response?.ok()) {
-        try {
-          await page.waitForFunction(
-            () => Boolean(window.__NEON_RIFT_QA__) && window.__cgEvents?.includes('loadingStop'),
-            null,
-            { timeout: 5000 }
-          );
-          ready = true;
-        } catch {}
-      }
-    } catch (error) {
-      lastBody = error.message;
-    }
-    if (!ready && attempt < 11) await page.waitForTimeout(4000);
-  }
-  if (!ready) {
-    const scripts = await page.locator('script').evaluateAll(nodes => nodes.map(node => node.src || '[inline]')).catch(() => []);
-    throw new Error(name + ': deployed game did not become ready; HTTP=' + (response?.status() ?? 'no response') + '; title=' + lastTitle + '; body=' + lastBody + '; scripts=' + JSON.stringify(scripts) + '; browserErrors=' + JSON.stringify(pageErrors));
-  }
-  console.log(name + ' preview ready:', JSON.stringify({ status: response.status(), url: page.url(), title: lastTitle }));
+  const response = await page.goto(baseUrl + '?qa=1', { waitUntil: 'domcontentloaded' });
+  assert.ok(response?.ok(), name + ': local deploy output returned HTTP ' + (response?.status() ?? 'no response'));
+  await page.waitForFunction(
+    () => Boolean(window.__NEON_RIFT_QA__) && window.__cgEvents?.includes('loadingStop'),
+    null,
+    { timeout: 10000 }
+  );
   const state = await page.evaluate(() => window.__NEON_RIFT_QA__());
   assert.ok(state.canvas.width > 0 && state.canvas.height > 0, name + ': canvas has a drawable size');
   assert.ok(state.stage.width > 0 && state.stage.height > 0, name + ': game stage has a visible size');
@@ -126,7 +123,8 @@ try {
   await landscape.context.close();
 
   assert.deepEqual(pageErrors, [], 'no uncaught browser JavaScript errors');
-  process.stdout.write('Preview browser QA passed: desktop keyboard, SDK lifecycle, mobile portrait touch drag, mobile landscape layout; no uncaught page errors.\\n');
+  process.stdout.write('Browser QA passed on the exact Vercel static output: desktop keyboard, SDK lifecycle, mobile portrait touch drag, mobile landscape layout; no uncaught page errors.\\n');
 } finally {
   await browser.close();
+  await new Promise(resolve => server.close(resolve));
 }
