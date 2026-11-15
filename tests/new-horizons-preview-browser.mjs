@@ -9,7 +9,7 @@ const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=
 const server = createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-    const relative = pathname === '/' ? 'index.html' : pathname.replace(/^\\/+/, '');
+    const relative = pathname === '/' ? 'index.html' : pathname.split('/').filter(Boolean).join('/');
     const file = path.resolve(root, relative);
     if (file !== root && !file.startsWith(root + path.sep)) throw new Error('Invalid path');
     const body = await readFile(file);
