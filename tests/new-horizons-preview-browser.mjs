@@ -16,7 +16,7 @@ async function openDevice({ name, width, height, mobile = false }) {
     hasTouch: mobile
   });
   const page = await context.newPage();
-  page.on('pageerror', error => pageErrors.push(name + ': ' + error.message));
+  page.on('pageerror', error => pageErrors.push(name + ': ' + error.message));\n  page.on('console', msg => { if (msg.type() === 'error') pageErrors.push(name + ' console: ' + msg.text()); });
   await page.route('https://sdk.crazygames.com/**', route => route.abort());
   await page.addInitScript(() => {
     window.__cgEvents = [];
