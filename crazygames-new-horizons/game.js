@@ -1,7 +1,7 @@
 const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage');
 const $=id=>document.getElementById(id);
 const ui={overlay:$('overlay'),start:$('start'),pause:$('pause'),energy:$('energy'),shield:$('shield'),time:$('time'),best:$('best'),toast:$('toast')};
-const storeKey='neon-rift-new-horizons-poki-v1';
+const storeKey='neon-rift-new-horizons-crazygames-v1';
 let best=0;try{best=Number(localStorage.getItem(storeKey))||0}catch{}ui.best.textContent=best;
 import {platform} from './platform.mjs';
 let phase='menu',last=0,elapsed=0,energy=0,shield=100,player={x:.5,y:.76,vx:0,vy:0},rocks=[],orbs=[],stars=[],keys=new Set(),pointer=null,toastTimer=0;
@@ -36,10 +36,9 @@ function finish(won){phase=won?'won':'over';sdkCall('gameplayStop');ui.pause.hid
  ui.overlay.innerHTML='<p class="eyebrow">'+(won?'MISSION COMPLETE':'TAKE A BREATHER')+'</p><h1>'+title+'</h1><p class="intro">'+body+'</p><ul><li>Energy collected: <b>'+energy+' / 20</b></li><li>Voyage time: <b>'+ui.time.textContent+'</b></li><li>Best score: <b>'+best+'</b></li></ul><button id="again" class="primary">EXPLORE AGAIN <span>↗</span></button><p class="controls">Move: WASD / Arrow keys · Touch: drag your ship</p>';
  ui.overlay.hidden=false;$('again').addEventListener('click',restart);
 }
-async function commercialBreak(){if(!sdkReady||typeof sdk?.commercialBreak!=='function')return;try{await sdk.commercialBreak()}catch{}}
 function restart(){begin()}
 function begin(){reset();phase='playing';ui.overlay.hidden=true;ui.pause.hidden=false;last=performance.now();sdkCall('gameplayStart');canvas.focus({preventScroll:true})}
-function sdkCall(name,...args){try{const result=sdk?.[name]?.(...args);result?.catch?.(()=>{});return result}catch{return undefined}}
+function sdkCall(name,...args){return platform.call(name,...args)}
 ui.start.addEventListener('click',begin);ui.pause.addEventListener('click',()=>{if(phase!=='playing')return;phase='paused';sdkCall('gameplayStop');ui.overlay.innerHTML='<p class="eyebrow">PAUSED</p><h1>Take a moment.</h1><p class="intro">Your journey is waiting right here.</p><button id="resume" class="primary">CONTINUE <span>↗</span></button>';ui.overlay.hidden=false;ui.pause.hidden=true;$('resume').addEventListener('click',async()=>{phase='playing';ui.overlay.hidden=true;ui.pause.hidden=false;last=performance.now();sdkCall('gameplayStart')})});
 window.addEventListener('keydown',e=>{if(e.code==='Escape'&&phase==='playing'){e.preventDefault();ui.pause.click();return}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)&&phase==='playing')e.preventDefault();keys.add(e.code)});window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();if(phase==='playing')ui.pause.click()});document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase==='playing')ui.pause.click()});
 function pointerPosition(e){const r=stage.getBoundingClientRect();return {x:clamp((e.clientX-r.left)/r.width,.04,.96),y:clamp((e.clientY-r.top)/r.height,.08,.92)}}
