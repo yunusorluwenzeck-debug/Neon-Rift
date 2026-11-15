@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Explore a glowing nebula, collect energy, and steer safely through a field of drifting space rocks in NEON RIFT: New Horizons.">
+  <title>NEON RIFT: New Horizons</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar"><a class="brand" href="./" aria-label="Neon Rift New Horizons home"><span class="brand-mark">✦</span><span>NEON RIFT <small>NEW HORIZONS</small></span></a><div class="top-meta">A CALM SPACE EXPLORATION CHALLENGE</div></header>
+    <section class="game-wrap" aria-label="Game">
+      <div class="hud"><div><span class="hud-label">ENERGY</span><strong id="energy">0</strong></div><div><span class="hud-label">SHIELD</span><strong id="shield">100%</strong></div><div><span class="hud-label">TIME</span><strong id="time">00:00</strong></div><div><span class="hud-label">BEST</span><strong id="best">0</strong></div></div>
+      <div class="stage" id="stage">
+        <canvas id="game" aria-label="Space exploration game. Move with WASD or arrow keys, or drag on the screen. Collect glowing energy orbs and avoid drifting rocks." tabindex="0"></canvas>
+        <section class="overlay" id="overlay">
+          <p class="eyebrow">A NEW JOURNEY BEGINS</p><h1>Find your way<br><span>through the stars.</span></h1>
+          <p class="intro">Guide your little explorer through a glowing nebula. Collect energy, avoid drifting space rocks, and reach the gateway.</p>
+          <ul><li>Collect <b>20 energy orbs</b></li><li>Keep your shield charged</li><li>Reach the gateway to complete the voyage</li></ul>
+          <button id="start" class="primary">START EXPLORING <span>↗</span></button>
+          <p class="controls">Move: WASD / Arrow keys · Touch: drag your ship</p>
+        </section>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </div>
+      <footer class="game-footer"><span>NO COMBAT · JUST EXPLORATION</span><button id="pause" class="quiet" hidden>Ⅱ PAUSE</button><span>NEON RIFT: NEW HORIZONS</span></footer>
+    </section>
+    <footer class="page-footer">A small journey through a very big universe.</footer>
+  </main>
+  <noscript>This game needs JavaScript enabled.</noscript>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

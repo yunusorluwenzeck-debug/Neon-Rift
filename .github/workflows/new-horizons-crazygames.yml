@@ -1,0 +1,47 @@
+name: New Horizons CrazyGames QA
+on:
+  pull_request:
+    paths:
+      - "crazygames-new-horizons/**"
+      - "tests/new-horizons-crazygames.test.mjs"
+      - "tests/new-horizons-preview-browser.mjs"
+      - "scripts/build-new-horizons-crazygames.mjs"
+      - ".github/workflows/new-horizons-crazygames.yml"
+  push:
+    branches: ["crazygames/new-horizons-clean"]
+permissions:
+  contents: read
+jobs:
+  test-and-package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check crazygames-new-horizons/game.js
+          node --check crazygames-new-horizons/platform.mjs
+          node --check scripts/build-new-horizons-crazygames.mjs
+          node --check tests/new-horizons-crazygames.test.mjs
+          node --check tests/new-horizons-preview-browser.mjs
+      - name: Run automated tests
+        run: node --test tests/new-horizons-crazygames.test.mjs
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/playwright" --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/playwright/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Run desktop and mobile browser QA on deployable output
+        env:
+          NH_PREVIEW_URL: https://neonrift-git-crazygames-new-horizons-clean-hh-3918.vercel.app/crazygames-new-horizons/
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/playwright/node_modules/playwright/index.mjs
+        run: node tests/new-horizons-preview-browser.mjs
+      - name: Build and verify CrazyGames ZIP
+        run: node scripts/build-new-horizons-crazygames.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: neon-rift-new-horizons-crazygames
+          path: dist/downloads/NEON-RIFT-NEW-HORIZONS-crazygames.zip
+          if-no-files-found: error
