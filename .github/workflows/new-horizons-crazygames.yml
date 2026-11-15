@@ -33,7 +33,7 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/playwright" --no-audit --no-fund playwright@1.56.1
           "$RUNNER_TEMP/playwright/node_modules/.bin/playwright" install --with-deps chromium
-      - name: Verify deployed preview on desktop and mobile
+      - name: Run desktop and mobile browser QA on deployable output
         env:
           NH_PREVIEW_URL: https://neonrift-git-crazygames-new-horizons-clean-hh-3918.vercel.app/crazygames-new-horizons/
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/playwright/node_modules/playwright/index.mjs
