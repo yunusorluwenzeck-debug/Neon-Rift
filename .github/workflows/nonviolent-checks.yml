@@ -37,3 +37,10 @@ jobs:
                   assert len(names) < 30
               print(f'PASS {name}: {path.stat().st_size} bytes, valid ZIP, root index.html')
           PY
+      - name: Upload portal packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: starlight-rescue-portal-zips
+          path: nonviolent-builds/*.zip
+          if-no-files-found: error
+          retention-days: 14
