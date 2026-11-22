@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" data-game="neon-rift-starlight">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142d"><meta name="description" content="Explore twelve glowing star sectors, collect starlight and restore ancient beacons in a peaceful space adventure.">
+<title>NEON RIFT: Starlight Rescue</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" aria-label="Space exploration game"></canvas>
+<header><div class="brand"><span class="brand-mark">✦</span><div>NEON RIFT <small>STARLIGHT RESCUE</small></div></div><div class="top-actions"><button id="pause" hidden>Pause</button></div></header>
+<main id="menu" class="panel">
+<p class="eyebrow">A PEACEFUL SPACE ADVENTURE</p><h1>FOLLOW THE<br><span>AFTERGLOW.</span></h1>
+<p class="intro">Glide through glowing nebulae, gather lost starlight and bring ancient beacons back to life. Just discovery.</p>
+<div class="mission"><span>YOUR JOURNEY</span><strong id="progress">Sector 01 / 12</strong><p>Restore three beacons to open each rift gate.</p></div>
+<button class="primary" id="start">Begin exploring ↗</button>
+<p class="controls-copy">WASD / Arrow keys to fly · Shift to boost · Space / P to pause</p><p id="save-note" class="save-note" hidden>Progress may not save in private browsing on this device.</p>
+</main>
+<section id="hud" hidden><div class="hud-card"><span>HULL</span><b id="hull">100%</b><i><em id="hullbar"></em></i></div><div class="hud-center"><span id="sector">SECTOR 01</span><b id="clock">00:00</b><small id="objective">Restore 3 beacons</small></div><div class="hud-card right"><span>STARLIGHT</span><b id="energy">0 / 9</b><i><em id="energybar"></em></i></div><div class="beacons" id="beacons">◇ ◇ ◇</div><button id="boost" aria-label="Boost">✦<small>BOOST</small></button></section>
+<section id="overlay" class="overlay" hidden><div class="dialog"><p class="eyebrow" id="dialog-tag">RIFT GATE</p><h2 id="dialog-title">A new horizon.</h2><p id="dialog-copy"></p><div id="upgrade-list" class="upgrade-list"></div><button class="primary" id="dialog-action">Continue ↗</button><button class="text-button" id="dialog-home">Main menu</button></div></section>
+<footer id="mobile-help">Drag anywhere to steer · Tap ✦ to boost</footer>
+<script type="module" src="boot.js"></script>
+</body></html>

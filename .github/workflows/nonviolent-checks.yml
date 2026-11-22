@@ -1,0 +1,46 @@
+name: Starlight Rescue checks
+on:
+  push:
+    branches: [nonviolent-starlight-rescue]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'nonviolent/**'
+      - '.github/workflows/nonviolent-checks.yml'
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check standalone game source
+        run: node nonviolent/check.mjs
+      - name: Build CrazyGames and Poki packages
+        run: node nonviolent/build.mjs
+      - name: Verify portal archives
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          root = Path('nonviolent-builds')
+          for name in ['NEON-RIFT-STARLIGHT-RESCUE-crazygames.zip', 'NEON-RIFT-STARLIGHT-RESCUE-poki.zip']:
+              path = root / name
+              assert path.is_file(), f'Missing {path}'
+              with ZipFile(path) as archive:
+                  assert archive.testzip() is None
+                  names = archive.namelist()
+                  assert 'index.html' in names
+                  assert 'game.js' in names and 'boot.js' in names
+                  assert 'fonts/SpaceGrotesk.ttf' in names
+                  assert len(names) < 30
+              print(f'PASS {name}: {path.stat().st_size} bytes, valid ZIP, root index.html')
+          PY
+      - name: Upload portal packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: starlight-rescue-portal-zips
+          path: nonviolent-builds/*.zip
+          if-no-files-found: error
+          retention-days: 14
