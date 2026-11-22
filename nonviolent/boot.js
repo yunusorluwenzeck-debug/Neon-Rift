@@ -16,7 +16,9 @@ const store={
   if(local){try{local.setItem(key,encoded);return true}catch{local=null}}
   memory.set(key,encoded);return false}
 };
+if(target==='crazygames'&&sdkReady){const type=sdk.user?.systemInfo?.device?.type||'unknown';document.body.classList.add('device-'+type);if(type==='mobile'||type==='tablet')document.body.classList.add('touch-device')}
+else if(target==='poki'&&window.matchMedia?.('(pointer: coarse)').matches)document.body.classList.add('touch-device');
 globalThis.NEON_RIFT_PLATFORM={target,sdk,store,ready:sdkReady};
 await import('./game.js');
 if(target==='crazygames'&&sdkReady){try{sdk.game?.loadingStop?.()}catch{}}
-if(target==='poki'&&sdkReady){try{sdk.gameLoadingFinished?.()}catch{}}
+if(target==='poki'&&sdk){try{sdk.gameLoadingFinished?.()}catch{}}
