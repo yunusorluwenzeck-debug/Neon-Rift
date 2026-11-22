@@ -11,7 +11,7 @@ const html=fs.readFileSync(path.join(root,'nonviolent/index.html'),'utf8');
 const game=fs.readFileSync(path.join(root,'nonviolent/game.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'nonviolent/style.css'),'utf8');
 assert.match(html,/STARLIGHT RESCUE/);assert.match(html,/data-game=/);
-assert.match(game,/length:12/);assert.match(game,/Restore 3 beacons/);assert.match(game,/gameplayStart/);assert.match(game,/gameplayStop/);
+assert.match(game,/length:12/);assert.match(game,/beacons\.every/);assert.match(game,/energy>=3/);assert.match(game,/gameplayStart/);assert.match(game,/gameplayStop/);
 assert.doesNotMatch(game,/bullet|weapon|shoot|enemy|boss|kill/i);
 assert.doesNotMatch(html,/weapon|shoot|enemy|boss|kill/i);
 assert.doesNotMatch(css,/fonts\.googleapis\.com/);
