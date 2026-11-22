@@ -5,7 +5,6 @@ let W=0,H=0,dpr=1,stars=[],rocks=[],orbs=[],beacons=[],particles=[],keys=new Set
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=(a,b)=>a+Math.random()*(b-a),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);stars=Array.from({length:Math.floor(W*H/5500)},()=>({x:Math.random()*W,y:Math.random()*H,r:rand(.4,1.7),a:rand(.2,.9),v:rand(8,35)}));}
 addEventListener('resize',resize);resize();
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='play')pause()});
 function persist(){platform.store.set(STORE_KEY,save)}
 let platformPlaying=false;function platformPlay(active){if(active===platformPlaying)return;platformPlaying=active;const api=platform.target==='crazygames'?platform.sdk?.game:platform.sdk;try{api?.[active?'gameplayStart':'gameplayStop']?.()}catch{}}
 async function continuePlay(){if(platform.target==='poki'&&platform.sdk?.commercialBreak){try{await platform.sdk.commercialBreak()}catch{}}state='play';platformPlay(true);$('overlay').hidden=true;}
