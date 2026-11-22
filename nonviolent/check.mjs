@@ -8,6 +8,7 @@ for(const file of ['index.html','style.css','game.js','boot.js']){
  if(file.endsWith('.js')){const r=spawnSync(process.execPath,['--check',p],{encoding:'utf8'});assert.equal(r.status,0,r.stderr)}
 }
 const html=fs.readFileSync(path.join(root,'nonviolent/index.html'),'utf8');
+const boot=fs.readFileSync(path.join(root,'nonviolent/boot.js'),'utf8');
 const game=fs.readFileSync(path.join(root,'nonviolent/game.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'nonviolent/style.css'),'utf8');
 assert.match(html,/STARLIGHT RESCUE/);assert.match(html,/data-game=/);assert.match(html,/save-note/);
