@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'..');
+const sourceCss=fs.readFileSync(path.join(root,'dist/style.css'),'utf8');
+assert.match(sourceCss,/body\\{[^}]*-webkit-user-select:none;[^}]*user-select:none;/,'CrazyGames mobile text-selection guard must be present');
 for(const target of ['generic','crazygames','poki']){
  const dir=path.join(root,'portal-builds',target),html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
  assert.match(html,/<html lang="en"/);assert.match(html,new RegExp(`data-portal="${target}"`));assert.ok(!html.includes('chatgpt'));
