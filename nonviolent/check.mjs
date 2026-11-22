@@ -10,8 +10,8 @@ for(const file of ['index.html','style.css','game.js','boot.js']){
 const html=fs.readFileSync(path.join(root,'nonviolent/index.html'),'utf8');
 const game=fs.readFileSync(path.join(root,'nonviolent/game.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'nonviolent/style.css'),'utf8');
-assert.match(html,/STARLIGHT RESCUE/);assert.match(html,/data-game=/);
-assert.match(game,/length:12/);assert.match(game,/beacons\.every/);assert.match(game,/energy>=3/);assert.match(game,/gameplayStart/);assert.match(game,/gameplayStop/);
+assert.match(html,/STARLIGHT RESCUE/);assert.match(html,/data-game=/);assert.match(html,/save-note/);
+assert.match(game,/length:12/);assert.match(game,/beacons\.every/);assert.match(game,/energy>=3/);assert.match(game,/gameplayStart/);assert.match(game,/gameplayStop/);assert.match(game,/commercialBreak/);assert.doesNotMatch(game,/e\.code==='Escape'/);assert.match(game,/window\.addEventListener\('wheel'/);
 assert.doesNotMatch(game,/bullet|weapon|shoot|enemy|boss|kill/i);
 assert.doesNotMatch(html,/weapon|shoot|enemy|boss|kill/i);
 assert.doesNotMatch(css,/fonts\.googleapis\.com/);
